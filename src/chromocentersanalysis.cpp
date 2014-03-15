@@ -3,14 +3,19 @@
 //#include "regionanalysis2.h"
 #include <regionanalysis.h>
 #include <cmath>
+#include <marchingcubes.h>
+#include <thresholding.h>
+#include <trimesh.h>
 
 #define TRACE
 #include <trace.h>
 
-void chromocentersAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<float>& nucleusMask,
-                           VoxelMatrix<float>& ccsMask, const string& filename, const int& numNucleus, int& totalNumCCs,
+void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, const string& parentDir,
+                           const int& numNucleus, int& totalNumCCs,
                            DataSet& nucleiDataset, DataSet& chromocentersDataset, DataSet& individualChromocentersDataset)
 {
+  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + filename + ".vm" );
+  VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
   RegionAnalysis<float> regionAnalysis;
   regionAnalysis.setRegionMatrix( nucleusMask );
   regionAnalysis.run();
@@ -22,7 +27,11 @@ void chromocentersAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelM
   regionAnalysisCCs.setRegionMatrix( ccsMask );
   regionAnalysisCCs.run();
 
+  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+
   Vector<float> centroid(3);
+  Vector<float> vertexTriMesh(3);
+
   Vertices<float> centroids;
   centroids = regionAnalysisCCs.computeRegionCentroids(REGION_FEATURE_CENTROID, originalVoxelMatrix);
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
@@ -44,6 +53,21 @@ void chromocentersAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelM
     chromocentersDataset.setValue ( "centroidCoordY", numCC+totalNumCCs, centroid[Y] );
     chromocentersDataset.setValue ( "centroidCoordZ", numCC+totalNumCCs, centroid[Z] );
 
+    MarchingCubes<float> marchingCubes;
+    TriMesh<float> triMesh;
+    VoxelMatrix<float> currentLabeledVM = ccsMask;
+    Thresholding<float> thresholding;
+    thresholding.setForeground( 1.0 );
+    thresholding.setBackground( 0.0 );
+    thresholding.levelSetMask( currentLabeledVM, numCC+1 );
+    triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
+    triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
+
+    nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
+    float distanceToBorder = centroid.distance( vertexTriMesh );
+    float ccVolume_tm = fabs(triMesh.volume());
+    float eqRadius_tm = triMesh.equivalentRadius();
+
     float ccVolume = regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[numCC];
     float eqRadius = regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_EQUIVALENT_RADIUS,originalVoxelMatrix)[numCC];
     float ccRelativeVolume = regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[numCC] / regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix).sum();
@@ -55,8 +79,11 @@ void chromocentersAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelM
     float ccsIntegratedDensity = regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_INTEGRATED_DENSITY,originalVoxelMatrix)[numCC];
     float relativeCCsIntensity = ( regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_INTENSITY,originalVoxelMatrix)[numCC] ) / regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_INTENSITY,originalVoxelMatrix).sum();
 
-    chromocentersDataset.setValue ( "equivalentRadius", numCC+totalNumCCs, eqRadius );
-    chromocentersDataset.setValue ( "ccVolume", numCC+totalNumCCs, ccVolume );
+    chromocentersDataset.setValue ( "equivalentRadius_vm", numCC+totalNumCCs, eqRadius );
+    chromocentersDataset.setValue ( "equivalentRadius_tm", numCC+totalNumCCs, eqRadius_tm );
+    chromocentersDataset.setValue ( "ccVolume_vm", numCC+totalNumCCs, ccVolume );
+    chromocentersDataset.setValue ( "ccVolume_tm", numCC+totalNumCCs, ccVolume_tm );
+    chromocentersDataset.setValue ( "distanceToTheBorder", numCC+totalNumCCs, distanceToBorder );
     chromocentersDataset.setValue ( "ccRelativeVolume", numCC+totalNumCCs, ccRelativeVolume );
     chromocentersDataset.setValue ( "flatness", numCC+totalNumCCs, flatness );
     chromocentersDataset.setValue ( "elongation", numCC+totalNumCCs, elongation );
@@ -72,8 +99,11 @@ void chromocentersAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelM
     individualChromocentersDataset.setValue ( "centroidCoordX", numCC, centroid[X] );
     individualChromocentersDataset.setValue ( "centroidCoordY", numCC, centroid[Y] );
     individualChromocentersDataset.setValue ( "centroidCoordZ", numCC, centroid[Z] );
-    individualChromocentersDataset.setValue ( "equivalentRadius", numCC+totalNumCCs, eqRadius );
-    individualChromocentersDataset.setValue ( "ccVolume", numCC, ccVolume );
+    individualChromocentersDataset.setValue ( "equivalentRadius_vm", numCC, eqRadius );
+    individualChromocentersDataset.setValue ( "equivalentRadius_tm", numCC, eqRadius_tm );
+    individualChromocentersDataset.setValue ( "distanceToTheBorder", numCC, distanceToBorder );
+    individualChromocentersDataset.setValue ( "ccVolume_vm", numCC, ccVolume );
+    individualChromocentersDataset.setValue ( "ccVolume_tm", numCC, ccVolume_tm );
     individualChromocentersDataset.setValue ( "ccRelativeVolume", numCC, ccRelativeVolume );
     individualChromocentersDataset.setValue ( "flatness", numCC, flatness );
     individualChromocentersDataset.setValue ( "elongation", numCC, elongation );

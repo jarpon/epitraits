@@ -1,19 +1,37 @@
 #include <dataset.h>
 //#include "regionanalysis2.h"
 #include <regionanalysis.h>
+#include <marchingcubes.h>
+#include <thresholding.h>
+#include <trimesh.h>
 
 #define TRACE
 #include <trace.h>
 
 void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<float>& nucleusMask,
-                     const string& filename, const int& numNucleus, DataSet& nucleiDataset)
+                     const string& filename, const string& parentDir, const int& numNucleus, DataSet& nucleiDataset)
 {
+  const string analysisDir = parentDir + "/analysis/";
+
   RegionAnalysis<float> regionAnalysis;
   regionAnalysis.setRegionMatrix( nucleusMask );
   regionAnalysis.run();
 
+  MarchingCubes<float> marchingCubes;
+  TriMesh<float> triMesh;
+  Thresholding<float> thresholding;
+  thresholding.setForeground( 1.0 );
+  thresholding.setBackground( 0.0 );
+
+  //generate 3Dmesh
+  thresholding.levelSetMask( nucleusMask, 1 );
+  triMesh = marchingCubes.buildMesh( nucleusMask, 0.5, true );
+  triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
+  triMesh.save( analysisDir + filename , true );
+
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
-  nucleiDataset.setValue ( "nucleusVolume", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] );//nucleus volume
+  nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] );//nucleus volume got from the voxelmatrix
+  nucleiDataset.setValue ( "nucleusVolume_tm", numNucleus, triMesh.volume() );//nucleus volume got from the trimesh
   nucleiDataset.setValue ( "voxelSizeUnit", numNucleus, originalVoxelMatrix.getVoxelCalibration().getLengthUnit().symbol() + "^3" );//real voxel size unit
   nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS,originalVoxelMatrix)[0] );//flatness parameter
   nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION,originalVoxelMatrix)[0] );//elongation parameter

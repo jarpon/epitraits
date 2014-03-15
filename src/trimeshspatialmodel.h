@@ -6,16 +6,17 @@
 #include <randomgenerator.h>
 #include <vertices.h>
 #include <spatialmodel.h>
+#include <trimeshquery.h>
 
 //using namespace std;
 
 template<class CoordType>
-class TrimeshSpatialModel : public SpatialModel<CoordType,float>
+class TriMeshSpatialModel : public SpatialModel<CoordType,float>
 {
   public:
 
-    TrimeshSpatialModel();
-    ~TrimeshSpatialModel();
+    TriMeshSpatialModel();
+    ~TriMeshSpatialModel();
 
 //    void setRandomGenerator(RandomGenerator&);
     void setTriMesh(const TriMesh<CoordType>&);
@@ -27,12 +28,12 @@ class TrimeshSpatialModel : public SpatialModel<CoordType,float>
 //    void setVolumeRadius(Vector<T>&);
 //    void setVolumeRadiusRange(const T volumeRadiusMin, const T volumeRadiusMax) { _volumeRadiusRange[0] = volumeRadiusMin; _volumeRadiusRange[1] = volumeRadiusMax; }
 
-    void setHardcoreDistance(Vector<CoordType>&);
+    void setHardcoreDistance(const Vector<CoordType>&);
     void setHardcoreDistance(const CoordType);
     void setHardcoreDistanceRange(const CoordType hardcoreDistanceMin, const CoordType hardcoreDistanceMax) { _hardcoreDistanceRange[0] = hardcoreDistanceMin; _hardcoreDistanceRange[1] = hardcoreDistanceMax; }
 
     void setDistanceToBorder(const CoordType);
-    void setDistanceToBorder(Vector<CoordType>&);
+    void setDistanceToBorder(const Vector<CoordType>&);
     void setDistanceToBorderRange( const CoordType distanceToBorderMin, const CoordType distanceToBorderMax ) { _distanceToBorderRange[0] = distanceToBorderMin; _distanceToBorderRange[1] = distanceToBorderMax; }
 
     void drawPosition(Vector<CoordType>&);
@@ -61,6 +62,7 @@ class TrimeshSpatialModel : public SpatialModel<CoordType,float>
     Vertices<CoordType> hardcoreAndToTheBorderDistances();
 
     const TriMesh<CoordType>* _triMesh;
+    TriMeshQuery<CoordType> _triMeshQuery;
     Vertices<CoordType> _vertices;
 
     string _outputDir;

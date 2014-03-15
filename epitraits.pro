@@ -2,6 +2,8 @@ TEMPLATE = app
 DESTDIR = bin/
 
 CONFIG = debug_and_release release
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS += -fopenmp
 QT =
 
 FREEDLIBS = $(HOME)/src/cpp/freedlibs/
@@ -25,7 +27,6 @@ LIBS = \
 
 SOURCES += \
     src/findnucleus.cpp \
-    src/analysesample.cpp \
     src/main.cpp \
     src/applylabelling.cpp \
     src/findchromocenters.cpp \
@@ -35,7 +36,8 @@ SOURCES += \
     src/spatialmodel.cpp \
     src/spatialmodelevaluator.cpp \
     src/spatialdescriptorborder.cpp \
-    src/looptest.cpp
+    src/looptest.cpp \
+    src/testrealdata.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \

@@ -18,16 +18,16 @@ void uniformTest(const string&filename, const string& parentDir, DataSet& dataSe
   const int numSamples = 100;
   TriMesh<float> nucleusTriMesh( shapesDir + filename + "_nucleus.tm" );
 
-  TrimeshSpatialModel<float> trimeshSpatialModel;
+  TriMeshSpatialModel<float> triMeshSpatialModel;
   RandomGenerator randomGenerator;
-  trimeshSpatialModel.setRandomGenerator( randomGenerator );
-  trimeshSpatialModel.setTriMesh( nucleusTriMesh );
-  trimeshSpatialModel.initialize();
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.initialize();
 
   SpatialDescriptorFunctionG<float> spatialDescriptor;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
-  modelEvaluator.setModel( trimeshSpatialModel );
+  modelEvaluator.setModel( triMeshSpatialModel );
   modelEvaluator.setNumRandomSamples( numPatterns );
   modelEvaluator.setPrecision( 0.05 );
   modelEvaluator.setDescriptor( spatialDescriptor );
@@ -38,7 +38,7 @@ void uniformTest(const string&filename, const string& parentDir, DataSet& dataSe
   {
     EVAL( i );
     Vertices<float> vertices( 3, numVertices );
-    vertices = trimeshSpatialModel.drawSample( numVertices );
+    vertices = triMeshSpatialModel.drawSample( numVertices );
     pValues[i] = modelEvaluator.eval( vertices );
     dataSet.setValue( "pValues", i, pValues[i] );
     EVAL( pValues[i] );

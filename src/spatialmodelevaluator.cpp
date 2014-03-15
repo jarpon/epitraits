@@ -2,76 +2,44 @@
 #include <spatialdescriptorfunctionf.h>
 #include <spatialdescriptorfunctiong.h>
 #include <spatialdescriptorfunctionh.h>
+#include "spatialdescriptorborder.h"
 #include "trimeshspatialmodel.h"
 #include <trimesh.h>
 #include <voxelmatrix.h>
 #include <fileinfo.h>
-//#include "regionanalysis2.h"
-#include <regionanalysis.h>
+//#include <regionanalysis.h>
 #include <sstream>
 #include <iomanip>
 #include <stdio.h>
 #include <string.h>
-
 
 #define TRACE
 #include <trace.h>
 using namespace std;
 
 
-void spatialModelEvaluator(VoxelMatrix<float>& chromocentersVoxelMatrix, TriMesh<float>& nucleusTriMesh,
-                          const string& filename, const string& parentDir,
-                          const int& numPatterns, const string& function,
-                          DataSet& dataSet)
+void spatialModelEvaluator(
+  const TriMesh<float>& nucleusTriMesh,
+  TriMeshSpatialModel<float>& triMeshSpatialModel,
+  const string& filename, const string& parentDir,
+  const string& function, const int& constraints,
+  DataSet& dataSet, RandomGenerator& randomGenerator)
 {
-  const string shapesDir = parentDir + "/shapes/";
+  const string analysisDir = parentDir + "/analysis/";
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  const int numPoints = datasetNucleus.size()[0];
 
-  RegionAnalysis<float> regionAnalysisCCs;
-  regionAnalysisCCs.setRegionMatrix( chromocentersVoxelMatrix );
-  regionAnalysisCCs.run();
-
-  Vector<float> vertex(3);
-  Vector<float> vertexTriMesh(3);
-  string currentFilename;
-  int labels = regionAnalysisCCs.numRegions();
-  Vertices<float> centroidChromocenters ( 3, labels, 0, 0 );
-  Vector<float> distancesToBorderVector ( labels );
-  Vector<float> eqRadiusVector ( labels );
-
-
-  for (int numCC = 1; numCC <= labels; ++numCC )
-  {
-    ostringstream oss; //we suppose as much 99 labels
-    oss << setw(2) << setfill('0') << numCC;
-    currentFilename = shapesDir + filename + "_chromocenters-" + oss.str() + ".tm";
-    TriMesh<float> currentChromocenterTriMesh ( currentFilename );
-
-    eqRadiusVector[numCC-1] = currentChromocenterTriMesh.equivalentRadius();
-
-    vertex = currentChromocenterTriMesh.cog();
-    centroidChromocenters[numCC-1] = vertex;
-    nucleusTriMesh.closestPoint(vertex,vertexTriMesh);
-    distancesToBorderVector[numCC-1] = vertex.distance(vertexTriMesh);
-  }
-
-  EVAL(labels);
-  //centroidChromocenters.save( shapesDir + filename + "_chromocenters.vx", true );
-
-
-  TrimeshSpatialModel<float> trimeshSpatialModel;
-  RandomGenerator randomGenerator;
-  trimeshSpatialModel.setRandomGenerator( randomGenerator );
-  trimeshSpatialModel.setTriMesh( nucleusTriMesh );
-  //trimeshSpatialModel.setDistanceToBorder( distancesToBorderVector );
-  //trimeshSpatialModel.setHardcoreDistance( eqRadiusVector );
-  trimeshSpatialModel.initialize();
+  const int numPatterns = 99;
+  const int numSamples = 100;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
-  modelEvaluator.setModel( trimeshSpatialModel );
-  modelEvaluator.setNumRandomSamples( numPatterns );
+  modelEvaluator.setModel( triMeshSpatialModel );
+  modelEvaluator.setNumRandomSamples( numPatterns ); //to check uniformity
   modelEvaluator.setPrecision( 0.05 );
 
   SpatialDescriptor<float>* spatialDescriptor;
+
+  DataSet saveTest;
 
   if ( function == "G" )
   {
@@ -83,23 +51,185 @@ void spatialModelEvaluator(VoxelMatrix<float>& chromocentersVoxelMatrix, TriMesh
     PRINT("H");
     spatialDescriptor = new SpatialDescriptorFunctionH<float>();
   }
+  else if ( function == "B" )
+  {
+    PRINT("B");
+    SpatialDescriptorDistanceToBorder<float>* spatialDescriptorDistanceToBorder;
+    spatialDescriptorDistanceToBorder = new SpatialDescriptorDistanceToBorder<float>();
+    spatialDescriptorDistanceToBorder->setTriMesh( nucleusTriMesh );
+    spatialDescriptor = spatialDescriptorDistanceToBorder;
+  }
   else //if ( function == "F" )
   {
     PRINT("F");
-    TrimeshSpatialModel<float> tempSpatialModel;
-    tempSpatialModel.setRandomGenerator( randomGenerator );
-    tempSpatialModel.setTriMesh( nucleusTriMesh );
-    tempSpatialModel.initialize();
+    TriMeshSpatialModel<float> tempTriMeshSpatialModel;
+    tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
+    tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
+    tempTriMeshSpatialModel.initialize();
+    Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
 
     SpatialDescriptorFunctionF<float>* spatialDescriptorFunctionF;
     spatialDescriptorFunctionF = new SpatialDescriptorFunctionF<float>();
-    spatialDescriptorFunctionF->setEvaluationPositions( tempSpatialModel.drawSample(10) );
+    spatialDescriptorFunctionF->setEvaluationPositions( evaluationPositions );
     spatialDescriptor = spatialDescriptorFunctionF;
   }
+
   modelEvaluator.setDescriptor( *spatialDescriptor );
 
-  PRINT( "let's go");
-  const float pValue = modelEvaluator.eval( centroidChromocenters, &dataSet );
-  EVAL(pValue);
+  for (int i = 0; i < numSamples; ++i)
+  {
+    EVAL( i );
+    ostringstream oss; //we suppose as much 99 labels
+    oss << setw(2) << setfill('0') << i;
+    ostringstream iss; //we suppose as much 99 labels
+    iss << constraints;
+    Vertices<float> vertices = triMeshSpatialModel.drawSample( numPoints );
+    float pValue = modelEvaluator.eval( vertices, &saveTest );
+    saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_" + oss.str() + ".csv", true );
+    dataSet.setValue( "pValues", i, pValue );
+    EVAL( pValue );
+  }
+}
 
+
+/*! Preparing constraints for the model
+****************************************************************/
+void spatialModelEvaluator_completeSpatialRandomness(
+  const string& filename, const string& parentDir,
+  const string& function, const int& constraints,
+  DataSet& dataSet,
+  RandomGenerator& randomGenerator)
+{
+  PRINT("spatialModelEvaluator_completeSpatialRandomness");
+
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  TriMeshSpatialModel<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.initialize();
+
+  spatialModelEvaluator(
+    nucleusTriMesh,
+    triMeshSpatialModel,
+    filename, parentDir,
+    function, constraints,
+    dataSet, randomGenerator );
+}
+
+void spatialModelEvaluator_sizeConstrained(
+  const string& filename, const string& parentDir,
+  const string& function, const int& constraints,
+  DataSet& dataSet,
+  RandomGenerator& randomGenerator)
+{
+  PRINT("spatialModelEvaluator_sizeConstrained");
+
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  const string analysisDir = parentDir + "/analysis/";
+  DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+
+  TriMeshSpatialModel<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setHardcoreDistance( eqRadii );
+  triMeshSpatialModel.initialize();
+
+  spatialModelEvaluator(
+    nucleusTriMesh,
+    triMeshSpatialModel,
+    filename, parentDir,
+    function, constraints,
+    dataSet, randomGenerator );
+}
+
+void spatialModelEvaluator_distanceConstrained(
+  const string& filename, const string& parentDir,
+  const string& function, const int& constraints,
+  DataSet& dataSet,
+  RandomGenerator& randomGenerator)
+{
+  PRINT("spatialModelEvaluator_distanceConstrained");
+
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  const string analysisDir = parentDir + "/analysis/";
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+
+  TriMeshSpatialModel<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setDistanceToBorder( distancesToBorder );
+  triMeshSpatialModel.initialize();
+
+  spatialModelEvaluator(
+    nucleusTriMesh,
+    triMeshSpatialModel,
+    filename, parentDir,
+    function, constraints,
+    dataSet, randomGenerator );
+}
+
+void spatialModelEvaluator_sizeAndDistanceConstrained(
+  const string& filename, const string& parentDir,
+  const string& function, const int& constraints,
+  DataSet& dataSet,
+  RandomGenerator& randomGenerator)
+{
+  PRINT("spatialModelEvaluator_sizeAndDistanceConstrained");
+
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  const string analysisDir = parentDir + "/analysis/";
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+
+  TriMeshSpatialModel<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setDistanceToBorder( distancesToBorder );
+  triMeshSpatialModel.setHardcoreDistance( eqRadii );
+  triMeshSpatialModel.initialize();
+
+  spatialModelEvaluator(
+    nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
+    function, constraints, dataSet, randomGenerator );
+}
+
+
+/*! Chooses case depending on the constraints
+****************************************************************/
+void spatialModelEvaluator(
+  const string& filename, const string& parentDir,
+  const string& function, const int constraints,
+  DataSet& dataSet,
+  RandomGenerator& randomGenerator)
+{
+  switch( constraints )
+  {
+    case 0:
+      spatialModelEvaluator_completeSpatialRandomness(
+        filename, parentDir,
+        function, constraints,
+        dataSet, randomGenerator );
+      break;
+    case 1:
+      spatialModelEvaluator_sizeConstrained(
+        filename, parentDir,
+        function, constraints,
+        dataSet, randomGenerator );
+      break;
+    case 2:
+      spatialModelEvaluator_distanceConstrained(
+        filename, parentDir,
+        function, constraints,
+        dataSet, randomGenerator );
+      break;
+    case 3:
+      spatialModelEvaluator_sizeAndDistanceConstrained(
+        filename, parentDir,
+        function, constraints,
+        dataSet, randomGenerator );
+      break;
+  }
 }

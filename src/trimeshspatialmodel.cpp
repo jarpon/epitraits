@@ -6,6 +6,8 @@
 #include <alinevector.h>
 #include <cmath>
 
+#include <trimeshquery.h>
+
 #include <programerror.h>
 
 //#define TRACE
@@ -18,7 +20,7 @@ using namespace std;
 ///*! Sets the random number generator to use for generating vertices.
 //****************************************************************/
 //template<class CoordType>
-//void TrimeshSpatialModel<CoordType>::setRandomGenerator( RandomGenerator& randomGenerator )
+//void TriMeshSpatialModel<CoordType>::setRandomGenerator( RandomGenerator& randomGenerator )
 //{
 //  _randomGenerator = &randomGenerator;
 //}
@@ -26,7 +28,7 @@ using namespace std;
 /*! Initializes all the parameters.
 ****************************************************************/
 template<class CoordType>
-TrimeshSpatialModel<CoordType>::TrimeshSpatialModel()
+TriMeshSpatialModel<CoordType>::TriMeshSpatialModel()
 {
   _triMesh = 0;
   _numCompartments = 0;
@@ -41,14 +43,14 @@ TrimeshSpatialModel<CoordType>::TrimeshSpatialModel()
 /*! Destroys it.
 ****************************************************************/
 template<class CoordType>
-TrimeshSpatialModel<CoordType>::~TrimeshSpatialModel()
+TriMeshSpatialModel<CoordType>::~TriMeshSpatialModel()
 {
 }
 
 /*! Sets the number of compartments to generate
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::setNumberOfCompartments(const int numCompartments)
+void TriMeshSpatialModel<CoordType>::setNumberOfCompartments(const int numCompartments)
 {
   _numCompartments = numCompartments;
 }
@@ -56,20 +58,23 @@ void TrimeshSpatialModel<CoordType>::setNumberOfCompartments(const int numCompar
 /*! Sets the triMesh to work with.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::setTriMesh(const TriMesh<CoordType>& triMesh)
+void TriMeshSpatialModel<CoordType>::setTriMesh(const TriMesh<CoordType>& triMesh)
 {
-  _triMesh = &triMesh;
+  //_triMesh = &triMesh;
+  _triMeshQuery.setTriMesh( triMesh );
   //_triMesh.computeNormals(); // see in the future if this is needed or need to be changed
 }
 
 /*! Initializes the class.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::initialize()
+void TriMeshSpatialModel<CoordType>::initialize()
 {
   //computes the bounding box of the triMesh and saves it
-  const BoundingBox<CoordType> boundingBox = _triMesh->boundingBox();
+  const BoundingBox<CoordType> boundingBox = _triMeshQuery.getTriMesh().boundingBox();
   //boundingBox.vertices().save( _outputDir + "Nucleus-BB", true );
+
+  //_triMeshQuery.setTriMesh( _triMesh );
 
   xMinBB = boundingBox.min(0);
   xMaxBB = boundingBox.max(0);
@@ -99,7 +104,7 @@ void TrimeshSpatialModel<CoordType>::initialize()
 /*! Sets a unique hardcore distance for all compartments.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::setHardcoreDistance(const CoordType hardcoreDistance)
+void TriMeshSpatialModel<CoordType>::setHardcoreDistance(const CoordType hardcoreDistance)
 {
   _hardcoreDistance[0] = hardcoreDistance;
 }
@@ -107,7 +112,7 @@ void TrimeshSpatialModel<CoordType>::setHardcoreDistance(const CoordType hardcor
 /*! Sets a vector of hardcore distances.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::setHardcoreDistance(Vector<CoordType>& hardcoreDistances)
+void TriMeshSpatialModel<CoordType>::setHardcoreDistance(const Vector<CoordType>& hardcoreDistances)
 {
   _hardcoreDistance = hardcoreDistances;
 }
@@ -115,7 +120,7 @@ void TrimeshSpatialModel<CoordType>::setHardcoreDistance(Vector<CoordType>& hard
 /*! Gets the correspondent hardcore distances of element n.
 ****************************************************************/
 template<class CoordType>
-const CoordType& TrimeshSpatialModel<CoordType>::getHardcoreDistance(const int numCompartment) const
+const CoordType& TriMeshSpatialModel<CoordType>::getHardcoreDistance(const int numCompartment) const
 {
   return _hardcoreDistance[numCompartment-1];
 }
@@ -123,7 +128,7 @@ const CoordType& TrimeshSpatialModel<CoordType>::getHardcoreDistance(const int n
 /*! Gets a vector of hardcore distances.
 ****************************************************************/
 template<class CoordType>
-Vector<CoordType>& TrimeshSpatialModel<CoordType>::getHardcoreDistance()
+Vector<CoordType>& TriMeshSpatialModel<CoordType>::getHardcoreDistance()
 {
   return _hardcoreDistance;
 }
@@ -131,7 +136,7 @@ Vector<CoordType>& TrimeshSpatialModel<CoordType>::getHardcoreDistance()
 /*! Sets a unique distance to the border for all compartments.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::setDistanceToBorder(const CoordType distanceToBorder)
+void TriMeshSpatialModel<CoordType>::setDistanceToBorder(const CoordType distanceToBorder)
 {
   _distanceToBorder[0] = distanceToBorder;
 }
@@ -139,7 +144,7 @@ void TrimeshSpatialModel<CoordType>::setDistanceToBorder(const CoordType distanc
 /*! Sets a vector of distances to the border.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::setDistanceToBorder(Vector<CoordType>& distancesToTheBorder)
+void TriMeshSpatialModel<CoordType>::setDistanceToBorder(const Vector<CoordType>& distancesToTheBorder)
 {
   _distanceToBorder = distancesToTheBorder;
 }
@@ -147,7 +152,7 @@ void TrimeshSpatialModel<CoordType>::setDistanceToBorder(Vector<CoordType>& dist
 ///*! Generates \c numSamples of \c numVertices each.
 //****************************************************************/
 //template<class CoordType>
-//ShapeSet<CoordType> TrimeshSpatialModel<CoordType>::drawSamples(
+//ShapeSet<CoordType> TriMeshSpatialModel<CoordType>::drawSamples(
 //  const int numSamples,
 //  const int numVertices)
 //{
@@ -164,7 +169,7 @@ void TrimeshSpatialModel<CoordType>::setDistanceToBorder(Vector<CoordType>& dist
 /*! Diverts to the correct function depending on the conditions.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> TrimeshSpatialModel<CoordType>::drawSample(const int numPoints)
+Vertices<CoordType> TriMeshSpatialModel<CoordType>::drawSample(const int numPoints)
 {
   _numCompartments = numPoints;
 
@@ -193,9 +198,9 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::drawSample(const int numPoin
 /*! Generates a random vertex into the trimesh.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::drawPosition(Vector<CoordType>& position)
+void TriMeshSpatialModel<CoordType>::drawPosition(Vector<CoordType>& position)
 {
-  ENTER( "void TrimeshSpatialModel<CoordType>::drawPosition(Vector<CoordType>&)" );
+  ENTER( "void TriMeshSpatialModel<CoordType>::drawPosition(Vector<CoordType>&)" );
 
   RandomGenerator& randomGenerator = this->getRandomGenerator();
 
@@ -204,7 +209,8 @@ void TrimeshSpatialModel<CoordType>::drawPosition(Vector<CoordType>& position)
     position[X] = randomGenerator.uniformLF(xMinBB,xMaxBB);
     position[Y] = randomGenerator.uniformLF(yMinBB,yMaxBB);
     position[Z] = randomGenerator.uniformLF(zMinBB,zMaxBB);
-  } while ( _triMesh->contains(position) == false );
+  //} while ( _triMesh->contains(position) == false );
+    } while ( _triMeshQuery.contains(position) == false );
 
   LEAVE();
 }
@@ -212,9 +218,9 @@ void TrimeshSpatialModel<CoordType>::drawPosition(Vector<CoordType>& position)
 /*! Generates a random vertex into the trimesh taking into account a distance to the border.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& position, CoordType distanceToBorder)
+void TriMeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& position, CoordType distanceToBorder)
 {
-  //ENTER("void TrimeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType,PixelType>, T)");
+  //ENTER("void TriMeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType,PixelType>, T)");
   Vector<CoordType> triMeshVertex, normalVector;
   int attempts = 0;
   const int maxAttempts = 10000;
@@ -228,7 +234,10 @@ void TrimeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& p
     //the segment between them will be the normal vector
     //from this normal vector and using the distance to the border we obtain
     //the "position" vertex which will be our wanted vertex
-    _triMesh->closestPoint( position, triMeshVertex );
+
+    //_triMesh->closestPoint( position, triMeshVertex );
+    _triMeshQuery.getTriMesh().closestPoint( position, triMeshVertex );
+
     normalVector = position - triMeshVertex;
     normalVector /= position.distance( triMeshVertex );
     normalVector *= distanceToBorder;
@@ -237,9 +246,12 @@ void TrimeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& p
     //we check if the obtained point is inside of the triMesh
     //and if it keeps the condition of being the minimum distance to the border
     //the distance to the border introduced manually before
-    if ( _triMesh->contains(position) )
+
+    //if ( _triMesh->contains(position) )
+    if ( _triMeshQuery.contains(position) )
     {
-      _triMesh->closestPoint( position, triMeshVertex );
+      //_triMesh->closestPoint( position, triMeshVertex );
+      _triMeshQuery.getTriMesh().closestPoint( position, triMeshVertex );
       found = fabs( distanceToBorder - position.distance(triMeshVertex) ) < position.epsilon();
     }
   } while ( found == false && ++attempts <= maxAttempts );
@@ -247,7 +259,7 @@ void TrimeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& p
   if ( found == false || attempts > maxAttempts )
   {
     Exception exception;
-    exception.setWhere( "void TrimeshSpatialModel<CoordType>::drawPositionFromBorder()" );
+    exception.setWhere( "void TriMeshSpatialModel<CoordType>::drawPositionFromBorder()" );
     exception.setWhat( "The number of attempts trying to generate a wanted point was too high" );
   }
 
@@ -258,9 +270,9 @@ void TrimeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& p
 /*! Generates random vertices into the trimesh without any condition.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> TrimeshSpatialModel<CoordType>::randomVertices()
+Vertices<CoordType> TriMeshSpatialModel<CoordType>::randomVertices()
 {
-  ENTER("void TrimeshSpatialModel<CoordType>::randomVertices()");
+  ENTER("void TriMeshSpatialModel<CoordType>::randomVertices()");
 
   Vertices<CoordType> vertices( 3, _numCompartments, 0, 0 );
 
@@ -277,9 +289,9 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::randomVertices()
 /*! Generates vertices into the trimesh with a fixed distance to the border.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> TrimeshSpatialModel<CoordType>::distanceToTheBorder()
+Vertices<CoordType> TriMeshSpatialModel<CoordType>::distanceToTheBorder()
 {
-  //ENTER( "void TrimeshSpatialModel<CoordType>::distanceToTheBorder()" );
+  //ENTER( "void TriMeshSpatialModel<CoordType>::distanceToTheBorder()" );
   Vertices<CoordType> vertices( 3, _numCompartments, 0, 0 );
 
   if ( _numCompartments != 1 && _distanceToBorder.getSize() == 1 )
@@ -291,7 +303,7 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::distanceToTheBorder()
   else if ( _numCompartments != _distanceToBorder.getSize() )
   {
     ProgramError error;
-    error.setWhere( "void TrimeshSpatialModel<CoordType>::distanceToTheBorder()" );
+    error.setWhere( "void TriMeshSpatialModel<CoordType>::distanceToTheBorder()" );
     error.setWhat( "The number of compartments and the vector length of distances to the border are not the same" );
     return vertices;
     //LEAVE();
@@ -308,9 +320,9 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::distanceToTheBorder()
 /*! Generates vertices into the trimesh with a fixed hardcore distance between compartments.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreDistance()
+Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreDistance()
 {
-  //ENTER("void TrimeshSpatialModel<CoordType>::hardcoreDistance()");
+  //ENTER("void TriMeshSpatialModel<CoordType>::hardcoreDistance()");
 
   Vertices<CoordType> vertices( 3, 0, 0, 0 );
   Vector<CoordType> vertex( 3 );
@@ -326,7 +338,7 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreDistance()
   else if ( _numCompartments != _hardcoreDistance.getSize() )
   {
     ProgramError error;
-    error.setWhere( "void TrimeshSpatialModel<CoordType>::hardcoreDistance()" );
+    error.setWhere( "void TriMeshSpatialModel<CoordType>::hardcoreDistance()" );
     error.setWhat( "The number of compartments and the vector length of hardcore distances are not the same" );
     //LEAVE();
     return vertices;
@@ -349,7 +361,7 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreDistance()
   if ( attempts > maxAttempts )
   {
     Exception exception;
-    exception.setWhere( "void TrimeshSpatialModel<CoordType>::hardcoreDistance()" );
+    exception.setWhere( "void TriMeshSpatialModel<CoordType>::hardcoreDistance()" );
     exception.setWhat( "The number of attempts trying to generate a wanted point was too high" );
   }
 
@@ -362,9 +374,9 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreDistance()
  * and fixed distances to the border.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()
+Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()
 {
-  //ENTER("void TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()");
+  //ENTER("void TriMeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()");
   Vertices<CoordType> vertices( 3, 0, 0, 0 );
   Vector<CoordType> vertex(3);
 
@@ -384,7 +396,7 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistan
              ( _numCompartments != _distanceToBorder.getSize() && _distanceToBorder.getSize() != 1 ) )
   {
     ProgramError error;
-    error.setWhere( "void TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()" );
+    error.setWhere( "void TriMeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()" );
     error.setWhat( "The number of compartments and vectors' lengths of hardcore and to the border distances are not the same" );
     return vertices;
     //LEAVE();
@@ -406,7 +418,7 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistan
   if ( attempts > maxAttempts )
   {
     Exception exception;
-    exception.setWhere( "void TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()" );
+    exception.setWhere( "void TriMeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistances()" );
     exception.setWhat( "The number of attempts trying to generate a wanted point was too high" );
   }
 
@@ -418,10 +430,11 @@ Vertices<CoordType> TrimeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistan
  * Checks if the distance between a vertex and its closest point of the triMesh is correct.
 ****************************************************************/
 template<class CoordType>
-bool TrimeshSpatialModel<CoordType>::checkDistancesToBorder(const Vector<CoordType>& vertex, CoordType distanceToBorder)
+bool TriMeshSpatialModel<CoordType>::checkDistancesToBorder(const Vector<CoordType>& vertex, CoordType distanceToBorder)
 {
   Vector<CoordType> triMeshVertex = vertex;
-  _triMesh->closestPoint( vertex, triMeshVertex );
+//  _triMesh->closestPoint( vertex, triMeshVertex );
+  _triMeshQuery.getTriMesh().closestPoint( vertex, triMeshVertex );
 
   if ( abs( abs(triMeshVertex.distance(vertex)) - distanceToBorder ) < vertex.epsilon() ) return true;
   else return false;
@@ -430,7 +443,7 @@ bool TrimeshSpatialModel<CoordType>::checkDistancesToBorder(const Vector<CoordTy
 /*! Checks if the hardcore distances from a vertex to previous generated vertices are correct.
 ****************************************************************/
 template<class CoordType>
-bool TrimeshSpatialModel<CoordType>::checkHardcoreDistances(const Vector<CoordType>& vertex, const Vertices<CoordType>& vertices)
+bool TriMeshSpatialModel<CoordType>::checkHardcoreDistances(const Vector<CoordType>& vertex, const Vertices<CoordType>& vertices)
 {
   bool checkDistance = true;
   const int k = vertices.getNumVertices();
@@ -442,7 +455,8 @@ bool TrimeshSpatialModel<CoordType>::checkHardcoreDistances(const Vector<CoordTy
       checkDistance = true;
       if ( checkDistance == true )
       {
-        _triMesh->closestPoint( vertex, triMeshVertex );
+        //_triMesh->closestPoint( vertex, triMeshVertex );
+        _triMeshQuery.getTriMesh().closestPoint( vertex, triMeshVertex );
         if ( vertex.distance( triMeshVertex ) > _hardcoreDistance[k] )
           checkDistance = true;
         else checkDistance = false;
@@ -476,11 +490,11 @@ bool TrimeshSpatialModel<CoordType>::checkHardcoreDistances(const Vector<CoordTy
 /*! Saves generated vertices.
 ****************************************************************/
 template<class CoordType>
-void TrimeshSpatialModel<CoordType>::save(const string outputDir)
+void TriMeshSpatialModel<CoordType>::save(const string outputDir)
 {
     _vertices.save( outputDir + "00", true );
 }
 
-//template class TrimeshSpatialModel<double>;
-template class TrimeshSpatialModel<float>;
-//template class TrimeshSpatialModel<int>;
+//template class TriMeshSpatialModel<double>;
+template class TriMeshSpatialModel<float>;
+//template class TriMeshSpatialModel<int>;
