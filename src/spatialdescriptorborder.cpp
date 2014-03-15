@@ -32,20 +32,28 @@ void SpatialDescriptorDistanceToBorder<CoordType>::eval(
   Vector<CoordType>& yvalues)
 {
   ENTER( "void SpatialDescriptorDistanceToBorder<CoordType>::eval(...)" );
+    PRINT("here");
   const int numVertices = vertices.getSize();
 
-  Vector<CoordType> triMeshVertex;
+  Vector<CoordType> testVertex(3);
+  Vector<CoordType> triMeshVertex(3);
   xvalues.setSize( numVertices );
-
+  PRINT("here");
   for (int i = 0; i < numVertices; ++i)
   {
-    _triMesh->closestPoint( vertices[i], triMeshVertex );
-    xvalues[i] = vertices[i].distance( triMeshVertex );
+    testVertex = vertices[i];
+    _triMesh->closestPoint( testVertex, triMeshVertex );
+    PRINT("here!!");
+
+    xvalues[i] = testVertex.distance( triMeshVertex );
   }
   xvalues.sort();
+  PRINT("here!!!!!!!");
 
   CDFTools<CoordType> cdftools;
   yvalues = cdftools.cdf( xvalues );
+  PRINT("here!!!!!!!!!!!!");
+
   LEAVE();
 }
 
