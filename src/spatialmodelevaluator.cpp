@@ -132,7 +132,7 @@ void spatialModelEvaluator_sizeConstrained(
   TriMeshSpatialModel<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setHardcoreDistance( eqRadii );
+  triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
 
   spatialModelEvaluator(
@@ -188,7 +188,7 @@ void spatialModelEvaluator_sizeAndDistanceConstrained(
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.setDistanceToBorder( distancesToBorder );
-  triMeshSpatialModel.setHardcoreDistance( eqRadii );
+  triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
 
   spatialModelEvaluator(

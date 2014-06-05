@@ -1,8 +1,8 @@
 /*!
- * \class  SpatialDescriptorFunctionF
- * \author Philippe Andrey (pa), INRA
- * \date   2012.01.16 - creation (pa)
- * \brief  F-function statistics for spatial point processes
+ * \class  SpatialDescriptorDistanceToBorder
+ * \author Javier Arpón (ja), INRA
+ * \date   2014.02.15 - creation (ja)
+ * \brief  Study the peripheral position of studied points into a shape.
 ****************************************************************/
 
 #include "spatialdescriptorborder.h"

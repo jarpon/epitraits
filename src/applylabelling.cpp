@@ -5,8 +5,7 @@
 #include <watershedtransform.h>
 #include <thresholding.h>
 #include <volumehistogramexpansion.h>
-#include <minfilter.h>
-#include <maxfilter.h>
+#include <medianfilter.h>
 
 #define TRACE
 #include <trace.h>
@@ -16,7 +15,12 @@ VoxelMatrix <float> applyLabelling(const VoxelMatrix<float>& originalVoxelMatrix
 {
   VoxelMatrix<float> gradientMatrix = originalVoxelMatrix;
 
-  //int sizeZ = originalVoxelMatrix.getSize3();
+//  MedianFilter<float> medianFilter;
+//  medianFilter.setHalfSize( 2 );
+//  medianFilter.setNumIterations( 2 );
+//  medianFilter.apply( gradientMatrix );
+
+   //int sizeZ = originalVoxelMatrix.getSize3();
 
   GaussianGradient<float> gaussianGradient;
   gaussianGradient.MaskVoxelMatrixProcessing<float>::setMask( nucleusMask );

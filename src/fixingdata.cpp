@@ -1,0 +1,114 @@
+#include <componentlabelling.h>
+#include <dataset.h>
+//#include "regionanalysis2.h"
+#include <regionanalysis.h>
+#include <cmath>
+#include <dataset.h>
+#include <thresholding.h>
+#include <trimesh.h>
+#include "trimeshspatialmodel.h"
+#include "maximarepulsion.h"
+#include <curvestack.h>
+
+#define TRACE
+#include <trace.h>
+
+
+void doIt2(const string& filename, const string& parentDir)
+{
+  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
+
+  const string analysisDir = parentDir + "/analysis/";
+  const string analysisDirOld = parentDir + "/analysis_old/";
+
+  Vector<float> centroid(3);
+  Vector<float> vertexTriMesh(3);
+
+  DataSet datasetNucleus( analysisDirOld + filename + ".csv" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
+
+
+/**///chromocenters individual information
+  for (int numCC = 0; numCC < eqRadii.getSize(); numCC++ )
+  {
+    centroid[X] = datasetNucleus.getValue<float>( "centroidCoordX", numCC);
+    centroid[Y] = datasetNucleus.getValue<float>( "centroidCoordY", numCC);
+    centroid[Z] = datasetNucleus.getValue<float>( "centroidCoordZ", numCC);
+
+    nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
+    float distanceToBorder = centroid.distance( vertexTriMesh );
+
+    datasetNucleus.setValue("distanceToTheBorder", numCC, distanceToBorder);
+  }
+
+  datasetNucleus.save( analysisDir + filename + ".csv" );
+}
+
+void doIt(const string& filename, const string& parentDir, RandomGenerator& randomGenerator)
+{
+  PRINT("maximaRepulsion");
+
+  //const DataSet datasetNucleus( parentDir + "/analysis/" + filename + "_chromocenters.csv" );
+  const DataSet datasetNucleus( parentDir + "/analysis/" + filename + ".csv" );
+  const int numPoints = datasetNucleus.size()[0];
+
+  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
+
+  //const int numPoints = 5;
+
+  Vertices<float> vertices ( 3, numPoints, 0, 0 );
+//  for ( int i = 0; i < numPoints; ++i )
+//  {
+//    vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+//    vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+//    vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+//    EVAL(vertices[i]);
+//  }
+
+//  Vertices<float> vertices ( 3, 4, 0, 0 );
+//  vertices[1][0] = 75;
+//  vertices[1][1] = 75;
+//  vertices[1][2] = 75;
+//  vertices[2][0] = 77;
+//  vertices[2][1] = 75;
+//  vertices[2][2] = 75;
+//  vertices[3][0] = 75;
+//  vertices[3][1] = 75;
+//  vertices[3][2] = 77;
+//  vertices[4][0] = 77;
+//  vertices[4][1] = 75;
+//  vertices[4][2] = 77;
+
+
+  Vertices<float> repulsiveVertices ( 3, numPoints, 0, 0 );
+
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
+  //const TriMesh<float> nucleusTriMesh ( "/home/jarpon/Desktop/sphere.tm" );
+//  TriMeshSpatialModel<float> tempTriMeshSpatialModel;
+//  tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
+//  tempTriMeshSpatialModel.setHardcoreDistances( eqRadii );
+//  tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
+//  tempTriMeshSpatialModel.initialize();
+//  vertices = tempTriMeshSpatialModel.drawSample( numPoints );
+//  vertices.save( "/home/jarpon/Desktop/maxRepulsion_begin.vx", true );
+  for ( int j = 0; j < numPoints; ++j )
+  {
+    EVAL(vertices[j]);
+  }
+
+  MaximaRepulsionTriMeshSpatialModel<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setHardcoreDistance( eqRadii );
+  triMeshSpatialModel.initialize();
+
+
+  //maximaRepulsion.setTriMeshSpatialModel( tempTriMeshSpatialModel );
+  //maximaRepulsion.setTriMesh( nucleusTriMesh );
+  //maximaRepulsion.setMaximaRepulsion();
+  repulsiveVertices = triMeshSpatialModel.drawSample( numPoints );
+
+}

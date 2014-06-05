@@ -26,20 +26,24 @@ LIBS = \
   -lfreed -limage -lshape -lgeneral -laline -lexception -ltiff
 
 SOURCES += \
-    src/findnucleus.cpp \
     src/main.cpp \
     src/applylabelling.cpp \
-    src/findchromocenters.cpp \
-    src/nucleusanalaysis.cpp \
-    src/chromocentersanalysis.cpp \
     src/trimeshspatialmodel.cpp \
     src/spatialmodel.cpp \
     src/spatialmodelevaluator.cpp \
     src/spatialdescriptorborder.cpp \
     src/looptest.cpp \
-    src/testrealdata.cpp
+    src/testrealdata.cpp \
+    src/findingchromocenters.cpp \
+    src/analysingchromocenters.cpp \
+    src/analysingnuclei.cpp \
+    src/findingnuclei.cpp \
+    src/fixingdata.cpp \
+    src/isolatingnuclei.cpp \
+    src/maximarepulsion.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \
-    src/spatialdescriptorborder.h
+    src/spatialdescriptorborder.h \
+    src/maximarepulsion.h
 

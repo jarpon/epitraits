@@ -7,6 +7,7 @@
 #include <vertices.h>
 #include <spatialmodel.h>
 #include <trimeshquery.h>
+//#include "maximarepulsion.h"
 
 //using namespace std;
 
@@ -18,19 +19,14 @@ class TriMeshSpatialModel : public SpatialModel<CoordType,float>
     TriMeshSpatialModel();
     ~TriMeshSpatialModel();
 
-//    void setRandomGenerator(RandomGenerator&);
     void setTriMesh(const TriMesh<CoordType>&);
     void setOutput(string output) { _outputDir = output ; }
 
     void setNumberOfCompartments(const int);
 
-//    void setVolumeRadius(const T volumeRadius) { _volumeRadius = volumeRadius; }
-//    void setVolumeRadius(Vector<T>&);
-//    void setVolumeRadiusRange(const T volumeRadiusMin, const T volumeRadiusMax) { _volumeRadiusRange[0] = volumeRadiusMin; _volumeRadiusRange[1] = volumeRadiusMax; }
-
-    void setHardcoreDistance(const Vector<CoordType>&);
-    void setHardcoreDistance(const CoordType);
-    void setHardcoreDistanceRange(const CoordType hardcoreDistanceMin, const CoordType hardcoreDistanceMax) { _hardcoreDistanceRange[0] = hardcoreDistanceMin; _hardcoreDistanceRange[1] = hardcoreDistanceMax; }
+    void setHardcoreDistances(const Vector<CoordType>&);
+    void setHardcoreDistances(const CoordType);
+    void setHardcoreDistancesRange(const CoordType hardcoreDistancesMin, const CoordType hardcoreDistancesMax) { _hardcoreDistancesRange[0] = hardcoreDistancesMin; _hardcoreDistancesRange[1] = hardcoreDistancesMax; }
 
     void setDistanceToBorder(const CoordType);
     void setDistanceToBorder(const Vector<CoordType>&);
@@ -39,40 +35,43 @@ class TriMeshSpatialModel : public SpatialModel<CoordType,float>
     void drawPosition(Vector<CoordType>&);
     void drawPositionFromBorder(Vector<CoordType>&, CoordType distanceToBorder);
 
-    bool checkHardcoreDistances(const Vector<CoordType>&, const Vertices<CoordType>&);
-    bool checkDistancesToBorder(const Vector<CoordType>&, CoordType distanceToBorder);
+//    bool checkHardcoreDistances(const Vector<CoordType>&, const Vertices<CoordType>&);
+//    bool checkHardcoreDistances(const Vector<CoordType>&, const int, const Vertices<CoordType>&) const;
+//    bool checkDistancesToBorder(const Vector<CoordType>&, CoordType distanceToBorder);
+
+    bool checkObjectToBorderDistance(const Vector<CoordType>&, const int&);
+    bool checkInterObjectDistances(const Vector<CoordType>&, const Vertices<CoordType>&);
+
 
     Vertices<CoordType> drawSample(const int);
-//    virtual Vertices<CoordType> drawSample(const int) = 0;
-//    ShapeSet<CoordType> drawSamples(const int,const int);
 
-    const CoordType& getHardcoreDistance(const int) const;
-    Vector<CoordType>& getHardcoreDistance();
+    const CoordType& getHardcoreDistances(const int) const;
+    Vector<CoordType>& getHardcoreDistances();
     //const CoordType& getDistanceToBorder();
 
     void initialize();
 
-    void save(const string);
+    Vertices<CoordType> hardcoreDistances();
+    int _numCompartments;
+
+    const TriMesh<CoordType>* _triMesh;
+    TriMeshQuery<CoordType> _triMeshQuery;
+    Vector<CoordType> _hardcoreDistances;
+    Vertices<CoordType> _vertices;
 
   private:
 
     Vertices<CoordType> randomVertices();
-    Vertices<CoordType> hardcoreDistance();
     Vertices<CoordType> distanceToTheBorder();
     Vertices<CoordType> hardcoreAndToTheBorderDistances();
 
-    const TriMesh<CoordType>* _triMesh;
-    TriMeshQuery<CoordType> _triMeshQuery;
-    Vertices<CoordType> _vertices;
+    void randomizesOrder(RandomGenerator&);
+
+
 
     string _outputDir;
-    int _numCompartments;
 
-    //CoordType _volumeRadius;
-    //Vector<CoordType> _volumeRadiusRange;
-
-    Vector<CoordType> _hardcoreDistance;
-    Vector<CoordType> _hardcoreDistanceRange;
+    Vector<CoordType> _hardcoreDistancesRange;
 
     Vector<CoordType> _distanceToBorder;
     Vector<CoordType> _distanceToBorderRange;
@@ -81,4 +80,4 @@ class TriMeshSpatialModel : public SpatialModel<CoordType,float>
 
 };
 
-#endif // RANDOMPOINTSGENERATOR_H
+#endif // TRIMESHSPATIALMODEL_H

@@ -12,6 +12,7 @@
 #include <trimesh.h>
 #include <sstream>
 #include <programerror.h>
+#include <stopwatch.h>
 
 #define TRACE
 #include <trace.h>
@@ -20,7 +21,7 @@ using namespace std;
 extern VoxelMatrix<float> findNucleus(const VoxelMatrix<float>&);
 extern void nucleusAnalysis(const VoxelMatrix<float>&, VoxelMatrix<float>&,
                             const string&, const string&, const int&, DataSet&);
-extern VoxelMatrix<float> findCCs( const VoxelMatrix<float>&, const VoxelMatrix<float>&,
+extern VoxelMatrix<float> findCCs( const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
 extern void chromocentersAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
@@ -30,14 +31,21 @@ extern void spatialModelEvaluator(const string&, const string&, const string&, c
                           DataSet&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
-extern void uniformTest( const string&, const string&, DataSet&);
+extern void uniformTest(const string&, const string&, DataSet&);
+extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&);
+
+extern void doIt(const string&, const string&, RandomGenerator&);
+//extern void doIt (const string&, const string&);
 
 //extern void analyseSample(const string&, const int&, int&, DataSet&, DataSet&);
 
 int main(int argc, char* argv[])
 {
+  Stopwatch stopWatch;
+  stopWatch.start( "Global process" );
+
   RandomGenerator randomGenerator;
-  string filepath, filename, parentDir, originalDir, nucleiDir, chromocentersDir, intermediateProcessesDir, analysisDir, shapesDir;
+  string filepath, filename, parentDir, originalDir, originalVMDir, nucleiDir, chromocentersDir, intermediateProcessesDir, analysisDir, shapesDir;
 
 
   if ( (argc == 1) || ( argv[1] == std::string("-h") ) || ( argv[1] == std::string("--help") ) )
@@ -66,7 +74,7 @@ int main(int argc, char* argv[])
     cout << "               '3' to use function H" << endl;
     cout << "               '4' to use distance to the border descriptor" << endl;
     cout << "                  '0' to not use constraints" << endl;
-    cout << "                  '1' to use sized constraints" << endl;
+    cout << "                  '1' to use sized constraints ~ random" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
     cout << "                  '3' to use both constraints" << endl;
     cout << "                                                         " << endl;
@@ -76,6 +84,11 @@ int main(int argc, char* argv[])
     cout << "               '2' to use function G" << endl;
     cout << "               '3' to use function H" << endl;
     cout << "               '4' to use distance to the border descriptor" << endl;
+    cout << "                  '0' to not use constraints" << endl;
+    cout << "                  '1' to use sized constraints ~ random" << endl;
+    cout << "                  '2' to use distances to the border constraints" << endl;
+    cout << "                  '3' to use both constraints" << endl;
+    cout << "                  '4' to use maxima repulsion" << endl;
     cout << "                                                         " << endl;
     cout << "       FILES vm files" << endl;
     cout << "**********************************************************************************" << endl;
@@ -209,25 +222,38 @@ int main(int argc, char* argv[])
         }
 
         nucleiDir = parentDir + "/segmented_nuclei/";
-        VoxelMatrix<float> originalVoxelMatrix( filepath );
+        originalVMDir = parentDir + "/originals_vm/";
 
+        EVAL(nucleiDir);
+        VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+        EVAL(originalVMDir);
+
+        intermediateProcessesDir = parentDir + "/intermediate_processes/";
+        chromocentersDir = parentDir + "/segmented_chromocenters/";
+        analysisDir = parentDir + "/analysis/";
 
         if ( process == "1" )
         {
+          ENTER("Nuclei segmentation");
           VoxelMatrix<float> nucleusMask;
           nucleusMask = findNucleus( originalVoxelMatrix );
           nucleusMask.save ( nucleiDir + filename + ".vm", true );
+          LEAVE();
         }
 
         else if ( process == "2" )
         {
+          ENTER("Nuclei quantification");
+          analysisDir = parentDir + "/analysis/";
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           nucleusAnalysis( originalVoxelMatrix, nucleusMask, filename, parentDir, numNucleus, nucleiDataset );
           ++numNucleus;
+          LEAVE();
         }
 
         else if ( process == "3" )
         {
+          ENTER("Chromocenters segmentation");
           intermediateProcessesDir = parentDir + "/intermediate_processes/";
           chromocentersDir = parentDir + "/segmented_chromocenters/";
           analysisDir = parentDir + "/analysis/";
@@ -235,17 +261,20 @@ int main(int argc, char* argv[])
           VoxelMatrix<float> ccsMask;
           ccsMask = findCCs( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
           ccsMask.save ( chromocentersDir + filename + ".vm", true );
+          LEAVE();
         }
 
         else if ( process == "4" )
         {
+          ENTER("Chromocenters quantification");
           chromocentersDir = parentDir + "/segmented_chromocenters/";
           analysisDir = parentDir + "/analysis/";
-          VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
+          //VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
           chromocentersAnalysis( ccsMask, filename, parentDir, numNucleus, totalNumCCs, nucleiDataset, chromocentersDataset, individualChromocentersDataset );
           individualChromocentersDataset.save(analysisDir + filename + "_chromocenters.csv", true );
           ++numNucleus;
+          LEAVE();
         }
 
       }
@@ -270,7 +299,7 @@ int main(int argc, char* argv[])
     ENTER("Spatial model generator");
 
     //introduce HERE the number of patterns to generate for each nucleus;
-    const int numPatterns = 50;
+    const int numPatterns = 10;
 
     // if we got enough parameters and options...
     for (int i = 3; i < argc; i++)
@@ -311,7 +340,8 @@ int main(int argc, char* argv[])
 
 
         //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
-        TriMesh<float> nucleusTriMesh ( shapesDir + filename + "_nucleus.tm" );
+        //TriMesh<float> nucleusTriMesh ( shapesDir + filename + "_nucleus.tm" );
+        TriMesh<float> nucleusTriMesh ( shapesDir + filename + "-nucleus.tm" );
 
         spatialModelAnalysis( nucleusTriMesh, filename, parentDir, numPatterns );
 
@@ -327,12 +357,13 @@ int main(int argc, char* argv[])
   else if ( ( argv[1] == std::string("-p") ) &&
             ( argv[2] == std::string("6") || argv[2] == std::string("7") ) &&
             ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") ) &&
-//            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) &&
+//            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
   {
     ENTER("Spatial model analysis");
 
-    DataSet dataSet;
+    DataSet dataSet, errorDataSet;
+    int numErrors;
 
     //introduce HERE the number of patterns to generate for each nucleus;
 //    const int numPatterns = 99;
@@ -345,6 +376,7 @@ int main(int argc, char* argv[])
     if ( argv[3] == std::string("2") )       function = "G";
     else if ( argv[3] == std::string("3") )  function = "H";
     else if ( argv[3] == std::string("4") )  function = "B";
+    else if ( argv[3] == std::string("5") )  function = "FMod";
     else //if ( argv[3] == std::string("1") )
                                              function = "F";
 
@@ -352,11 +384,114 @@ int main(int argc, char* argv[])
     else if ( argv[4] == std::string("1") )  constraints = 1;
     else if ( argv[4] == std::string("2") )  constraints = 2;
     else if ( argv[4] == std::string("3") )  constraints = 3;
+    else if ( argv[4] == std::string("4") )  constraints = 4;
+
+
 
     // if we got enough parameters and options...
     for ( int i = 5 ; i < argc; ++i)
     {
 
+      Stopwatch stopWatchNucleus;
+      stopWatchNucleus.start( "Nucleus processed" );
+
+      try
+      {
+
+        filename = argv[i];
+
+        // only vm files are processed
+        if(filename.substr(filename.find_last_of(".") + 1) == "vm")
+        {
+          EVAL(filename);
+          FileInfo fileInfo (filename);
+
+          if ( fileInfo.isAbsolutePath() == false )
+          {
+            originalDir = getcwd( argv[i], 2048 );
+            originalDir = originalDir + "/";
+            filepath = originalDir + filename;
+            FileInfo fileInfo (filepath);
+            parentDir = originalDir.substr(0,originalDir.find_last_of("/\\"));
+            parentDir = parentDir.substr(0,parentDir.find_last_of("/\\")) + "/";
+            filename = fileInfo.baseName();
+          }
+
+          else
+          {
+            filepath = filename;
+            filename = fileInfo.baseName();
+            originalDir = fileInfo.dirName();
+            parentDir = originalDir.substr(0,originalDir.find_last_of("/\\"));
+            parentDir = parentDir.substr(0,parentDir.find_last_of("/\\"));
+          }
+
+          analysisDir = parentDir + "/analysis/";
+          shapesDir = parentDir + "/shapes/";
+
+          EVAL(filename);
+
+          if  ( test == "model" )
+          {
+            ostringstream oss;
+            oss << constraints;
+            spatialModelEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
+          }
+          else if ( test == "data" )
+          {
+            //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
+            realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+            ostringstream oss;
+            oss << constraints;
+            dataSet.save(analysisDir + "pValues_" + oss.str() + function + oss.str() + ".csv", true );
+          }
+          else
+          {
+            ProgramError error;
+            error.setWhat( "Inputs are wrong" );
+            error.setWhat( "Call epitraits help for more information" );
+            throw error;
+          }
+        }
+        else
+          cout << "Error" << endl;
+
+        if ( test == "data" )
+        {
+          ostringstream oss;
+          oss << constraints;
+          dataSet.save(analysisDir + "pValues_" + oss.str() + function + oss.str() + ".csv", true );
+        }
+
+      }
+      catch(Exception exception)
+      {
+        ostringstream oss;
+        oss << constraints;
+        errorDataSet.setValue("id",numErrors,numErrors+1);
+        errorDataSet.setValue("filename",numErrors,filename);
+        errorDataSet.save(analysisDir + "failedNuclei" + function + oss.str() + ".csv", true );
+        //exception;
+
+      }
+
+      stopWatchNucleus.stop( "Nucleus processed" );
+      stopWatchNucleus.print();
+    }
+
+    LEAVE();
+  }
+
+  /*! Temporal
+  ****************************************************************/
+  else if ( ( argv[1] == std::string("-p") ) && ( argv[2] == std::string("99") ) && ( argc > 3 ) )
+  {
+    ENTER("Temporal To Do Things!");
+
+    // if we got enough parameters and options...
+    for (int i = 3; i < argc; i++)
+    {
       filename = argv[i];
 
       // only vm files are processed
@@ -385,40 +520,69 @@ int main(int argc, char* argv[])
           parentDir = parentDir.substr(0,parentDir.find_last_of("/\\"));
         }
 
-        analysisDir = parentDir + "/analysis/";
-        shapesDir = parentDir + "/shapes/";
 
+        //const VoxelMatrix<float> originalVoxelMatrix( filepath );
+
+        //analysisDir = parentDir + "/analysis/";
+        //EVAL(filename);
+
+        //doIt( filename, parentDir );
+//        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
+//        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
+
+        doIt( filename, parentDir, randomGenerator);
+
+      }
+      else cout << "Error" << endl;
+    }
+    LEAVE();
+  }
+
+  /*! Crio sections
+  ****************************************************************/
+  else if ( ( argv[1] == std::string("-p") ) && ( argv[2] == std::string("extractnuclei") ) && ( argc > 3 ) )
+  {
+    ENTER("Temporal To Do Things!");
+
+    // if we got enough parameters and options...
+    for (int i = 3; i < argc; i++)
+    {
+      filename = argv[i];
+
+      // only vm files are processed
+      if(filename.substr(filename.find_last_of(".") + 1) == "vm")
+      {
         EVAL(filename);
+        FileInfo fileInfo (filename);
 
-        if  ( test == "model" )
+        if ( fileInfo.isAbsolutePath() == false )
         {
-          ostringstream oss;
-          oss << constraints;
-          spatialModelEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
-          dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
+          originalDir = getcwd( argv[i], 2048 );
+          originalDir = originalDir + "/";
+          filepath = originalDir + filename;
+          FileInfo fileInfo (filepath);
+          parentDir = originalDir.substr(0,originalDir.find_last_of("/\\"));
+          parentDir = parentDir.substr(0,parentDir.find_last_of("/\\")) + "/";
+          filename = fileInfo.baseName();
         }
-        else if ( test == "data" )
-        {
-          //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
-          realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
-//          dataSet.save(analysisDir + filename + "_" + function + ".csv", true );
-        }
+
         else
         {
-          ProgramError error;
-          error.setWhat( "Inputs are wrong" );
-          error.setWhat( "Call epitraits help for more information" );
+          filepath = filename;
+          filename = fileInfo.baseName();
+          originalDir = fileInfo.dirName();
+          parentDir = originalDir.substr(0,originalDir.find_last_of("/\\"));
+          parentDir = parentDir.substr(0,parentDir.find_last_of("/\\"));
         }
-      }
-      else
-        cout << "Error" << endl;
-    }
 
-    if ( test == "data" )
-    {
-      ostringstream oss;
-      oss << constraints;
-      dataSet.save(analysisDir + "pValues_" + oss.str() + function + oss.str() + ".csv", true );
+        nucleiDir = parentDir + "/segmented_nuclei/";
+
+        const VoxelMatrix<float> originalVoxelMatrix( filepath );
+        VoxelMatrix<float> nucleiMask;
+        nucleiMask = isolateNuclei( originalVoxelMatrix );
+        nucleiMask.save ( nucleiDir + filename + ".vm", true );
+      }
+      else cout << "Error" << endl;
     }
     LEAVE();
   }
@@ -432,5 +596,7 @@ int main(int argc, char* argv[])
     error.setWhat( "Call epitraits to see the help" );
   }
 
+  stopWatch.stop( "Global process" );
+  stopWatch.print();
   return 0;
 }
