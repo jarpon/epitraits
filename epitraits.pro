@@ -23,7 +23,8 @@ LIBS = \
   -L$$FREEDLIBS/libshape/src  \
   -L$$FREEDLIBS/libimage/src  \
   -L$$FREEDLIBS/libfreed/src \
-  -lfreed -limage -lshape -lgeneral -laline -lexception -ltiff
+#  -lfreed -limage -lshape -lgeneral -laline -lexception -ltiff
+  -limage -lshape -lgeneral -laline -lexception -ltiff
 
 SOURCES += \
     src/main.cpp \

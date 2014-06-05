@@ -31,9 +31,9 @@ void evaluator(
   const string analysisDir = parentDir + "/analysis/";
 
   //new data
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
   //old data
-  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
+  const DataSet datasetNucleus( analysisDir + filename + ".csv" );
 
   const int numPoints = datasetNucleus.size()[0];
 
@@ -220,19 +220,19 @@ void evaluator_sizeAndDistanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
 
   //new data
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   //old data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
 
   //new data
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
   //old data
-  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
+  const DataSet datasetNucleus( analysisDir + filename + ".csv" );
 
   //new data
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
   //old data
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
   EVAL(eqRadii);
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
 
