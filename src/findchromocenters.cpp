@@ -24,10 +24,9 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
 {
   VoxelMatrix<float> regionMatrix;
   regionMatrix = applyLabelling( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir );
-
   //const int sizeZ = originalVoxelMatrix.getSize3();
 
-  VoxelMatrix<float> rangeMask, average, copyVoxelMatrix = originalVoxelMatrix;
+  VoxelMatrix<float> rangeMask, averageMask, copyVoxelMatrix = originalVoxelMatrix;
 
 //  VolumeHistogramExpansion<float> normalizerHistogram;
 //  normalizerHistogram.setMinMax( 0.0, 255.0 );
@@ -36,8 +35,8 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
   RegionAnalysis<float> regionAnalysis;
   regionAnalysis.setRegionMatrix( regionMatrix );
   regionAnalysis.run();
-  //regionAnalysis.mapRegionFeature( averageMask, REGION_FEATURE_AVERAGE_VALUE, copyVoxelMatrix );
-  //averageMask.save( intermediateProcessesDir + filename + "-average.vm", true );
+//  regionAnalysis.mapRegionFeature( averageMask, REGION_FEATURE_AVERAGE_VALUE, copyVoxelMatrix );
+//  averageMask.save( intermediateProcessesDir + filename + "-average.vm", true );
 
   regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_CONTRAST, copyVoxelMatrix );
   rangeMask.save( intermediateProcessesDir + filename + "-contrast.vm", true );
@@ -51,6 +50,7 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
   OtsuThresholding<float> otsuThresholding;
   //Vector <float> featureValues = regionAnalysis.allRegionValues( ccsMask );
   Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRAST, copyVoxelMatrix );
+  //Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_AVERAGE_VALUE, averageMask );
   //Vector <unsigned int> histogram = featureValues.histogram( 0, 1, 255 );
   Vector <unsigned int> histogram = featureValues.histogram( 0, 1, histogram.getSize()-1 );
 
@@ -131,24 +131,24 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
 
   EVAL(featureValues[featureValues.getSize() - (threshold-counter) +1 ] + 0.01)
 
-  if ( counter != 0 ) factor = featureValues[featureValues.getSize() - (threshold-counter) +1 ] + 0.01 ;
+  if ( counter != 0 ) factor = featureValues[featureValues.getSize() - (threshold-counter) +1 ] - 0.01 ;
   else factor = otsuThresholding.computeThreshold(histogram);
 
-  EVAL(otsuThresholding.computeThreshold(histogram));
+//  EVAL(otsuThresholding.computeThreshold(histogram));
   //factor = otsuThresholding.computeThreshold(histogram) + abs(featureValues.mean());
   //factor = otsuThresholding.computeThreshold(histogram) * 1.5;
   //factor = featureValues.max() / 1.5;
 
   thresholding.setThreshold( factor );
-  //thresholding.setThreshold( 76.8 );
+  //thresholding.setThreshold( 7 );
   //thresholding.setThreshold( otsuThresholding.computeThreshold(histogram) );
 
 
 //  EVAL(otsuThresholding.computeThreshold(histogram));
 //  EVAL(featureValues.max())
 
-  //thresholding.applyAlternative( ccsMask );
-  thresholding.apply( ccsMask );
+  thresholding.applyAlternative( ccsMask );
+  //thresholding.apply( ccsMask );
   //ccsMask.save( "/home/jarpon/Desktop/test1.vm", true );
 
 //  HolesFillingf holesFilling;

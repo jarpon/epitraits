@@ -1,5 +1,5 @@
-#ifndef MAXIMAREPULSION_H
-#define MAXIMAREPULSION_H
+#ifndef MAXIMALREPULSION_H
+#define MAXIMALREPULSION_H
 
 #include <randomgenerator.h>
 #include <vertices.h>
@@ -8,17 +8,17 @@
 #include "trimeshspatialmodel.h"
 
 template<class CoordType>
-class MaximaRepulsionTriMeshSpatialModel : public TriMeshSpatialModel<float>
+class MaximalRepulsionTriMeshSpatialModel : public TriMeshSpatialModel<float>
 {
   public:
 
-    MaximaRepulsionTriMeshSpatialModel();
-    ~MaximaRepulsionTriMeshSpatialModel();
+    MaximalRepulsionTriMeshSpatialModel();
+    ~MaximalRepulsionTriMeshSpatialModel();
 
     void setTriMesh(const TriMesh<CoordType>&);
 //    void setTriMeshSpatialModel(TriMeshSpatialModel<CoordType> &);
 
-    //void setMaximaRepulsion(const Vertices<CoordType>&);
+    //void setMaximalRepulsion(const Vertices<CoordType>&);
 
     Vertices<CoordType> drawSample(const int);
 
@@ -47,4 +47,4 @@ class MaximaRepulsionTriMeshSpatialModel : public TriMeshSpatialModel<float>
 
 };
 
-#endif // MAXIMAREPULSION_H
+#endif // MAXIMALREPULSION_H

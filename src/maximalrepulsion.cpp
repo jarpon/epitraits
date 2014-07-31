@@ -1,5 +1,5 @@
 #include "trimeshspatialmodel.h"
-#include "maximarepulsion.h"
+#include "maximalrepulsion.h"
 
 #include <randomgenerator.h>
 #include <trimesh.h>
@@ -14,7 +14,7 @@
 #include <curvestack.h>
 #include <vertexstack.h>
 
-#define TRACE
+//#define TRACE
 #include <trace.h>
 #include <sstream>
 
@@ -23,21 +23,21 @@ using namespace std;
 /*! Initializes all the parameters.
 ****************************************************************/
 template<class CoordType>
-MaximaRepulsionTriMeshSpatialModel<CoordType>::MaximaRepulsionTriMeshSpatialModel()
+MaximalRepulsionTriMeshSpatialModel<CoordType>::MaximalRepulsionTriMeshSpatialModel()
 {
 }
 
 /*! Destroys it.
 ****************************************************************/
 template<class CoordType>
-MaximaRepulsionTriMeshSpatialModel<CoordType>::~MaximaRepulsionTriMeshSpatialModel()
+MaximalRepulsionTriMeshSpatialModel<CoordType>::~MaximalRepulsionTriMeshSpatialModel()
 {
 }
 
 /*! Sets a vector of hardcore distances.
 ****************************************************************/
 template<class CoordType>
-void MaximaRepulsionTriMeshSpatialModel<CoordType>::setHardcoreDistance(const Vector<CoordType>& hardcoreDistances)
+void MaximalRepulsionTriMeshSpatialModel<CoordType>::setHardcoreDistance(const Vector<CoordType>& hardcoreDistances)
 {
   _hardcoreDistances = hardcoreDistances;
 }
@@ -45,7 +45,7 @@ void MaximaRepulsionTriMeshSpatialModel<CoordType>::setHardcoreDistance(const Ve
 // /*! Sets the triMeshSpatialModel to work with ------ (not needed)
 //****************************************************************/
 //template<class CoordType>
-//void MaximaRepulsionTriMeshSpatialModel<CoordType>::setTriMeshSpatialModel(TriMeshSpatialModel<CoordType>& triMeshSpatialModel)
+//void MaximalRepulsionTriMeshSpatialModel<CoordType>::setTriMeshSpatialModel(TriMeshSpatialModel<CoordType>& triMeshSpatialModel)
 //{
 //  _triMeshSpatialModel = &triMeshSpatialModel;
 //}
@@ -53,7 +53,7 @@ void MaximaRepulsionTriMeshSpatialModel<CoordType>::setHardcoreDistance(const Ve
  /*! Sets the triMesh to work with.
 ****************************************************************/
 template<class CoordType>
-void MaximaRepulsionTriMeshSpatialModel<CoordType>::setTriMesh(const TriMesh<CoordType>& triMesh)
+void MaximalRepulsionTriMeshSpatialModel<CoordType>::setTriMesh(const TriMesh<CoordType>& triMesh)
 {
   _triMeshQuery.setTriMesh( triMesh );
   _nucleusVolume = abs(_triMeshQuery.getTriMesh().volume());
@@ -62,7 +62,7 @@ void MaximaRepulsionTriMeshSpatialModel<CoordType>::setTriMesh(const TriMesh<Coo
 /*! Gets the current energy of the system
 ****************************************************************/
 template<class CoordType>
-CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy1(const Vertices<CoordType>& vertices)
+CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy1(const Vertices<CoordType>& vertices)
 {
   CoordType distBetweenComp;
   int numPoints = vertices.getNumVertices();
@@ -79,7 +79,7 @@ CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy1(const Vertic
 /*! Gets the current energy of the system
 ****************************************************************/
 template<class CoordType>
-CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy2(const Vertices<CoordType>& vertices)
+CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy2(const Vertices<CoordType>& vertices)
 {
   int numPoints = vertices.getNumVertices();
   Vector<CoordType> distancesCompartment(numPoints), minDistances(numPoints);
@@ -101,7 +101,7 @@ CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy2(const Vertic
 /*! Gets the current energy of the system
 ****************************************************************/
 template<class CoordType>
-CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy3(const Vertices<CoordType>& vertices)
+CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy3(const Vertices<CoordType>& vertices)
 {
   CoordType energy;
   int numPoints = vertices.getNumVertices();
@@ -118,7 +118,7 @@ CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy3(const Vertic
 /*! Gets the current energy of the system
 ****************************************************************/
 template<class CoordType>
-CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy4(const Vertices<CoordType>& vertices)
+CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy4(const Vertices<CoordType>& vertices)
 {
   CoordType partialEnergy;
   int numPoints = vertices.getNumVertices();
@@ -135,8 +135,8 @@ CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy4(const Vertic
 /*! Moves a compartment inside the container
 ****************************************************************/
 template<class CoordType>
-Vector<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::moveCompartment(const int numCompartment, const Vertices<CoordType>& vertices, const CoordType moveLimit)
-//Vector<float> MaximaRepulsionTriMeshSpatialModel<CoordType>::moveCompartment(const int numCompartment, const Vertices<CoordType>& vertices, const CoordType moveLimit)
+Vector<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::moveCompartment(const int numCompartment, const Vertices<CoordType>& vertices, const CoordType moveLimit)
+//Vector<float> MaximalRepulsionTriMeshSpatialModel<CoordType>::moveCompartment(const int numCompartment, const Vertices<CoordType>& vertices, const CoordType moveLimit)
 {
   RandomGenerator& randomGenerator = this->getRandomGenerator();
   Vector<CoordType> movedVertex(3);
@@ -155,7 +155,7 @@ Vector<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::moveCompartment
     movedVertex[Z] = vertices[numCompartment][Z]+distZ;
 
     //checks that the new point's location respects the real volume and that is located inside the nucleus
-    if ( _triMeshQuery.contains(movedVertex) == true )
+    //if ( _triMeshQuery.contains(movedVertex) == true )
       if ( checkHardcoreDistances( movedVertex, numCompartment, vertices) == true )
         checkCondition = true;
 
@@ -167,19 +167,18 @@ Vector<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::moveCompartment
  /*! Checks if the hardcore distances between a new (moved) vertex and the others are respected.
 ****************************************************************/
 template<class CoordType>
-bool MaximaRepulsionTriMeshSpatialModel<CoordType>::checkHardcoreDistances(const Vector<CoordType>& vertex, const int numVertexChanged, const Vertices<CoordType>& vertices) const
+bool MaximalRepulsionTriMeshSpatialModel<CoordType>::checkHardcoreDistances(const Vector<CoordType>& vertex, const int numVertexChanged, const Vertices<CoordType>& vertices) const
 {
   bool checkDistance;
   //const int k = vertices.getNumVertices();
   Vector<float> triMeshVertex;
 
-  checkDistance = _triMeshQuery.getTriMesh().closestPoint(vertex, triMeshVertex) > _hardcoreDistances[numVertexChanged];
+  checkDistance = _triMeshQuery.closestPoint(vertex, triMeshVertex) > _hardcoreDistances[numVertexChanged];
 
   for (int i = 0; checkDistance == true && i < vertices.getNumVertices(); ++i)
     if ( i!= numVertexChanged)
-        if ( vertices[i].distance( vertex ) > _hardcoreDistances[i] + _hardcoreDistances[numVertexChanged] )
-          checkDistance = true;
-        else checkDistance = false;
+        if ( vertices[i].distance( vertex ) < _hardcoreDistances[i] + _hardcoreDistances[numVertexChanged] )
+          checkDistance = false;
 
   return checkDistance;
 }
@@ -187,7 +186,7 @@ bool MaximaRepulsionTriMeshSpatialModel<CoordType>::checkHardcoreDistances(const
 // /*! Processes the maxima repulsion
 //****************************************************************/
 //template<class CoordType>
-//void MaximaRepulsionTriMeshSpatialModel<CoordType>::setMaximaRepulsion()
+//void MaximalRepulsionTriMeshSpatialModel<CoordType>::setMaximalRepulsion()
 //{
 
 
@@ -196,7 +195,7 @@ bool MaximaRepulsionTriMeshSpatialModel<CoordType>::checkHardcoreDistances(const
  /*! Find beta for this nucleus (used with the energy)
 ****************************************************************/
 template<class CoordType>
-CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::findBeta()
+CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::findBeta()
 {
   EVAL(_vertices.getSize());
   EVAL(_numCompartments);
@@ -214,9 +213,9 @@ CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::findBeta()
 /*! Processes the maxima repulsion
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(const int numPoints)
+Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(const int numPoints)
 {
-  ENTER("Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(const int)");
+  ENTER("Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(const int)");
 
   bool info = true;
   RandomGenerator& randomGenerator = this->getRandomGenerator();
@@ -230,26 +229,14 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
   Vector<CoordType> distancesToBorder(numPoints), numberMovements(numPoints), numberAttempts(numPoints);
 
   int i, globalMovements = 0;
-  int numberLoopAttempts = 200;
-  int maxTotalLoopAttempts = 100;
+  int numberLoopAttempts = 250;
+  int maxTotalLoopAttempts = 200;
 
   DataSet dataset, dataset2;
 
-  CoordType beta, epsilon = 1;
+  CoordType beta = findBeta();
 
-  if ( epsilon == 1 )
-  {
-//    CoordType temp = getEnergy(currentVertices, 1)*(1/((numPoints-1)*(2*abs(_triMeshQuery.getTriMesh().equivalentRadius())-2*_hardcoreDistances.mean())));
-//    for (  beta = 0; beta < 1000000 && epsilon > 0.001; beta += 100 )
-//      epsilon = exp(-beta*temp);
-
-//    EVAL(epsilon)
-//    EVAL(beta);
-    beta = findBeta();
-   }
-
-
-  VertexStack<CoordType> vertexStack;
+  //CurveStack<CoordType> curveStack(3,_numCompartments,0,0,0,true);
 
   //sets up the minimum energy (over the initial real)
   Vector<CoordType> minEnergy(2);
@@ -259,31 +246,34 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
   //creates a vector of distances to the border
   for ( int c = 0; c < _numCompartments; ++c)
   {
-    distancesToBorder[c] = _triMeshQuery.getTriMesh().closestPoint( _vertices[c], triMeshVertex );
+    distancesToBorder[c] = _triMeshQuery.closestPoint( _vertices[c], triMeshVertex );
     EVAL(_vertices[c]);
   }
 
   //two loops
-  for ( int globalCycles = 0; globalCycles < maxTotalLoopAttempts && numberMovements.sum() !=0 && globalMovements-minEnergy[1]<50; ++globalCycles )
+  for ( int globalCycles = 0; globalCycles < maxTotalLoopAttempts && numberMovements.sum() !=0 && globalMovements-minEnergy[1]<100; ++globalCycles )
   {
     numberMovements.setZeros();
     numberAttempts.setZeros();
     int numMovements = 0;
 
-    for ( int oneCycle = 0; oneCycle < numberLoopAttempts && globalMovements-minEnergy[1]<50 ; ++oneCycle )
+//    curveStack.setOpen(true);
+
+    for ( int oneCycle = 0; oneCycle < numberLoopAttempts && globalMovements-minEnergy[1]<100 ; ++oneCycle )
     {
       //chooses a random compartment to move
       i = randomGenerator.uniformL( numPoints );
 
       const Vector<CoordType> vertex = currentVertices[i];
-      float currentDistanceToBorder = distancesToBorder[i];
+      //float currentDistanceToBorder = distancesToBorder[i];
 
       //calculates old energy ------- using 1st method
       float oldEnergy = getEnergy(currentVertices, 2);
 
 
       //moves the compartment in a random direction a distance smaller than twice the current distance to the border
-      CoordType radius = 3*currentDistanceToBorder;
+      //CoordType radius = 3*currentDistanceToBorder;
+      CoordType radius = (distancesToBorder[i]-_hardcoreDistances[i])*.99;
       movedVertex = moveCompartment(i, currentVertices, radius);
       currentVertices[i] = movedVertex;
 
@@ -308,7 +298,7 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
       //check if the conditions and therefore the new position are accepted
       if ( (newEnergy-oldEnergy < 0) || secondChance == true )
       {
-        distancesToBorder[i] = _triMeshQuery.getTriMesh().closestPoint( movedVertex, triMeshVertex );
+        distancesToBorder[i] = _triMeshQuery.closestPoint( movedVertex, triMeshVertex );
 
         if (info == true )
         {
@@ -331,8 +321,7 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
           EVAL(minEnergy[1]);
         }
 
-        vertexStack.append(currentVertices);
-        vertexStack.save( "/home/jarpon/Desktop/new/trace2", true );
+
 
 //        EVAL(newEnergy);
         ++numMovements;
@@ -342,7 +331,14 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
       else currentVertices[i] = vertex; //if the movement is not accepted we return to the previous position
       //EVAL(numberMovements);
 
+
+//      for ( int c = 0; c < _numCompartments; ++c)
+//        curveStack[c].append(currentVertices[c]);
+
+
     }
+
+//    curveStack.save( "/home/jarpon/Desktop/new/trace", true );
 
     if (info == true)
     {
@@ -359,11 +355,9 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
 
   }
 
-  CurveStack<CoordType> curveStack(vertexStack,true);
 //  EVAL(curveStack.getNumVertices());
-  curveStack.save( "/home/jarpon/Desktop/new/trace", true );
 
-  if (info == true) minEnergyVertices.save( "/home/jarpon/Desktop/new/minEnergyVertices.vx", true );
+//  if (info == true) minEnergyVertices.save( "/home/jarpon/Desktop/new/minEnergyVertices.vx", true );
 //  EVAL(minEnergy[0]);
 //  EVAL(globalMovements);
   for (int cc = 0; cc < _numCompartments; ++cc)
@@ -375,7 +369,7 @@ Vertices<CoordType> MaximaRepulsionTriMeshSpatialModel<CoordType>::drawSample(co
 }
 
 template<class CoordType>
-CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy(const Vertices<CoordType>& vertices, const int& method)
+CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy(const Vertices<CoordType>& vertices, const int& method)
 {
   switch( method )
   {
@@ -394,6 +388,6 @@ CoordType MaximaRepulsionTriMeshSpatialModel<CoordType>::getEnergy(const Vertice
   }
 }
 
-//template class MaximaRepulsionTriMeshSpatialModel<double>;
-template class MaximaRepulsionTriMeshSpatialModel<float>;
-//template class MaximaRepulsionTriMeshSpatialModel<int>;
+//template class MaximalRepulsionTriMeshSpatialModel<double>;
+template class MaximalRepulsionTriMeshSpatialModel<float>;
+//template class MaximalRepulsionTriMeshSpatialModel<int>;

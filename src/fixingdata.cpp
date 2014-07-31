@@ -7,7 +7,7 @@
 #include <thresholding.h>
 #include <trimesh.h>
 #include "trimeshspatialmodel.h"
-#include "maximarepulsion.h"
+#include "maximalrepulsion.h"
 #include <curvestack.h>
 
 #define TRACE
@@ -16,33 +16,34 @@
 
 void doIt2(const string& filename, const string& parentDir)
 {
-  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
-  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
+  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
 
   const string analysisDir = parentDir + "/analysis/";
-  const string analysisDirOld = parentDir + "/analysis_old/";
+  EVAL(analysisDir);
 
   Vector<float> centroid(3);
   Vector<float> vertexTriMesh(3);
-
-  DataSet datasetNucleus( analysisDirOld + filename + ".csv" );
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
+  EVAL(analysisDir + filename + "_chromocenters.csv");
+  DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  EVAL("ici");
+  const Vector<float> ids = datasetNucleus.getValues<float>( "idCC" );
 
 
 /**///chromocenters individual information
-  for (int numCC = 0; numCC < eqRadii.getSize(); numCC++ )
+  for (int numCC = 0; numCC < ids.getSize(); numCC++ )
   {
     centroid[X] = datasetNucleus.getValue<float>( "centroidCoordX", numCC);
     centroid[Y] = datasetNucleus.getValue<float>( "centroidCoordY", numCC);
     centroid[Z] = datasetNucleus.getValue<float>( "centroidCoordZ", numCC);
 
-    nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
-    float distanceToBorder = centroid.distance( vertexTriMesh );
+    float distanceToBorder = nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
 
     datasetNucleus.setValue("distanceToTheBorder", numCC, distanceToBorder);
   }
 
   datasetNucleus.save( analysisDir + filename + ".csv" );
+  EVAL("done!");
 }
 
 void doIt(const string& filename, const string& parentDir, RandomGenerator& randomGenerator)
@@ -99,16 +100,16 @@ void doIt(const string& filename, const string& parentDir, RandomGenerator& rand
     EVAL(vertices[j]);
   }
 
-  MaximaRepulsionTriMeshSpatialModel<float> triMeshSpatialModel;
+  MaximalRepulsionTriMeshSpatialModel<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.setHardcoreDistance( eqRadii );
   triMeshSpatialModel.initialize();
 
 
-  //maximaRepulsion.setTriMeshSpatialModel( tempTriMeshSpatialModel );
-  //maximaRepulsion.setTriMesh( nucleusTriMesh );
-  //maximaRepulsion.setMaximaRepulsion();
+  //maximalRepulsion.setTriMeshSpatialModel( tempTriMeshSpatialModel );
+  //maximalRepulsion.setTriMesh( nucleusTriMesh );
+  //maximalRepulsion.setMaximaRepulsion();
   repulsiveVertices = triMeshSpatialModel.drawSample( numPoints );
 
 }

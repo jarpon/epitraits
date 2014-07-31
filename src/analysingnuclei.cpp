@@ -4,6 +4,7 @@
 #include <marchingcubes.h>
 #include <thresholding.h>
 #include <trimesh.h>
+#include <cmath>
 
 #define TRACE
 #include <trace.h>
@@ -32,9 +33,9 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
 
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
   nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] );//nucleus volume got from the voxelmatrix
-  nucleiDataset.setValue ( "nucleusVolume_tm", numNucleus, triMesh.volume() );//nucleus volume got from the trimesh
+  nucleiDataset.setValue ( "nucleusVolume_tm", numNucleus, abs(triMesh.volume()) );//nucleus volume got from the trimesh
   nucleiDataset.setValue ( "equivalentRadius_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_EQUIVALENT_RADIUS,originalVoxelMatrix)[0]);
-  nucleiDataset.setValue ( "equivalentRadius_tm", numNucleus, triMesh.equivalentRadius() );
+  nucleiDataset.setValue ( "equivalentRadius_tm", numNucleus, abs(triMesh.equivalentRadius()) );
   nucleiDataset.setValue ( "voxelSizeUnit", numNucleus, originalVoxelMatrix.getVoxelCalibration().getLengthUnit().symbol() + "^3" );//real voxel size unit
   nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS,originalVoxelMatrix)[0] );//flatness parameter
   nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION,originalVoxelMatrix)[0] );//elongation parameter

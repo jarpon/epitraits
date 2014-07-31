@@ -24,7 +24,8 @@ VoxelMatrix <float> applyLabelling(const VoxelMatrix<float>& originalVoxelMatrix
 
   GaussianGradient<float> gaussianGradient;
   gaussianGradient.MaskVoxelMatrixProcessing<float>::setMask( nucleusMask );
-  gaussianGradient.setSigma( 1.4 );
+  gaussianGradient.setSigma( 1.3 );
+  //gaussianGradient.setSigma( 3 );
   //for (int k = 0; k < sizeZ; ++k) gaussianGradient.apply( gradientMatrix [k] );
   gaussianGradient.apply( gradientMatrix );
   gradientMatrix.save( intermediateProcessesDir + filename + "-gradient.vm", true );

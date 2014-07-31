@@ -17,108 +17,74 @@
 #include <trace.h>
 using namespace std;
 
-VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>& originalVoxelMatrix)
+extern VoxelMatrix<float> applyLabelling(const VoxelMatrix<float>&, const VoxelMatrix<float>&, const string&, const string&);
+
+VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>& originalVoxelMatrix, const string& filename, const string& parentDir)
 {
   ENTER("isolateNuclei");
 
-  VoxelMatrix<float> nucleiMask = originalVoxelMatrix;
-
-//  VolumeHistogramExpansion<float> normalizerHistogram;
-//  normalizerHistogram.apply( nucleusMask );
-
-  OtsuThresholding<float> otsuThresholding;
-  otsuThresholding.setForegroundIsAbove( true );
-  otsuThresholding.setForeground( 1.0 );
-  otsuThresholding.setBackground( 0.0 );
-  otsuThresholding.apply( nucleiMask );
-  EVAL(nucleiMask.getSize());
-//  nucleiMask.save( "/home/jarpon/Desktop/test0.vm", true );
-
-  HolesFillingf holesFilling;
-
-  int sizeZ = originalVoxelMatrix.getSize3();
-
-
-  ComponentLabelling<float> componentLabelling;
-  componentLabelling.apply( nucleiMask );
-
-  const int numComponents = componentLabelling.getNumLabels();
-
+  VoxelMatrix<float> nucleiMask = originalVoxelMatrix, regionMatrix;
 
   Thresholding<float> thresholding;
   thresholding.setForegroundIsAbove( true );
   thresholding.setForeground( 1.0 );
   thresholding.setBackground( 0.0 );
-//  thresholding.apply( nucleusMask );  //for images already segmented and comment the next threshold
-
-  //a final threshold is applied in each slide to leave only the biggest shape
-  //(wich is labeled with 1, the other labeled shapes are set to 0)
-  //thresholding.setThreshold(otsuThresholding.computeThreshold(histogram)  );
- // thresholding.setThreshold( 0.5 );
-
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( nucleiMask );
-  regionAnalysis.run();
-  regionAnalysis.mapRegionFeature( nucleiMask, REGION_FEATURE_VOLUME, originalVoxelMatrix );
-  nucleiMask.save( "/home/jarpon/Desktop/test1.vm", true );
-
-  // manual threshold -> just looking to the minimum volume of nuclei
-  thresholding.setThreshold( 20 );
   thresholding.apply( nucleiMask );
-//  nucleiMask.save( "/home/jarpon/Desktop/test2.vm", true );
-
-//  //process to improve nuclei segmentation when the nucleoli touch the envelope
-//  VoxelMatrix<float> structElement3;
-//  structElement3.setSize(7,7,7);
-//  structElement3.setOnes();
-
-//  VoxelMatrixDilatation<float> voxelDilatation2;
-//  voxelDilatation2.setStructElt( structElement3 );
-//  voxelDilatation2.apply( nucleiMask );
-
-//  VoxelMatrix<float> structElement4;
-//  structElement4.setSize(3,3,3);
-//  structElement4.setOnes();
-
-//  VoxelMatrixErosion<float> voxelErosion2;
-//  voxelErosion2.setStructElt( structElement4 );
-//  voxelErosion2.apply( nucleiMask );
 
 
-  //another 3D filling
-  //holesFilling.apply( nucleiMask );
+  HolesFillingf holesFilling;
+
+  int sizeZ = originalVoxelMatrix.getSize3();
+  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleiMask[k] );
+
+  holesFilling.apply( nucleiMask );
+
+  nucleiMask.save( parentDir + "/intermediate_processes/" + filename + "-mask.vm", true );
+
+  regionMatrix = applyLabelling( originalVoxelMatrix, nucleiMask, filename, parentDir + "/intermediate_processes/" );
+
+  EVAL("1");
+  RegionAnalysis<float> regionAnalysis;
+  regionAnalysis.setRegionMatrix( regionMatrix );
+  regionAnalysis.run();
+  EVAL("1");
+  regionAnalysis.mapRegionFeature( nucleiMask, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
+
+  nucleiMask.save( parentDir + "/intermediate_processes/" + filename + ".vm", true );
+
+  OtsuThresholding<float> otsuThresholding;
+  otsuThresholding.setBackground( 0.0 );
+  otsuThresholding.applyAlternative( nucleiMask );
 
 
-  if ( nucleiMask.max().max().max() > 100 )
-  {
-      VoxelMatrix<float> gradientMatrix = originalVoxelMatrix;
 
-      GaussianGradient<float> gaussianGradient;
-      gaussianGradient.MaskVoxelMatrixProcessing<float>::setMask( nucleiMask );
-      gaussianGradient.setSigma( 1.4 );
-      gaussianGradient.apply( gradientMatrix );
+//  if ( nucleiMask.max().max().max() > 100 )
+//  {
+//      VoxelMatrix<float> gradientMatrix = originalVoxelMatrix;
 
-      VoxelMatrix <float> regionMatrix = gradientMatrix;
-      WatershedTransform<float> watershedTransform;
-      watershedTransform.MaskVoxelMatrixProcessing<float>::setMask( nucleiMask );
-      watershedTransform.apply( regionMatrix );
-      regionAnalysis.setRegionMatrix( regionMatrix );
-      regionAnalysis.run();
-      regionAnalysis.mapRegionFeature( nucleiMask, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
+//      GaussianGradient<float> gaussianGradient;
+//      gaussianGradient.MaskVoxelMatrixProcessing<float>::setMask( nucleiMask );
+//      gaussianGradient.setSigma( 1.4 );
+//      gaussianGradient.apply( gradientMatrix );
 
-      Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRAST, originalVoxelMatrix );
-      Vector <unsigned int> histogram = featureValues.histogram( 0, 1, histogram.getSize()-1 );
+//      VoxelMatrix <float> regionMatrix = gradientMatrix;
+//      WatershedTransform<float> watershedTransform;
+//      watershedTransform.MaskVoxelMatrixProcessing<float>::setMask( nucleiMask );
+//      watershedTransform.apply( regionMatrix );
+//      regionAnalysis.setRegionMatrix( regionMatrix );
+//      regionAnalysis.run();
+//      regionAnalysis.mapRegionFeature( nucleiMask, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
 
-      thresholding.setThreshold( otsuThresholding.computeThreshold(histogram) );
-      thresholding.apply( nucleiMask );
-      //thresholding.applyAlternative( nucleiMask );
-  //    nucleiMask.save( "/home/jarpon/Desktop/test3.vm", true );
-  }
+//      Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRAST, originalVoxelMatrix );
+//      Vector <unsigned int> histogram = featureValues.histogram( 0, 1, histogram.getSize()-1 );
+
+//      thresholding.setThreshold( otsuThresholding.computeThreshold(histogram) );
+//      thresholding.apply( nucleiMask );
+//      //thresholding.applyAlternative( nucleiMask );
+//  //    nucleiMask.save( "/home/jarpon/Desktop/test3.vm", true );
+//  }
 
   nucleiMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
-//  VoxelMatrix<float> newOriginal = originalVoxelMatrix;
-//  newOriginal.applyMask( originalVoxelMatrix, nucleiMask );
-  //newOriginal.save( "/home/jarpon/Desktop/testVM.vm", true );
 
 
   LEAVE();

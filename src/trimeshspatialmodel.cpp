@@ -1,5 +1,5 @@
 #include "trimeshspatialmodel.h"
-#include "maximarepulsion.h"
+#include "maximalrepulsion.h"
 
 #include <randomgenerator.h>
 #include <boundingbox.h>
@@ -210,7 +210,7 @@ void TriMeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType>& p
   //ENTER("void TriMeshSpatialModel<CoordType>::drawPositionFromBorder(Vector<CoordType,PixelType>, T)");
   Vector<CoordType> triMeshVertex, normalVector;
   int attempts = 0;
-  const int maxAttempts = 100;
+  const int maxAttempts = 200;
   bool found = false;
 
   do
@@ -322,9 +322,9 @@ Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreDistances()
 
   Vertices<CoordType> vertices( 3, 0, 0, 0 );
   Vector<CoordType> vertex( 3 );
-  Vector<CoordType> test( 3 );
+  //Vector<CoordType> test( 3 );
   int attempts;
-  const int maxAttempts = 10000;
+  const int maxAttempts = 150;
 
   if ( _numCompartments != 1 && _hardcoreDistances.getSize() == 1 )
   {
@@ -386,7 +386,7 @@ Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistan
 //  stopWatch.start( "One pattern" );
 
   int attempts = 0;
-  const int maxAttempts = 100;
+  const int maxAttempts = 200;
 
   if ( _numCompartments != 1 && _hardcoreDistances.getSize() == 1 && _distanceToBorder.getSize() == 1 )
   {

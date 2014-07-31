@@ -27,7 +27,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   regionAnalysisCCs.setRegionMatrix( ccsMask );
   regionAnalysisCCs.run();
 
-  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
   Vector<float> centroid(3);
   Vector<float> vertexTriMesh(3);
