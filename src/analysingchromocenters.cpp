@@ -14,8 +14,20 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
                            const int& numNucleus, int& totalNumCCs,
                            DataSet& nucleiDataset, DataSet& chromocentersDataset, DataSet& individualChromocentersDataset)
 {
-  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + filename + ".vm" );
+  string originalName = filename.substr( 0,filename.find_last_of("-")  );
+
+  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + originalName + ".vm" );
   VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
+
+  // for segmented masks with values higher than 1, we need them with 0/1 values
+  if ( nucleusMask.max().max().max() > 1 )
+  {
+      Thresholding<float> thresholding;
+      thresholding.setBackground( 0.0 );
+      thresholding.setForeground( 1.0 );
+      thresholding.apply( nucleusMask );
+  }
+
   RegionAnalysis<float> regionAnalysis;
   regionAnalysis.setRegionMatrix( nucleusMask );
   regionAnalysis.run();
@@ -26,16 +38,20 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   RegionAnalysis<float> regionAnalysisCCs;
   regionAnalysisCCs.setRegionMatrix( ccsMask );
   regionAnalysisCCs.run();
-
   //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
   Vector<float> centroid(3);
   Vector<float> vertexTriMesh(3);
 
+  // get the name of the class
+  string classif = parentDir;
+  classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
+
   Vertices<float> centroids;
   centroids = regionAnalysisCCs.computeRegionCentroids(REGION_FEATURE_CENTROID, originalVoxelMatrix);
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
+  nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
   nucleiDataset.setValue ( "ccsNumber", numNucleus, componentLabelling.getNumLabels() );//number of ccs obtained in the nucleus
   nucleiDataset.setValue ( "ccsVolume", numNucleus, regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix).sum() );//total ccs volume
   nucleiDataset.setValue ( "ccsRelativeVolume", numNucleus, ( regionAnalysisCCs.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] / regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] ) );//relative volume of ccs regarding the complete nucleus
@@ -47,6 +63,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   for (int numCC = 0; numCC < regionAnalysisCCs.numRegions(); numCC++ )
   {
     chromocentersDataset.setValue ( "name", numCC+totalNumCCs, filename );
+    chromocentersDataset.setValue ( "class", numCC+totalNumCCs, classif );//classification: mutant, tissue, etc.
     chromocentersDataset.setValue ( "idCC", numCC+totalNumCCs, numCC+1 );
 
     centroid = centroids[numCC];
