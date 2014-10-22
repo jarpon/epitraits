@@ -19,13 +19,24 @@
 using namespace std;
 
 extern VoxelMatrix<float> findNucleus(const VoxelMatrix<float>&);
+extern VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>&,
+                                         const string&, const string&);
+extern VoxelMatrix<float> findNucleusAlternative(const VoxelMatrix<float>&);
 extern void nucleusAnalysis(const VoxelMatrix<float>&, VoxelMatrix<float>&,
                             const string&, const string&, const int&, DataSet&);
 extern VoxelMatrix<float> findCCs( const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
+extern VoxelMatrix<float> findCCs16bits( const VoxelMatrix<float>&, VoxelMatrix<float>&,
+                                   const string&, const string&);
+extern VoxelMatrix<float> findCCsManually( const VoxelMatrix<float>&, VoxelMatrix<float>&,
+                                   const string&, const string&);
+extern VoxelMatrix<float> findChromosomes( const VoxelMatrix<float>&, VoxelMatrix<float>&,
+                                   const string&, const string&);
 extern VoxelMatrix<float> findGenes(const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
 extern void chromocentersAnalysis(VoxelMatrix<float>&, const string&, const string&,
+                                  const int&, int&, DataSet&, DataSet&, DataSet&);
+extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
 extern void spatialModelAnalysis(TriMesh<float>&,
                           const string&, const string&, const int& );
@@ -44,8 +55,8 @@ extern void doIt2(const string&, const string&);
 
 int main(int argc, char* argv[])
 {
-  Stopwatch stopWatch;
-  stopWatch.start( "Global process" );
+//  Stopwatch stopWatch;
+//  stopWatch.start( "Global process" );
 
   RandomGenerator randomGenerator;
   string filepath, filename, parentDir, originalDir, originalVMDir, nucleiDir, chromocentersDir, intermediateProcessesDir, analysisDir, shapesDir;
@@ -55,6 +66,7 @@ int main(int argc, char* argv[])
   {
     // Check the value of argc. If not enough parameters have been passed, inform user and exit.
     // Inform the user of how to use the program
+    cout << "                                                         " << endl;
     cout << "Usage: epitraits [OPTION process to apply] FILES... " << endl;
     cout << "Run a global or specific process of segmentation and/or quantification of nuclei" << endl;
     cout << "            without any option, it will run all processes" << endl;
@@ -71,6 +83,8 @@ int main(int argc, char* argv[])
     cout << "               >> this function must call files inside segmented_chromocenters folder" << endl;
     cout << "                                                         " << endl;
     cout << "           '8' to find and segment genes" << endl;
+    cout << "           '9' to find and segment the chromosome" << endl;
+    cout << "          '10' to analyse chromosomes" << endl;
     cout << "                                                          " << endl;
     cout << "       to test model methods themself:" << endl;
     cout << "           '6' and after choose descriptor and constraints" << endl;
@@ -99,8 +113,9 @@ int main(int argc, char* argv[])
     cout << "       FILES vm files" << endl;
     cout << "**********************************************************************************" << endl;
     cout << "   The following folders must exist:" << endl;
+    cout << "         originals_vm" << endl;
     cout << "         segmented_nuclei" << endl;
-    cout << "         segmented_chromocenters" << endl;
+    cout << "         segmented_chromocenters / segmented_chromosomes / segmented_genes" << endl;
     cout << "         intermediate_processes" << endl;
     cout << "         analysis" << endl;
     cout << "         shapes" << endl;
@@ -112,6 +127,9 @@ int main(int argc, char* argv[])
   ****************************************************************/
   else if ( argv[1] != std::string("-p") )
   {
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
     ENTER("Complete nuclei and chromocenters segmentation and analysis");
     // we set datafiles and file string
     DataSet nucleiDataset;
@@ -186,13 +204,21 @@ int main(int argc, char* argv[])
   /*! Run a process from 1 to 4 on each image of the folder.
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("1") || argv[2] == std::string("2") || argv[2] == std::string("3") || argv[2] == std::string("4") || argv[2] == std::string("8"))
+            ( argv[2] == std::string("1") || argv[2] == std::string("1a") || argv[2] == std::string("1+") ||argv[2] == std::string("2") || argv[2] == std::string("3") || argv[2] == std::string("3_16b") || argv[2] == std::string("3m") || argv[2] == std::string("4")
+              || argv[2] == std::string("8") || argv[2] == std::string("9") || argv[2] == std::string("10") )
             && ( argc > 3 ) )
   {
+
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
     DataSet nucleiDataset;
     DataSet chromocentersDataset;
+    DataSet chromosomesDataset;
+
     int numNucleus = 0;
     int totalNumCCs = 0;
+    int totalNumChromosomes = 0;
 
     const string process = argv[2];
     EVAL(process);
@@ -204,14 +230,15 @@ int main(int argc, char* argv[])
       // only vm files are processed
       if(filename.substr(filename.find_last_of(".") + 1) == "vm")
       {
-        DataSet individualChromocentersDataset;
+//        DataSet individualChromocentersDataset;
+
 
         EVAL(filename);
         FileInfo fileInfo (filename);
 
         if ( fileInfo.isAbsolutePath() == false )
         {
-          originalDir = getcwd( argv[i], 2048 );
+          originalDir = getcwd( argv[i], 4048 );
           originalDir = originalDir + "/";
           filepath = originalDir + filename;
           FileInfo fileInfo (filepath);
@@ -237,14 +264,34 @@ int main(int argc, char* argv[])
         analysisDir = parentDir + "/analysis/";
 
         EVAL(filename);
-        VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
         EVAL(originalVMDir);
 
         if ( process == "1" )
         {
           ENTER("Nuclei segmentation");
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
           nucleusMask = findNucleus( originalVoxelMatrix );
+          nucleusMask.save ( nucleiDir + filename + ".vm", true );
+          LEAVE();
+        }
+
+        if ( process == "1+" )
+        {
+          ENTER("Nuclei segmentation, looking for more than 1 nucleus");
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          VoxelMatrix<float> nucleusMask;
+          nucleusMask = findMoreNuclei( originalVoxelMatrix, filename, nucleiDir );
+          //nucleusMask.save ( nucleiDir + filename + ".vm", true );
+          LEAVE();
+        }
+
+        if ( process == "1a" )
+        {
+          ENTER("Nuclei alternative segmentation");
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          VoxelMatrix<float> nucleusMask;
+          nucleusMask = findNucleusAlternative( originalVoxelMatrix );
           nucleusMask.save ( nucleiDir + filename + ".vm", true );
           LEAVE();
         }
@@ -252,6 +299,9 @@ int main(int argc, char* argv[])
         else if ( process == "2" )
         {
           ENTER("Nuclei quantification");
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          EVAL(originalName);
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           nucleusAnalysis( originalVoxelMatrix, nucleusMask, filename, parentDir, numNucleus, nucleiDataset );
           nucleiDataset.save(analysisDir + "nuclei.csv", true );
@@ -262,6 +312,9 @@ int main(int argc, char* argv[])
         else if ( process == "3" )
         {
           ENTER("Chromocenters segmentation");
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
+          //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> ccsMask;
           ccsMask = findCCs( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
@@ -269,9 +322,36 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
+        else if ( process == "3_16b" )
+        {
+          ENTER("Chromocenters segmentation (16bits images)");
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
+          //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
+          VoxelMatrix<float> ccsMask;
+          ccsMask = findCCs16bits( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
+          ccsMask.save ( chromocentersDir + filename + ".vm", true );
+          LEAVE();
+        }
+
+        else if ( process == "3m" )
+        {
+          ENTER("Chromocenters manual segmentation");
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
+          //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
+          VoxelMatrix<float> ccsMask;
+          ccsMask = findCCsManually( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
+          ccsMask.save ( chromocentersDir + filename + ".vm", true );
+          LEAVE();
+        }
+
         else if ( process == "4" )
         {
           ENTER("Chromocenters quantification");
+          DataSet individualChromocentersDataset;
           VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
           chromocentersAnalysis( ccsMask, filename, parentDir, numNucleus, totalNumCCs, nucleiDataset, chromocentersDataset, individualChromocentersDataset );
           individualChromocentersDataset.save(analysisDir + filename + "_chromocenters.csv", true );
@@ -283,6 +363,7 @@ int main(int argc, char* argv[])
         {
           ENTER("Genes' search");
           string genesDir = parentDir + "/segmented_genes/";
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> genes;
           genes = findGenes( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir );
@@ -291,6 +372,30 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
+        else if ( process == "9" )
+        {
+          ENTER("Chromosome segmentation");
+          string chromosomesDir = parentDir + "/segmented_chromosomes/";
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
+          VoxelMatrix<float> chromosomeMask;
+          chromosomeMask = findChromosomes( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
+          chromosomeMask.save ( chromosomesDir + filename + ".vm", true );
+          LEAVE();
+        }
+
+        else if ( process == "10" )
+        {
+          ENTER("Chromosomes quantification");
+          DataSet individualChromosomesDataset;
+          string chromosomesDir = parentDir + "/segmented_chromosomes/";
+          VoxelMatrix<float> chromosomesMask ( chromosomesDir + filename + ".vm" );
+          EVAL(chromosomesMask.max().max().max());
+          chromosomesAnalysis( chromosomesMask, filename, parentDir, numNucleus, totalNumChromosomes, nucleiDataset, chromosomesDataset, individualChromosomesDataset );
+          individualChromosomesDataset.save(analysisDir + filename + "_chromosomes.csv", true );
+          ++numNucleus;
+          LEAVE();
+        }
       }
       else cout << "Error opening the image, it must be a VoxelMatrix image " << endl;
     }
@@ -301,8 +406,18 @@ int main(int argc, char* argv[])
     else if ( argv[2] == std::string("4") )
     {
       nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
-      chromocentersDataset.save(analysisDir + "chromocenters.csv", true );
+      chromocentersDataset.save(analysisDir + "ccs.csv", true );
     }
+
+    else if ( argv[2] == std::string("10") )
+    {
+      nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
+      chromosomesDataset.save(analysisDir + "ccs.csv", true );
+    }
+
+    stopWatch.stop( "Global process" );
+    stopWatch.print();
+
 
   }
 
@@ -310,6 +425,10 @@ int main(int argc, char* argv[])
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) && ( argv[2] == std::string("5") ) && ( argc > 3 ) )
   {
+
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
     ENTER("Spatial model generator");
 
     //introduce HERE the number of patterns to generate for each nucleus;
@@ -363,6 +482,10 @@ int main(int argc, char* argv[])
       else cout << "Error" << endl;
     }
     LEAVE();
+
+    stopWatch.stop( "Global process" );
+    stopWatch.print();
+
   }
 
 
@@ -374,6 +497,10 @@ int main(int argc, char* argv[])
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
   {
+
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
     ENTER("Spatial model analysis");
 
     DataSet dataSet, errorDataSet;
@@ -422,7 +549,7 @@ int main(int argc, char* argv[])
 
           if ( fileInfo.isAbsolutePath() == false )
           {
-            originalDir = getcwd( argv[i], 2048 );
+            originalDir = getcwd( argv[i], 4048 );
             originalDir = originalDir + "/";
             filepath = originalDir + filename;
             FileInfo fileInfo (filepath);
@@ -454,8 +581,12 @@ int main(int argc, char* argv[])
           }
           else if ( test == "data" )
           {
+            //string originalName = filename.substr( 0,filename.find_last_of("-")  );
             //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
             realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+
+            //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
+
             ostringstream oss;
             oss << constraints;
             dataSet.save(analysisDir + "pValues_" + oss.str() + function + oss.str() + ".csv", true );
@@ -495,12 +626,20 @@ int main(int argc, char* argv[])
     }
 
     LEAVE();
+
+    stopWatch.stop( "Global process" );
+    stopWatch.print();
+
   }
 
   /*! Temporal
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) && ( argv[2] == std::string("99") ) && ( argc > 3 ) )
   {
+
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
     ENTER("Temporal To Do Things!");
 
     // if we got enough parameters and options...
@@ -550,12 +689,20 @@ int main(int argc, char* argv[])
       else cout << "Error" << endl;
     }
     LEAVE();
+
+    stopWatch.stop( "Global process" );
+    stopWatch.print();
+
   }
 
   /*! Crio sections
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) && ( argv[2] == std::string("extractnuclei") ) && ( argc > 3 ) )
   {
+
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
     ENTER("Temporal To Do Things!");
 
     // if we got enough parameters and options...
@@ -598,7 +745,12 @@ int main(int argc, char* argv[])
       }
       else cout << "Error" << endl;
     }
+
     LEAVE();
+
+    stopWatch.stop( "Global process" );
+    stopWatch.print();
+
   }
 
   /*! Gets an error!
@@ -610,7 +762,5 @@ int main(int argc, char* argv[])
     error.setWhat( "Call epitraits to see the help" );
   }
 
-  stopWatch.stop( "Global process" );
-  stopWatch.print();
   return 0;
 }

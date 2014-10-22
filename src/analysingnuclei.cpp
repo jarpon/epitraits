@@ -15,23 +15,29 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   //const string analysisDir = parentDir + "/analysis/";
   const string shapesDir = parentDir + "/shapes/";
 
+  Thresholding<float> thresholding;
+  thresholding.setForeground( 1.0 );
+  thresholding.setBackground( 0.0 );
+  thresholding.setThreshold(0.5);
+  thresholding.apply( nucleusMask );
+
   RegionAnalysis<float> regionAnalysis;
   regionAnalysis.setRegionMatrix( nucleusMask );
   regionAnalysis.run();
 
+  //generate 3Dmesh
   MarchingCubes<float> marchingCubes;
   TriMesh<float> triMesh;
-  Thresholding<float> thresholding;
-  thresholding.setForeground( 1.0 );
-  thresholding.setBackground( 0.0 );
-
-  //generate 3Dmesh
-  thresholding.levelSetMask( nucleusMask, 1 );
   triMesh = marchingCubes.buildMesh( nucleusMask, 0.5, true );
   triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
   triMesh.save( shapesDir + filename , true );
 
+  // get the name of the class
+  string classif = parentDir;
+  classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
+
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
+  nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
   nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] );//nucleus volume got from the voxelmatrix
   nucleiDataset.setValue ( "nucleusVolume_tm", numNucleus, abs(triMesh.volume()) );//nucleus volume got from the trimesh
   nucleiDataset.setValue ( "equivalentRadius_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_EQUIVALENT_RADIUS,originalVoxelMatrix)[0]);

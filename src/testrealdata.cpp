@@ -29,6 +29,8 @@ void evaluator(
   DataSet& dataSet, RandomGenerator& randomGenerator)
 {
   const string analysisDir = parentDir + "/analysis/";
+  string classif = parentDir;
+  classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
 
   //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
@@ -116,6 +118,7 @@ void evaluator(
   saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
   const int row = dataSet.size()[0];
   dataSet.setValue( "nucleus", row, filename );
+  dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
   dataSet.setValue( "pValues", row, pValue );
 
 
