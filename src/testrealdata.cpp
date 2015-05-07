@@ -3,7 +3,9 @@
 #include <spatialdescriptorfunctiong.h>
 #include <spatialdescriptorfunctionh.h>
 #include "spatialdescriptorborder.h"
+#include "spatialdescriptorcentroid.h"
 #include "maximalrepulsion.h"
+#include "maxrepulsionwithdistances.h"
 #include "spatialdescriptormaxima.h"
 #include "trimeshspatialmodel.h"
 #include <trimesh.h>
@@ -34,6 +36,7 @@ void evaluator(
 
   //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
 
   const int numPoints = datasetNucleus.size()[0];
 
@@ -65,6 +68,14 @@ void evaluator(
     spatialDescriptorDistanceToBorder = new SpatialDescriptorDistanceToBorder<float>();
     spatialDescriptorDistanceToBorder->setTriMesh( nucleusTriMesh );
     spatialDescriptor = spatialDescriptorDistanceToBorder;
+  }
+  else if ( function == "C" )
+  {
+    PRINT("C");
+    SpatialDescriptorDistanceToCentroid<float>* spatialDescriptorDistanceToCentroid;
+    spatialDescriptorDistanceToCentroid = new SpatialDescriptorDistanceToCentroid<float>();
+    spatialDescriptorDistanceToCentroid->setTriMesh( nucleusTriMesh );
+    spatialDescriptor = spatialDescriptorDistanceToCentroid;
   }
   else if ( function == "FMod" )
   {
@@ -109,6 +120,13 @@ void evaluator(
     EVAL(vertices[i]);
   }
 
+  //test random points/volumes
+  //vertices.load( parentDir + "/" + filename + ".vx" );
+  for ( int i = 0; i < numPoints; ++i )
+  {
+    EVAL(vertices[i]);
+  }
+
   ostringstream iss; //we suppose as much 99 labels
   iss << constraints;
 
@@ -116,10 +134,12 @@ void evaluator(
   EVAL( pValue );
 
   saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
+//  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
   const int row = dataSet.size()[0];
   dataSet.setValue( "nucleus", row, filename );
   dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
-  dataSet.setValue( "pValues", row, pValue );
+  dataSet.setValue( "descriptor", row, function );//spatial descriptor
+  dataSet.setValue( "index", row, pValue );
 
 
 }
@@ -163,11 +183,13 @@ void evaluator_sizeConstrained(
   //new data
   //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
   //old data
   //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
 
   //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  //const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   //old data
   //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
 
@@ -299,6 +321,48 @@ void evaluator_MaximalRepulsionConstrained(
     function, constraints, dataSet, randomGenerator );
 }
 
+
+void evaluator_MaxRepulsionWithDistanceToTheBorderConstrained(
+  const string& filename, const string& parentDir,
+  const string& function, const int& constraints,
+  DataSet& dataSet,
+  RandomGenerator& randomGenerator)
+{
+  PRINT("spatialModelEvaluator_MaxRepulsionWithDistanceToTheBorderConstrained");
+
+  const string analysisDir = parentDir + "/analysis/";
+
+  //new data
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  //old data
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
+
+  //new data
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  //old data
+  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
+  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+
+  //new data
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  //old data
+  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
+  EVAL(eqRadii);
+
+  MaxRepulsionWithDistancesTriMeshSpatialModel<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setDistanceToBorder( distancesToBorder );
+  triMeshSpatialModel.setHardcoreDistance( eqRadii );
+  triMeshSpatialModel.initialize();
+
+  evaluator(
+    nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
+    function, constraints, dataSet, randomGenerator );
+}
+
+
 /*! Chooses case depending on the constraints
 ****************************************************************/
 void realDataEvaluator(
@@ -339,5 +403,11 @@ void realDataEvaluator(
         function, constraints,
         dataSet, randomGenerator );
       break;
+    case 5:
+    evaluator_MaxRepulsionWithDistanceToTheBorderConstrained(
+      filename, parentDir,
+      function, constraints,
+      dataSet, randomGenerator );
+    break;
   }
 }

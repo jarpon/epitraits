@@ -58,6 +58,7 @@ class TriMeshSpatialModel : public SpatialModel<CoordType,float>
     TriMeshQuery<CoordType> _triMeshQuery;
     Vector<CoordType> _hardcoreDistances;
     Vertices<CoordType> _vertices;
+    void randomizesOrder(RandomGenerator&);
 
   private:
 
@@ -65,7 +66,7 @@ class TriMeshSpatialModel : public SpatialModel<CoordType,float>
     Vertices<CoordType> distanceToTheBorder();
     Vertices<CoordType> hardcoreAndToTheBorderDistances();
 
-    void randomizesOrder(RandomGenerator&);
+//    void randomizesOrder(RandomGenerator&);
 
 
 

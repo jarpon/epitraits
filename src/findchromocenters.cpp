@@ -22,11 +22,11 @@ extern VoxelMatrix<float> applyLabelling(const VoxelMatrix<float>&, const VoxelM
 VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<float>& nucleusMask,
                             const string& filename, const string& intermediateProcessesDir )
 {
-//  VoxelMatrix<float> regionMatrix;
-//  regionMatrix = applyLabelling( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir );
+  VoxelMatrix<float> regionMatrix;
+  regionMatrix = applyLabelling( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir );
 
-  VoxelMatrix<float> regionMatrix( intermediateProcessesDir + filename + "-gradient.vm" );
-  EVAL(regionMatrix.getSize());
+//  VoxelMatrix<float> regionMatrix( intermediateProcessesDir + filename + "-gradient.vm" );
+//  EVAL(regionMatrix.getSize());
 
   VoxelMatrix<float> rangeMask, copyVoxelMatrix = originalVoxelMatrix;
 
@@ -35,7 +35,7 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
   regionAnalysis.setRegionMatrix( regionMatrix );
   regionAnalysis.run();
 
-  EVAL("!");
+//  EVAL("!");
 //  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_AVERAGE_VALUE, copyVoxelMatrix );
 //  rangeMask.save( intermediateProcessesDir + filename + "-average.vm", true );
   regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_CONTRAST, copyVoxelMatrix );
@@ -55,6 +55,14 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
   //Vector <unsigned int> histogram = featureValues.histogram( 0, 1, featureValues.max() );
   Vector <unsigned int> histogram = featureValues.histogram( featureValues.min(), 1, floor(featureValues.max())+1 );
 
+  //test contrast*shape
+  //Vector <float> shapes = regionAnalysis.computeRegionFeature( REGION_FEATURE_SPHERICITY, copyVoxelMatrix );
+  //Vector <float> result = featureValues * shapes;
+  //result.sort();
+  //Vector <unsigned int> histogram = result.histogram( result.min(), 1, floor(result.max())-1 );
+
+
+
 //  featureValues.sort();
 //  EVAL(featureValues);
 
@@ -67,7 +75,7 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
 
   Thresholding<float> thresholding;
   thresholding.setBackground( 0.0 );
-  //thresholding.setForeground( 1.0 );
+  thresholding.setForeground( 1.0 );
 
 
 //  float factor ;
@@ -149,14 +157,14 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
 //  EVAL(otsuThresholding.computeThreshold(histogram));
 //  EVAL(featureValues.max())
 
-  thresholding.applyAlternative( ccsMask );
-  //thresholding.apply( ccsMask );
+  //thresholding.applyAlternative( ccsMask );
+  thresholding.apply( ccsMask );
   //ccsMask.save( "/home/jarpon/Desktop/test1.vm", true );
 
   //to obtain a better filling, it's applied to each 2D slice instead of the complete 3D stack
-//  HolesFillingf holesFilling;
-//  int sizeZ = ccsMask.getSize3();
-//  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( ccsMask[k] );
+  HolesFillingf holesFilling;
+  int sizeZ = ccsMask.getSize3();
+  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( ccsMask[k] );
 
 
 //  VoxelMatrix<float> ccsFillMask = ccsMask;
@@ -179,6 +187,7 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
   voxelErosion.setStructElt( structElement );
   voxelErosion.apply( ccsMask );
 
+//  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( ccsMask[k] );
 
   //labeling the image
   ComponentLabelling<float> componentLabelling;

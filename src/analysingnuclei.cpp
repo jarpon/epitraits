@@ -45,8 +45,10 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "voxelSizeUnit", numNucleus, originalVoxelMatrix.getVoxelCalibration().getLengthUnit().symbol() + "^3" );//real voxel size unit
   nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS,originalVoxelMatrix)[0] );//flatness parameter
   nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION,originalVoxelMatrix)[0] );//elongation parameter
-  nucleiDataset.setValue ( "sphericity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SPHERICITY,originalVoxelMatrix)[0] );//sphericity parameter
-  nucleiDataset.setValue ( "surfaceArea", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA,originalVoxelMatrix)[0] );//surface area of the nucleus
+  nucleiDataset.setValue ( "sphericity_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SPHERICITY,originalVoxelMatrix)[0] );//sphericity parameter
+  nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
+  nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA,originalVoxelMatrix)[0] );//surface area of the nucleus
+  nucleiDataset.setValue ( "surfaceArea_tm", numNucleus, abs(triMesh.area() ) );//nucleus volume got from the trimesh
   nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTENSITY,originalVoxelMatrix)[0] );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_DENSITY,originalVoxelMatrix)[0] );//compute the integrated density taking into account the real size of the nucleus
 

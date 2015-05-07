@@ -37,7 +37,7 @@ VoxelMatrix <float> applyLabelling(const VoxelMatrix<float>& originalVoxelMatrix
   //gaussianGradient.setSigma( 2 );
   //for (int k = 0; k < sizeZ; ++k) gaussianGradient.apply( gradientMatrix [k] );
   gaussianGradient.apply( gradientMatrix );
-  gradientMatrix.save( intermediateProcessesDir + filename + "-gradient.vm", true );
+  //gradientMatrix.save( intermediateProcessesDir + filename + "-gradient.vm", true );
   //gradientMatrix.operator /=( 16 );
 
   VoxelMatrix <float> regionMatrix = gradientMatrix;
@@ -45,7 +45,7 @@ VoxelMatrix <float> applyLabelling(const VoxelMatrix<float>& originalVoxelMatrix
   watershedTransform.MaskVoxelMatrixProcessing<float>::setMask( nucleusMaskCopy );
   watershedTransform.apply( regionMatrix );
 
-  regionMatrix.save( intermediateProcessesDir + filename + "-watershed.vm", true );
+ // regionMatrix.save( intermediateProcessesDir + filename + "-watershed.vm", true );
 
   return regionMatrix;
 }

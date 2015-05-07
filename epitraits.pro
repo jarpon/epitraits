@@ -42,10 +42,25 @@ SOURCES += \
     src/maximalrepulsion.cpp \
     src/findgenes.cpp \
     src/findchromocenters.cpp \
-    src/findnuclei.cpp
+    src/findnuclei.cpp \
+    src/findchromosomes.cpp \
+    src/analysingchromosomes.cpp \
+    src/findnucleialternative.cpp \
+    src/findchromocentersmanually.cpp \
+    src/findchromocenters16bits.cpp \
+    src/findmorenuclei.cpp \
+    src/findnucleoli.cpp \
+    src/maxrepulsionwithdistances.cpp \
+    src/findnucleicascade.cpp \
+    src/analysingnucleoli.cpp \
+    src/spatialanalysisnucleoli.cpp \
+    src/spatialdescriptorcentroid.cpp \
+    src/getobjectsinterdistances.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \
     src/spatialdescriptorborder.h \
-    src/maximalrepulsion.h
+    src/maximalrepulsion.h \
+    src/maxrepulsionwithdistances.h \
+    src/spatialdescriptorcentroid.h
 

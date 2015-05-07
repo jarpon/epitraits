@@ -2,7 +2,7 @@
  * \class  SpatialDescriptorDistanceToBorder
  * \author Javier Arpón (ja), INRA
  * \date   2014.02.15 - creation (ja)
- * \brief  Study the peripheral position of studied points into a shape.
+ * \brief  Study the peripheral positioning of volumes into a shape.
 ****************************************************************/
 
 #include "spatialdescriptorborder.h"

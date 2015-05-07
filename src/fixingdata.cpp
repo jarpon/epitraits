@@ -9,42 +9,82 @@
 #include "trimeshspatialmodel.h"
 #include "maximalrepulsion.h"
 #include <curvestack.h>
+#include <voxelmatrixdilatation.h>
+#include <voxelmatrixerosion.h>
 
 #define TRACE
 #include <trace.h>
 
 
+//void doIt2(const string& filename, const string& parentDir)
+//{
+//  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+//  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
+
+//  const string analysisDir = parentDir + "/analysis/";
+//  EVAL(analysisDir);
+
+//  Vector<float> centroid(3);
+//  Vector<float> vertexTriMesh(3);
+//  EVAL(analysisDir + filename + "_chromocenters.csv");
+//  DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+//  EVAL("ici");
+//  const Vector<float> ids = datasetNucleus.getValues<float>( "idCC" );
+
+
+///**///chromocenters individual information
+//  for (int numCC = 0; numCC < ids.getSize(); numCC++ )
+//  {
+//    centroid[X] = datasetNucleus.getValue<float>( "centroidCoordX", numCC);
+//    centroid[Y] = datasetNucleus.getValue<float>( "centroidCoordY", numCC);
+//    centroid[Z] = datasetNucleus.getValue<float>( "centroidCoordZ", numCC);
+
+//    float distanceToBorder = nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
+
+//    datasetNucleus.setValue("distanceToTheBorder", numCC, distanceToBorder);
+//  }
+
+//  datasetNucleus.save( analysisDir + filename + ".csv" );
+//  EVAL("done!");
+//}
+
 void doIt2(const string& filename, const string& parentDir)
 {
-  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
-  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
-
-  const string analysisDir = parentDir + "/analysis/";
-  EVAL(analysisDir);
-
-  Vector<float> centroid(3);
-  Vector<float> vertexTriMesh(3);
-  EVAL(analysisDir + filename + "_chromocenters.csv");
-  DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  EVAL("ici");
-  const Vector<float> ids = datasetNucleus.getValues<float>( "idCC" );
+  VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
 
 
-/**///chromocenters individual information
-  for (int numCC = 0; numCC < ids.getSize(); numCC++ )
-  {
-    centroid[X] = datasetNucleus.getValue<float>( "centroidCoordX", numCC);
-    centroid[Y] = datasetNucleus.getValue<float>( "centroidCoordY", numCC);
-    centroid[Z] = datasetNucleus.getValue<float>( "centroidCoordZ", numCC);
 
-    float distanceToBorder = nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
+  VoxelMatrix<float> structElement;
+  structElement.setSize(3,3,3);
+  structElement.setOnes();
 
-    datasetNucleus.setValue("distanceToTheBorder", numCC, distanceToBorder);
-  }
+//  VoxelMatrixDilatation<float> voxelDilatation;
+//  voxelDilatation.setStructElt( structElement );
+//  voxelDilatation.apply( nucleusMask );
 
-  datasetNucleus.save( analysisDir + filename + ".csv" );
-  EVAL("done!");
+  VoxelMatrixErosion<float> voxelErosion;
+  voxelErosion.setStructElt( structElement );
+  voxelErosion.apply( nucleusMask );
+
+
+  Thresholding<float> thresholding;
+  thresholding.setBackground( 0.0 );
+  thresholding.setForeground( 1.0 );
+  thresholding.setThreshold( -0.1 );
+  thresholding.apply( nucleusMask );
+
+
+  nucleusMask.save ( parentDir + "/" + filename + ".vm", true );
+
+
+
+
+
+//  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( ccsMask[k] );
+
+  //labeling the image
 }
+
 
 void doIt(const string& filename, const string& parentDir, RandomGenerator& randomGenerator)
 {

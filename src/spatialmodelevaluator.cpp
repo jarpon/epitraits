@@ -76,7 +76,8 @@ void spatialModelEvaluator(
 
   modelEvaluator.setDescriptor( *spatialDescriptor );
 
-  for (int i = 0; i < numSamples; ++i)
+  //for (int i = 0; i < numSamples; ++i)
+  for (int i = 0; i < 1; ++i)
   {
     EVAL( i );
     ostringstream oss; //we suppose as much 99 labels
@@ -84,10 +85,11 @@ void spatialModelEvaluator(
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
     Vertices<float> vertices = triMeshSpatialModel.drawSample( numPoints );
-    float pValue = modelEvaluator.eval( vertices, &saveTest );
-    saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_" + oss.str() + ".csv", true );
-    dataSet.setValue( "pValues", i, pValue );
-    EVAL( pValue );
+    vertices.save( parentDir + "/" + filename + ".vx", true );
+    //float pValue = modelEvaluator.eval( vertices, &saveTest );
+    //saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_" + oss.str() + ".csv", true );
+    //dataSet.setValue( "pValues", i, pValue );
+    //EVAL( pValue );
   }
 }
 
@@ -124,7 +126,7 @@ void spatialModelEvaluator_sizeConstrained(
 {
   PRINT("spatialModelEvaluator_sizeConstrained");
 
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const string analysisDir = parentDir + "/analysis/";
   DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
   Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );

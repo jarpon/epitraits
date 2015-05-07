@@ -111,7 +111,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
   //process to improve nuclei segmentation when the nucleoli touch the envelope
   VoxelMatrix<float> structElement4;
-  structElement4.setSize(5,5,5);
+  structElement4.setSize(3,3,3);
   structElement4.setOnes();
 
   VoxelMatrixErosion<float> voxelErosion2;
@@ -119,7 +119,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
   voxelErosion2.apply( nucleusMask );
 
   VoxelMatrix<float> structElement3;
-  structElement3.setSize(7,7,7);
+  structElement3.setSize(3,3,3);
   structElement3.setOnes();
 
   VoxelMatrixDilatation<float> voxelDilatation2;

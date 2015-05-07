@@ -19,6 +19,8 @@
 using namespace std;
 
 extern VoxelMatrix<float> findNucleus(const VoxelMatrix<float>&);
+extern VoxelMatrix<float> findNucleusCascadeMethod(const VoxelMatrix<float>&,
+                                                   const string&, const string&);
 extern VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>&,
                                          const string&, const string&);
 extern VoxelMatrix<float> findNucleusAlternative(const VoxelMatrix<float>&);
@@ -26,23 +28,31 @@ extern void nucleusAnalysis(const VoxelMatrix<float>&, VoxelMatrix<float>&,
                             const string&, const string&, const int&, DataSet&);
 extern VoxelMatrix<float> findCCs( const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
+extern VoxelMatrix<float> findNucleoli( const VoxelMatrix<float>&, VoxelMatrix<float>&,
+                                   const string&, const string&);
 extern VoxelMatrix<float> findCCs16bits( const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
-extern VoxelMatrix<float> findCCsManually( const VoxelMatrix<float>&, VoxelMatrix<float>&,
-                                   const string&, const string&);
+extern void findCCsManually( const VoxelMatrix<float>&, VoxelMatrix<float>&,
+                                   const string&, const string&, const string&);
 extern VoxelMatrix<float> findChromosomes( const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
 extern VoxelMatrix<float> findGenes(const VoxelMatrix<float>&, VoxelMatrix<float>&,
                                    const string&, const string&);
 extern void chromocentersAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
+extern void chromocentersInterdistances(const string&,
+                           const string&, DataSet&);
 extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
+extern void nucleoliAnalysis(VoxelMatrix<float>&, const string&, const string&,
+                                  int&, DataSet&, DataSet&);
 extern void spatialModelAnalysis(TriMesh<float>&,
                           const string&, const string&, const int& );
 extern void spatialModelEvaluator(const string&, const string&, const string&, const int,
                           DataSet&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
+                          DataSet&, RandomGenerator&);
+extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
 extern void uniformTest(const string&, const string&, DataSet&);
 extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
@@ -51,7 +61,7 @@ extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
 extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
 
-//extern void analyseSample(const string&, const int&, int&, DataSet&, DataSet&);
+//extern void analyzeSample(const string&, const int&, int&, DataSet&, DataSet&);
 
 int main(int argc, char* argv[])
 {
@@ -73,10 +83,15 @@ int main(int argc, char* argv[])
     cout << "                                                         " << endl;
     cout << "       -p   <process>, sets the process to execute if not all process are needed" << endl;
     cout << "                     , previous processed are assumed already done" << endl;
+    cout << "                                                         " << endl;
+    cout << "        segmentation and quantification              " << endl;
     cout << "           '1' to segment the nucleus" << endl;
-    cout << "           '2' to analyse and quantify the nucleus" << endl;
+    cout << "           '1+' to segment more than one nucleus per image" << endl;
+    cout << "           '1c' to segment the nucleus with a cascade method" << endl;
+    cout << "           '2' to analyze and quantify the nucleus" << endl;
     cout << "           '3' to segment the chromocenters" << endl;
-    cout << "           '4' to analyse and quantify chromocenters" << endl;
+    cout << "           '4' to analyze and quantify chromocenters" << endl;
+    cout << "           '4-interdistances' to quantify interdistances among chromocenters" << endl;
     cout << "           '5' to generate spatial models taking into account:" << endl;
     cout << "                 - real distances to the border" << endl;
     cout << "                 - real equivalent radius" << endl;
@@ -84,8 +99,11 @@ int main(int argc, char* argv[])
     cout << "                                                         " << endl;
     cout << "           '8' to find and segment genes" << endl;
     cout << "           '9' to find and segment the chromosome" << endl;
-    cout << "          '10' to analyse chromosomes" << endl;
+    cout << "          '10' to analyze chromosomes" << endl;
+    cout << "          '11' to segment the nucleoli" << endl;
+    cout << "          '12' to analyze the nucleoli" << endl;
     cout << "                                                          " << endl;
+    cout << "        spatial analysis (test and process real data)              " << endl;
     cout << "       to test model methods themself:" << endl;
     cout << "           '6' and after choose descriptor and constraints" << endl;
     cout << "               '1' to use function F" << endl;
@@ -97,17 +115,20 @@ int main(int argc, char* argv[])
     cout << "                  '2' to use distances to the border constraints" << endl;
     cout << "                  '3' to use both constraints" << endl;
     cout << "                                                         " << endl;
-    cout << "       to test real data:" << endl;
-    cout << "           '7' and after choose descriptor" << endl;
+    cout << "       to study real data:" << endl;
+    cout << "           '7' (to study chromocenters organization) and after choose descriptor" << endl;
+    cout << "           '7-nucleoli' (to study nucleoli organization)  and after choose descriptor" << endl;
     cout << "               '1' to use function F" << endl;
     cout << "               '2' to use function G" << endl;
     cout << "               '3' to use function H" << endl;
-    cout << "               '4' to use distance to the border descriptor" << endl;
+    cout << "               '4' to use function B - distance to the border" << endl;
+    cout << "               '5' to use function C - distance to the centroid" << endl;
     cout << "                  '0' to not use constraints" << endl;
     cout << "                  '1' to use sized constraints ~ random" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
     cout << "                  '3' to use both constraints" << endl;
-    cout << "                  '4' to use maxima repulsion" << endl;
+    cout << "                  '4' to use maximal repulsion" << endl;
+    cout << "                  '5' to use maximal repulsion with distance to the border constraint" << endl;
     cout << "                                                         " << endl;
 
     cout << "       FILES vm files" << endl;
@@ -115,7 +136,7 @@ int main(int argc, char* argv[])
     cout << "   The following folders must exist:" << endl;
     cout << "         originals_vm" << endl;
     cout << "         segmented_nuclei" << endl;
-    cout << "         segmented_chromocenters / segmented_chromosomes / segmented_genes" << endl;
+    cout << "         segmented_chromocenters / segmented_chromosomes / segmented_genes / segmented_nucleoli" << endl;
     cout << "         intermediate_processes" << endl;
     cout << "         analysis" << endl;
     cout << "         shapes" << endl;
@@ -134,10 +155,12 @@ int main(int argc, char* argv[])
     // we set datafiles and file string
     DataSet nucleiDataset;
     DataSet chromocentersDataset;
+    DataSet nucleoliDataset;
 
     //these are just counters to use at the datafiles
     int numNucleus = 0;
     int totalNumCCs = 0;
+    int totalNumNucleoli = 0;
 
     //if we got enough parameters but no options
     for (int i = 1; i < argc; i++)
@@ -204,8 +227,11 @@ int main(int argc, char* argv[])
   /*! Run a process from 1 to 4 on each image of the folder.
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("1") || argv[2] == std::string("1a") || argv[2] == std::string("1+") ||argv[2] == std::string("2") || argv[2] == std::string("3") || argv[2] == std::string("3_16b") || argv[2] == std::string("3m") || argv[2] == std::string("4")
-              || argv[2] == std::string("8") || argv[2] == std::string("9") || argv[2] == std::string("10") )
+            ( argv[2] == std::string("1") || argv[2] == std::string("1a") || argv[2] == std::string("1+") ||  argv[2] == std::string("1c")
+              || argv[2] == std::string("2")
+              || argv[2] == std::string("3") || argv[2] == std::string("3_16b") || argv[2] == std::string("3m")
+              || argv[2] == std::string("4") || argv[2] == std::string("4-interdistances")
+              || argv[2] == std::string("8") || argv[2] == std::string("9") || argv[2] == std::string("10")  || argv[2] == std::string("11") || argv[2] == std::string("12") )
             && ( argc > 3 ) )
   {
 
@@ -215,10 +241,12 @@ int main(int argc, char* argv[])
     DataSet nucleiDataset;
     DataSet chromocentersDataset;
     DataSet chromosomesDataset;
+    DataSet nucleoliDataset;
 
     int numNucleus = 0;
     int totalNumCCs = 0;
     int totalNumChromosomes = 0;
+    int totalNumNucleoli = 0;
 
     const string process = argv[2];
     EVAL(process);
@@ -296,6 +324,16 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
+        if ( process == "1c" )
+        {
+          ENTER("Nuclei segmentation with cascade method");
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          VoxelMatrix<float> nucleusMask;
+          nucleusMask = findNucleusCascadeMethod( originalVoxelMatrix, filename, nucleiDir );
+          nucleusMask.save ( nucleiDir + filename + ".vm", true );
+          LEAVE();
+        }
+
         else if ( process == "2" )
         {
           ENTER("Nuclei quantification");
@@ -342,9 +380,10 @@ int main(int argc, char* argv[])
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
-          VoxelMatrix<float> ccsMask;
-          ccsMask = findCCsManually( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
-          ccsMask.save ( chromocentersDir + filename + ".vm", true );
+          //VoxelMatrix<float> ccsMask;
+          findCCsManually( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir, chromocentersDir);
+          //ccsMask = findCCsManually( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
+          //ccsMask.save ( chromocentersDir + filename + ".vm", true );
           LEAVE();
         }
 
@@ -359,11 +398,22 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
+        else if ( process == "4-interdistances" )
+        {
+          ENTER("Chromocenters interdistances quantification");
+          DataSet individualChromocentersDataset;
+          //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
+          chromocentersInterdistances( filename, analysisDir, individualChromocentersDataset );
+          individualChromocentersDataset.save(analysisDir + filename + "_chromocentersInterdistances.csv", true );
+          LEAVE();
+        }
+
         else if ( process == "8" )
         {
           ENTER("Genes' search");
           string genesDir = parentDir + "/segmented_genes/";
-          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> genes;
           genes = findGenes( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir );
@@ -376,7 +426,8 @@ int main(int argc, char* argv[])
         {
           ENTER("Chromosome segmentation");
           string chromosomesDir = parentDir + "/segmented_chromosomes/";
-          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> chromosomeMask;
           chromosomeMask = findChromosomes( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
@@ -396,6 +447,32 @@ int main(int argc, char* argv[])
           ++numNucleus;
           LEAVE();
         }
+
+        else if ( process == "11" )
+        {
+          ENTER("Nucleoli segmentation");
+          string nucleoliDir = parentDir + "/segmented_nucleoli/";
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
+          VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
+          VoxelMatrix<float> nucleoliMask;
+          nucleoliMask = findNucleoli( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
+          nucleoliMask.save ( nucleoliDir + filename + ".vm", true );
+          LEAVE();
+        }
+
+        else if ( process == "12" )
+        {
+          ENTER("Nucleoli quantification");
+          string nucleoliDir = parentDir + "/segmented_nucleoli/";
+          DataSet individualNucleoliDataset;
+          string originalName = filename.substr( 0,filename.find_last_of("-")  );
+          VoxelMatrix<float> nucleoliMask ( nucleoliDir + filename + ".vm" );
+          nucleoliAnalysis( nucleoliMask, filename, parentDir, totalNumNucleoli, nucleoliDataset, individualNucleoliDataset );
+          individualNucleoliDataset.save(analysisDir + filename + "_nucleoli.csv", true );
+          LEAVE();
+        }
+
       }
       else cout << "Error opening the image, it must be a VoxelMatrix image " << endl;
     }
@@ -414,6 +491,9 @@ int main(int argc, char* argv[])
       nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
       chromosomesDataset.save(analysisDir + "ccs.csv", true );
     }
+
+    else if ( argv[2] == std::string("12") )
+      nucleoliDataset.save(analysisDir + "nucleoli.csv", true );
 
     stopWatch.stop( "Global process" );
     stopWatch.print();
@@ -474,7 +554,7 @@ int main(int argc, char* argv[])
 
         //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
         //TriMesh<float> nucleusTriMesh ( shapesDir + filename + "_nucleus.tm" );
-        TriMesh<float> nucleusTriMesh ( shapesDir + filename + "-nucleus.tm" );
+        TriMesh<float> nucleusTriMesh ( shapesDir + filename + ".tm" );
 
         spatialModelAnalysis( nucleusTriMesh, filename, parentDir, numPatterns );
 
@@ -492,8 +572,8 @@ int main(int argc, char* argv[])
   /*! Evaluates spatial descriptors
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("6") || argv[2] == std::string("7") ) &&
-            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") ) &&
+            ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-nucleoli") ) &&
+            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
   {
@@ -513,11 +593,13 @@ int main(int argc, char* argv[])
 
     if ( argv[2] == std::string("6") )       test = "model";
     else if ( argv[2] == std::string("7") )  test = "data";
+    else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
 
     if ( argv[3] == std::string("2") )       function = "G";
     else if ( argv[3] == std::string("3") )  function = "H";
     else if ( argv[3] == std::string("4") )  function = "B";
-    else if ( argv[3] == std::string("5") )  function = "FMod";
+    //else if ( argv[3] == std::string("5") )  function = "FMod";
+    else if ( argv[3] == std::string("5") )  function = "C";
     else //if ( argv[3] == std::string("1") )
                                              function = "F";
 
@@ -526,6 +608,7 @@ int main(int argc, char* argv[])
     else if ( argv[4] == std::string("2") )  constraints = 2;
     else if ( argv[4] == std::string("3") )  constraints = 3;
     else if ( argv[4] == std::string("4") )  constraints = 4;
+    else if ( argv[4] == std::string("5") )  constraints = 5;
 
 
 
@@ -577,7 +660,8 @@ int main(int argc, char* argv[])
             ostringstream oss;
             oss << constraints;
             spatialModelEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
-            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
+//            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
+//            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
           }
           else if ( test == "data" )
           {
@@ -589,7 +673,20 @@ int main(int argc, char* argv[])
 
             ostringstream oss;
             oss << constraints;
-            dataSet.save(analysisDir + "pValues_" + oss.str() + function + oss.str() + ".csv", true );
+            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
+//            dataSet.save(analysisDir + "indexes_" + function + oss.str() + "_random.csv", true );
+          }
+          else if ( test == "nucleoli" )
+          {
+            //string originalName = filename.substr( 0,filename.find_last_of("-")  );
+            //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
+            nucleoliEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+
+            //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
+
+            ostringstream oss;
+            oss << constraints;
+            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
           }
           else
           {
@@ -606,7 +703,8 @@ int main(int argc, char* argv[])
         {
           ostringstream oss;
           oss << constraints;
-          dataSet.save(analysisDir + "pValues_" + oss.str() + function + oss.str() + ".csv", true );
+          dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
+          //dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + "_random.csv", true );
         }
 
       }
@@ -616,7 +714,8 @@ int main(int argc, char* argv[])
         oss << constraints;
         errorDataSet.setValue("id",numErrors,numErrors+1);
         errorDataSet.setValue("filename",numErrors,filename);
-        errorDataSet.save(analysisDir + "failedNuclei" + function + oss.str() + ".csv", true );
+        //errorDataSet.save(analysisDir + "failedNuclei" + function + oss.str() + ".csv", true );
+        errorDataSet.save(analysisDir + "failedNuclei" + function + oss.str() + "_random.csv", true );
         ++numErrors;
 
       }
@@ -679,11 +778,11 @@ int main(int argc, char* argv[])
         EVAL(filename);
         EVAL(parentDir);
 
-        //doIt2( filename, parentDir );
+        doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
 
-        doIt( filename, parentDir, randomGenerator);
+        //doIt( filename, parentDir, randomGenerator);
 
       }
       else cout << "Error" << endl;

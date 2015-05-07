@@ -267,9 +267,10 @@ Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(c
       const Vector<CoordType> vertex = currentVertices[i];
       //float currentDistanceToBorder = distancesToBorder[i];
 
-      //calculates old energy ------- using 1st method
-      float oldEnergy = getEnergy(currentVertices, 2);
-
+//      //calculates old energy ------- using 1st method -- all interdistances
+//      float oldEnergy = getEnergy(currentVertices, 2);
+      //calculates new energy ------- using 2nd method -- distance to the closest one
+      float oldEnergy = getEnergy(currentVertices, 1);
 
       //moves the compartment in a random direction a distance smaller than twice the current distance to the border
       //CoordType radius = 3*currentDistanceToBorder;
@@ -278,8 +279,10 @@ Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(c
       currentVertices[i] = movedVertex;
 
       ++numberAttempts[i];
-      //calculates new energy ------- using 1st method
-      float newEnergy = getEnergy(currentVertices, 2);
+//      //calculates new energy ------- using 1st method -- all interdistances
+//      float newEnergy = getEnergy(currentVertices, 2);
+      //calculates new energy ------- using 2nd method -- distance to the closest one
+      float newEnergy = getEnergy(currentVertices, 1);
 
       bool secondChance = false;
       //gives "an opportunity" to accept a "bad" energy change depending on its probability
