@@ -1,8 +1,8 @@
 #include <componentlabelling.h>
 #include <holesfilling.h>
-#include <otsuthresholding.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include "otsuthresholding.h"
+#include "thresholding.h"
+#include "voxelmatrix.h"
 #include <volumehistogramexpansion.h>
 //#include <maxfilter.h>
 //#include <minfilter.h>
@@ -104,14 +104,17 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
   //another 3D filling
   //for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
-  VoxelMatrix<float> nucleusFill = nucleusMask;
-  nucleusMask.fillIt(nucleusFill);
-  //nucleusMask = nucleusFill;
+
+ //this was uncommented 12 june 15
+//  VoxelMatrix<float> nucleusFill = nucleusMask;
+//  nucleusMask.fillIt(nucleusFill);
+//  //nucleusMask = nucleusFill;
 
 
   //process to improve nuclei segmentation when the nucleoli touch the envelope
   VoxelMatrix<float> structElement4;
-  structElement4.setSize(3,3,3);
+//  structElement4.setSize(3,3,3);
+  structElement4.setSize(13,13,3);
   structElement4.setOnes();
 
   VoxelMatrixErosion<float> voxelErosion2;
@@ -145,7 +148,8 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
 
   holesFilling.apply( nucleusMask );
-  nucleusMask.fillIt(nucleusMask);
+ //this was uncommented 12 june 15
+//  nucleusMask.fillIt(nucleusMask);
   nucleusMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
 
   return nucleusMask;

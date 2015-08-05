@@ -18,9 +18,10 @@
 #include <trace.h>
 using namespace std;
 
+extern void testsStatisticalTests();
 extern VoxelMatrix<float> findNucleus(const VoxelMatrix<float>&);
-extern VoxelMatrix<float> findNucleusCascadeMethod(const VoxelMatrix<float>&,
-                                                   const string&, const string&);
+//extern VoxelMatrix<float> findNucleusCascadeMethod(const VoxelMatrix<float>&,
+//                                                   const string&, const string&);
 extern VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>&,
                                          const string&, const string&);
 extern VoxelMatrix<float> findNucleusAlternative(const VoxelMatrix<float>&);
@@ -44,8 +45,8 @@ extern void chromocentersInterdistances(const string&,
                            const string&, DataSet&);
 extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
-extern void nucleoliAnalysis(VoxelMatrix<float>&, const string&, const string&,
-                                  int&, DataSet&, DataSet&);
+//extern void nucleoliAnalysis(VoxelMatrix<float>&, const string&, const string&,
+//                                  int&, DataSet&, DataSet&);
 extern void spatialModelAnalysis(TriMesh<float>&,
                           const string&, const string&, const int& );
 extern void spatialModelEvaluator(const string&, const string&, const string&, const int,
@@ -329,7 +330,7 @@ int main(int argc, char* argv[])
           ENTER("Nuclei segmentation with cascade method");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
-          nucleusMask = findNucleusCascadeMethod( originalVoxelMatrix, filename, nucleiDir );
+          //nucleusMask = findNucleusCascadeMethod( originalVoxelMatrix, filename, nucleiDir );
           nucleusMask.save ( nucleiDir + filename + ".vm", true );
           LEAVE();
         }
@@ -468,7 +469,7 @@ int main(int argc, char* argv[])
           DataSet individualNucleoliDataset;
           string originalName = filename.substr( 0,filename.find_last_of("-")  );
           VoxelMatrix<float> nucleoliMask ( nucleoliDir + filename + ".vm" );
-          nucleoliAnalysis( nucleoliMask, filename, parentDir, totalNumNucleoli, nucleoliDataset, individualNucleoliDataset );
+          //nucleoliAnalysis( nucleoliMask, filename, parentDir, totalNumNucleoli, nucleoliDataset, individualNucleoliDataset );
           individualNucleoliDataset.save(analysisDir + filename + "_nucleoli.csv", true );
           LEAVE();
         }
@@ -573,7 +574,7 @@ int main(int argc, char* argv[])
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
             ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-nucleoli") ) &&
-            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ) &&
+            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
   {
@@ -600,6 +601,7 @@ int main(int argc, char* argv[])
     else if ( argv[3] == std::string("4") )  function = "B";
     //else if ( argv[3] == std::string("5") )  function = "FMod";
     else if ( argv[3] == std::string("5") )  function = "C";
+    else if ( argv[3] == std::string("all") )  function = "all";
     else //if ( argv[3] == std::string("1") )
                                              function = "F";
 
@@ -778,7 +780,8 @@ int main(int argc, char* argv[])
         EVAL(filename);
         EVAL(parentDir);
 
-        doIt2( filename, parentDir );
+	testsStatisticalTests();
+        //doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
 

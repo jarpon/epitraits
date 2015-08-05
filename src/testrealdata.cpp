@@ -1,4 +1,5 @@
-#include <spatialmodelevaluator.h>
+//#include <spatialmodelevaluator.h>
+#include "spatialmodelevaluator2.h"
 #include <spatialdescriptorfunctionf.h>
 #include <spatialdescriptorfunctiong.h>
 #include <spatialdescriptorfunctionh.h>
@@ -44,14 +45,43 @@ void evaluator(
 
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
-  modelEvaluator.setNumRandomSamples( numPatterns ); //to check uniformity
+  modelEvaluator.setNumMonteCarloSamples( numPatterns ); //to check uniformity
   modelEvaluator.setPrecision( 0.05 );
 
   SpatialDescriptor<float>* spatialDescriptor;
 
   DataSet saveTest;
 
-  if ( function == "G" )
+  if ( function == "all" )
+  {
+    PRINT("all functions");
+    SpatialDescriptorFunctionF<float> functionF;
+    SpatialDescriptorFunctionG<float> functionG;
+    SpatialDescriptorFunctionH<float> functionH;
+    SpatialDescriptorDistanceToBorder<float> functionB;
+    //functionB = new SpatialDescriptorDistanceToBorder<float>();
+    functionB.setTriMesh( nucleusTriMesh );
+    //spatialDescriptor = spatialDescriptorDistanceToBorder;
+    SpatialDescriptorDistanceToCentroid<float> functionC;
+    //functionC = new SpatialDescriptorDistanceToCentroid<float>();
+    functionC.setTriMesh( nucleusTriMesh );
+    //SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
+    //spatialModelEvaluator.setModel( csrModel );
+    //spatialModelEvaluator.setNumMonteCarloSamples( 99 );
+    modelEvaluator.addDescriptor( functionF );
+    modelEvaluator.addDescriptor( functionG );
+    modelEvaluator.addDescriptor( functionH );
+//    modelEvaluator.addDescriptor( functionB );
+//    modelEvaluator.addDescriptor( functionC );
+    //modelEvaluator.setPrecision( 1.0 );
+    TriMeshSpatialModel<float> tempTriMeshSpatialModel;
+    tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
+    tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
+    tempTriMeshSpatialModel.initialize();
+    Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
+    functionF.setEvaluationPositions( evaluationPositions );
+  }
+  else if ( function == "G" )
   {
     PRINT("G");
     spatialDescriptor = new SpatialDescriptorFunctionG<float>();
@@ -109,37 +139,94 @@ void evaluator(
     spatialDescriptor = spatialDescriptorFunctionF;
   }
 
-  modelEvaluator.setDescriptor( *spatialDescriptor );
 
-  Vertices<float> vertices ( 3, numPoints, 0, 0 );
-  for ( int i = 0; i < numPoints; ++i )
+  if ( function != "all" )
   {
-    vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-    vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-    vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-    EVAL(vertices[i]);
+    modelEvaluator.setDescriptor( *spatialDescriptor );
+
+    Vertices<float> vertices ( 3, numPoints, 0, 0 );
+    for ( int i = 0; i < numPoints; ++i )
+    {
+      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+      EVAL(vertices[i]);
+    }
+
+
+    ostringstream iss; //we suppose as much 99 labels
+    iss << constraints;
+
+  //  float pValue = modelEvaluator.eval( vertices, &saveTest );
+  //  EVAL( pValue );
+
+    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
+    EVAL( output[0] );
+    EVAL( output[1] );
+
+    saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
+  //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
+    const int row = dataSet.size()[0];
+    dataSet.setValue( "nucleus", row, filename );
+    dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
+    dataSet.setValue( "descriptor", row, function );//spatial descriptor
+    //dataSet.setValue( "index", row, pValue );
+    dataSet.setValue( "index", row, output[0] );
+    dataSet.setValue( "signedMaxDiff", row, output[1] );
+  }
+  else
+  {
+    Vertices<float> vertices ( 3, numPoints, 0, 0 );
+    for ( int i = 0; i < numPoints; ++i )
+    {
+      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+      EVAL(vertices[i]);
+    }
+
+    const int row = dataSet.numRows();
+
+    vector<float> pValues;
+    vector<int> ranks;
+    vector<float> maxDiff;
+
+    EVAL('0');
+    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
+    EVAL('1');
+
+    dataSet.setValue( "nucleus", row, filename );
+    dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
+    dataSet.setValue( "F-SDI", row, pValues[0] );
+    dataSet.setValue( "F-maxDiff", row, maxDiff[0] );
+    dataSet.setValue( "G-SDI", row, pValues[1] );
+    dataSet.setValue( "G-maxDiff", row, maxDiff[1] );
+    dataSet.setValue( "H-SDI", row, pValues[2] );
+    dataSet.setValue( "H-maxDiff", row, maxDiff[2] );
+//    dataSet.setValue( "B-SDI", row, pValues[3] );
+//    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
+//    dataSet.setValue( "C-SDI", row, pValues[4] );
+//    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
+
+    saveTest.setValue( "nucleus", 1, filename );
+    saveTest.setValue( "class", 1, classif );//classification: mutant, tissue, etc.
+    saveTest.setValue( "F-SDI", 1, pValues[0] );
+    saveTest.setValue( "F-maxDiff", 1, maxDiff[0] );
+    saveTest.setValue( "G-SDI", 1, pValues[1] );
+    saveTest.setValue( "G-maxDiff", 1, maxDiff[1] );
+    saveTest.setValue( "H-SDI", 1, pValues[2] );
+    saveTest.setValue( "H-maxDiff", 1, maxDiff[2] );
+//    saveTest.setValue( "B-SDI", 1, pValues[3] );
+//    saveTest.setValue( "B-maxDiff", 1, maxDiff[3] );
+//    saveTest.setValue( "C-SDI", 1, pValues[4] );
+//    saveTest.setValue( "C-maxDiff", 1, maxDiff[4] );
+
+    ostringstream iss; //we suppose as much 99 labels
+    iss << constraints;
+
+    saveTest.save( analysisDir + iss.str() + "/" + filename + "_all.csv", true );
   }
 
-  //test random points/volumes
-  //vertices.load( parentDir + "/" + filename + ".vx" );
-  for ( int i = 0; i < numPoints; ++i )
-  {
-    EVAL(vertices[i]);
-  }
-
-  ostringstream iss; //we suppose as much 99 labels
-  iss << constraints;
-
-  float pValue = modelEvaluator.eval( vertices, &saveTest );
-  EVAL( pValue );
-
-  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
-//  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
-  const int row = dataSet.size()[0];
-  dataSet.setValue( "nucleus", row, filename );
-  dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
-  dataSet.setValue( "descriptor", row, function );//spatial descriptor
-  dataSet.setValue( "index", row, pValue );
 
 
 }

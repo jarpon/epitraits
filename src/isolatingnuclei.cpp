@@ -1,14 +1,15 @@
 #include <componentlabelling.h>
 #include <holesfilling.h>
-#include <otsuthresholding.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include "otsuthresholding.h"
+#include "thresholding.h"
+#include "voxelmatrix.h"
 #include <volumehistogramexpansion.h>
 //#include <maxfilter.h>
 //#include <minfilter.h>
 #include <voxelmatrixerosion.h>
 #include <voxelmatrixdilatation.h>
-#include <regionanalysis.h>
+//#include "regionanalysis.h"
+#include <regionanalysis3d.h>
 #include <watershedtransform.h>
 #include <gaussiangradient.h>
 
@@ -44,11 +45,18 @@ VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>& originalVoxelMatrix, 
   regionMatrix = applyLabelling( originalVoxelMatrix, nucleiMask, filename, parentDir + "/intermediate_processes/" );
 
   EVAL("1");
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( regionMatrix );
-  regionAnalysis.run();
+//  RegionAnalysis3D<float> regionAnalysis;
+//  regionAnalysis.setLabelMatrix( regionMatrix );
+//  regionAnalysis.setValueMatrix( originalVoxelMatrix );
+//  regionAnalysis.run();
+
+//  nucleiMask.setSize( copyVoxelMatrix.getSize() );
+//  nucleiMask.setZeros();
+//  regionAnalysis.setOutputMatrix( nucleiMask );
+
   EVAL("1");
-  regionAnalysis.mapRegionFeature( nucleiMask, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
+  //uncomment - 15 july
+  //regionAnalysis.mapRegionFeature( nucleiMask, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
 
   nucleiMask.save( parentDir + "/intermediate_processes/" + filename + ".vm", true );
 

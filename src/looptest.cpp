@@ -28,7 +28,7 @@ void uniformTest(const string&filename, const string& parentDir, DataSet& dataSe
 
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
-  modelEvaluator.setNumRandomSamples( numPatterns );
+  modelEvaluator.setNumMonteCarloSamples( numPatterns );
   modelEvaluator.setPrecision( 0.05 );
   modelEvaluator.setDescriptor( spatialDescriptor );
 

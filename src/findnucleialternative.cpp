@@ -1,15 +1,15 @@
 #include <componentlabelling.h>
 #include <holesfilling.h>
-#include <otsuthresholding.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include "otsuthresholding.h"
+#include "thresholding.h"
+#include "voxelmatrix2.h"
 #include <volumehistogramexpansion.h>
 #include <voxelmatrixerosion.h>
 #include <voxelmatrixdilatation.h>
 #include <image.h>
 #include <medianfilter.h>
 #include <gaussiangradient.h>
-#include <regionanalysis.h>
+#include "regionanalysis.h"
 #include <watershedtransform.h>
 #include <gaussiangradient.h>
 
@@ -301,8 +301,10 @@ VoxelMatrix<float> findNucleusAlternative(const VoxelMatrix<float>& originalVoxe
   //another 3D filling
   //for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
   VoxelMatrix<float> nucleusFill = nucleusMask;
-  nucleusMask.fillIt(nucleusFill);
-  //nucleusMask = nucleusFill;
+  
+// this was uncommented 12 june
+//  nucleusMask.fillIt(nucleusFill);
+//  //nucleusMask = nucleusFill;
   nucleusFill.save ( "/home/javier/Desktop/gaussian2.vm", true );
 
   nucleusMask.save ( "/home/javier/Desktop/gaussian3.vm", true );
@@ -325,7 +327,8 @@ VoxelMatrix<float> findNucleusAlternative(const VoxelMatrix<float>& originalVoxe
   voxelErosion2.apply( nucleusMask );
 
   holesFilling.apply( nucleusMask );
-  nucleusMask.fillIt(nucleusMask);
+// this was uncommented 12 june
+//  nucleusMask.fillIt(nucleusMask);
   nucleusMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
 
   return nucleusMask;

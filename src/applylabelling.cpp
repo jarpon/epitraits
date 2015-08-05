@@ -1,9 +1,9 @@
 #include <iostream>
 #include <gaussiangradient.h>
 #include <sobelgradient.h>
-#include <voxelmatrix.h>
+#include "voxelmatrix.h"
 #include <watershedtransform.h>
-#include <thresholding.h>
+#include "thresholding.h"
 #include <volumehistogramexpansion.h>
 #include <medianfilter.h>
 
@@ -33,8 +33,13 @@ VoxelMatrix <float> applyLabelling(const VoxelMatrix<float>& originalVoxelMatrix
 
   GaussianGradient<float> gaussianGradient;
   gaussianGradient.MaskVoxelMatrixProcessing<float>::setMask( nucleusMaskCopy );
-  gaussianGradient.setSigma( 1.3 );
-  //gaussianGradient.setSigma( 2 );
+
+  //for 8bits-images
+  //gaussianGradient.setSigma( 1.3 );
+
+  //for 16bits-images
+  gaussianGradient.setSigma( 2 );
+
   //for (int k = 0; k < sizeZ; ++k) gaussianGradient.apply( gradientMatrix [k] );
   gaussianGradient.apply( gradientMatrix );
   //gradientMatrix.save( intermediateProcessesDir + filename + "-gradient.vm", true );

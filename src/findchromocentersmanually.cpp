@@ -1,8 +1,8 @@
 #include <iostream>
 #include <componentlabelling.h>
-#include <regionanalysis.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include <regionanalysis3d.h>
+#include "thresholding.h"
+#include "voxelmatrix.h"
 #include <voxelmatrixdilatation.h>
 #include <voxelmatrixerosion.h>
 #include <holesfilling.h>
@@ -26,14 +26,26 @@ void findCCsManually(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
 
   VoxelMatrix<float> rangeMask, copyVoxelMatrix = originalVoxelMatrix;
 
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( regionMatrix );
+  //rangeMask.load( intermediateProcessesDir + filename + "-contrast.vm" );
+
+  RegionAnalysis3D<float> regionAnalysis;
+  regionAnalysis.setLabelMatrix( regionMatrix );
+  regionAnalysis.setValueMatrix( copyVoxelMatrix );
   regionAnalysis.run();
-  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_CONTRAST, copyVoxelMatrix );
 
-  VoxelMatrix<float> ccsMask = rangeMask;
+  rangeMask.setSize( copyVoxelMatrix.getSize() );
+  rangeMask.setZeros();
+  regionAnalysis.setOutputMatrix( rangeMask );
 
-  float inputThreshold = 0;
+  regionAnalysis.outputFillRegions( REGION_FEATURE_CONTRAST );
+
+
+  Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRAST );
+
+
+  //const Vector <float> featureValues = regionAnalysis.allRegionValues( rangeMask );
+
+  float inputThreshold;
   string input = "";
   while (true) {
    cout << "Please enter the required value for the correct segmentation:\n>";
@@ -50,14 +62,17 @@ void findCCsManually(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   EVAL(inputThreshold);
 
   if ( inputThreshold == -1 )
+  {
+    cout << "You have discarded this stack" << endl;
     return;
+  }
   else
   {
 
-    Thresholding<float> thresholding;
-    thresholding.setBackground( 0.0 );
-    thresholding.setThreshold( inputThreshold );
-    thresholding.applyAlternative( ccsMask );
+//    Thresholding<float> thresholding;
+//    thresholding.setBackground( 0.0 );
+//    thresholding.setThreshold( inputThreshold );
+//    thresholding.applyAlternative( ccsMask );
 
   //  HolesFillingf holesFilling;
   //  int sizeZ = originalVoxelMatrix.getSize3();
@@ -65,6 +80,14 @@ void findCCsManually(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
     //to obtain a better filling, it's applied to each 2D slice instead of the complete 3D stack
   //  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( ccsMask[k] );
   //  holesFilling.apply( ccsMask );
+
+    regionAnalysis.thresholdRegions( featureValues, inputThreshold );
+    regionAnalysis.run();
+    int num = regionAnalysis.condenseRegionLabels();
+    regionAnalysis.run();
+
+    EVAL(num);
+    VoxelMatrix<float> ccsMask = regionAnalysis.getLabelMatrix();
 
     VoxelMatrix<float> structElement;
     structElement.setSize(3,3,3);
@@ -81,11 +104,6 @@ void findCCsManually(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
     VoxelMatrixErosion<float> voxelErosion;
     voxelErosion.setStructElt( structElement );
     voxelErosion.apply( ccsMask );
-
-
-    //labeling the image
-    ComponentLabelling<float> componentLabelling;
-    componentLabelling.apply( ccsMask );
 
     ccsMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
 

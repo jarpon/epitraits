@@ -1,8 +1,9 @@
 #include <dataset.h>
 //#include "regionanalysis2.h"
-#include <regionanalysis.h>
+//#include "regionanalysis.h"
+#include <regionanalysis3d.h>
 #include <marchingcubes.h>
-#include <thresholding.h>
+#include "thresholding.h"
 #include <trimesh.h>
 #include <cmath>
 
@@ -21,8 +22,9 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   thresholding.setThreshold(0.5);
   thresholding.apply( nucleusMask );
 
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( nucleusMask );
+  RegionAnalysis3D<float> regionAnalysis;
+  regionAnalysis.setLabelMatrix( nucleusMask );
+  regionAnalysis.setValueMatrix( originalVoxelMatrix );
   regionAnalysis.run();
 
   //generate 3Dmesh

@@ -1,6 +1,6 @@
 #ifndef LITE
-#ifndef REGIONANALYSIS2_H
-#define REGIONANALYSIS2_H
+#ifndef REGIONANALYSIS_H
+#define REGIONANALYSIS_H
 
 #include <voxelmatrix.h>
 #include <alinesquarematrix.h>

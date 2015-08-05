@@ -9,7 +9,7 @@
 #include "spatialdescriptormaxima.h"
 #include "trimeshspatialmodel.h"
 #include <trimesh.h>
-#include <voxelmatrix.h>
+#include "voxelmatrix.h"
 #include <fileinfo.h>
 //#include <regionanalysis.h>
 #include <sstream>
@@ -44,7 +44,7 @@ void nucleoliEvaluator(
 
   SpatialModelEvaluator<float,float> modelnucleoliEvaluator;
   modelnucleoliEvaluator.setModel( triMeshSpatialModel );
-  modelnucleoliEvaluator.setNumRandomSamples( numPatterns ); //to check uniformity
+  modelnucleoliEvaluator.setNumMonteCarloSamples( numPatterns ); //to check uniformity
   modelnucleoliEvaluator.setPrecision( 0.05 );
 
   SpatialDescriptor<float>* spatialDescriptor;

@@ -31,7 +31,6 @@ SOURCES += \
     src/applylabelling.cpp \
     src/trimeshspatialmodel.cpp \
     src/spatialmodel.cpp \
-    src/spatialmodelevaluator.cpp \
     src/spatialdescriptorborder.cpp \
     src/looptest.cpp \
     src/testrealdata.cpp \
@@ -55,12 +54,29 @@ SOURCES += \
     src/analysingnucleoli.cpp \
     src/spatialanalysisnucleoli.cpp \
     src/spatialdescriptorcentroid.cpp \
-    src/getobjectsinterdistances.cpp
+    src/getobjectsinterdistances.cpp \
+    src/spatialmodelboundaryinteraction.cpp \
+    src/thresholding.cpp \
+    src/otsuthresholding.cpp \
+    src/voxelmatrix.cpp \
+    src/testsStatiscalTest.cpp \
+    src/spatialdescriptorborder2D.cpp \
+    src/spatialmodeleval.cpp \
+    src/cdftools2.cpp \
+    src/spatialmodelevaluator2.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \
     src/spatialdescriptorborder.h \
     src/maximalrepulsion.h \
     src/maxrepulsionwithdistances.h \
-    src/spatialdescriptorcentroid.h
+    src/spatialdescriptorcentroid.h \
+    src/spatialmodelboundaryinteraction.h \
+    src/thresholding.h \
+    src/regionanalysis2.h \
+    src/otsuthresholding.h \
+    src/voxelmatrix.h \
+    src/spatialdescriptorborder2D.h \
+    src/cdftools2.h \
+    src/spatialmodelevaluator2.h
 

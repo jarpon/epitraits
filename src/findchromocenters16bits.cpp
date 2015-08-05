@@ -1,10 +1,10 @@
 #include <iostream>
 #include <componentlabelling.h>
-#include <otsuthresholding.h>
+#include "otsuthresholding.h"
 //#include "regionanalysis2.h"
-#include <regionanalysis.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include <regionanalysis3d.h>
+#include "thresholding.h"
+#include "voxelmatrix.h"
 #include <watershedtransform.h>
 #include <voxelmatrixdilatation.h>
 #include <voxelmatrixerosion.h>
@@ -48,13 +48,14 @@ VoxelMatrix <float> findCCs16bits(const VoxelMatrix<float>& originalVoxelMatrix,
 
   VoxelMatrix<float> rangeMask, copyVoxelMatrix = originalVoxelMatrix;
 
-  RegionAnalysis<float> firstRegionAnalysis;
-  firstRegionAnalysis.setRegionMatrix( regionMatrix );
+  VoxelMatrix<float> ccsMask ;
+/*
+  RegionAnalysis3D<float> firstRegionAnalysis;
+  firstRegionAnalysis.setLabelMatrix( regionMatrix );
   firstRegionAnalysis.run();
 
-//  firstRegionAnalysis.mapRegionFeature( copyVoxelMatrix, REGION_FEATURE_MAXIMUM_VALUE, originalVoxelMatrix );
-//  copyVoxelMatrix.save( intermediateProcessesDir + filename + "-average.vm", true );
-  firstRegionAnalysis.mapRegionFeature( copyVoxelMatrix, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
+//uncomment 15 july
+  //firstRegionAnalysis.mapRegionFeature( copyVoxelMatrix, REGION_FEATURE_CONTRAST, originalVoxelMatrix );
   copyVoxelMatrix.save( intermediateProcessesDir + filename + "-1stContrast.vm", true );
 
   VoxelMatrix<float> newNucleusMask = copyVoxelMatrix;
@@ -85,16 +86,16 @@ VoxelMatrix <float> findCCs16bits(const VoxelMatrix<float>& originalVoxelMatrix,
   watershedTransform2.MaskVoxelMatrixProcessing<float>::setMask( newNucleusMask );
   watershedTransform2.apply( regionMatrix );
 
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( regionMatrix );
+  RegionAnalysis3D<float> regionAnalysis;
+  regionAnalysis.setLabelMatrix( regionMatrix );
+  regionAnalysis.setValueMatrix( copyVoxelMatrix );
+  regionAnalysis.setOutputMatrix( rangeMask );
   regionAnalysis.run();
 
-  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_AVERAGE_VALUE, copyVoxelMatrix );
+  regionAnalysis.outputFillRegions( REGION_FEATURE_CONTRACTNESS );
+
+  //regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_AVERAGE_VALUE, copyVoxelMatrix );
   rangeMask.save( intermediateProcessesDir + filename + "-average.vm", true );
-//  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_CONTRAST, copyVoxelMatrix );
-//  rangeMask.save( intermediateProcessesDir + filename + "-contrast.vm", true );
-//  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_MAXIMUM_VALUE, copyVoxelMatrix );
-//  rangeMask.save( intermediateProcessesDir + filename + "-max.vm", true );
 
     VoxelMatrix<float> ccsMask = rangeMask;
 
@@ -149,7 +150,7 @@ VoxelMatrix <float> findCCs16bits(const VoxelMatrix<float>& originalVoxelMatrix,
   ccsMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
 
   //ccsMask.save( chromocentersDir + filename + ".vm", true );
-
+*/
   return ccsMask;
 }
 

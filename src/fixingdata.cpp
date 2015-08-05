@@ -1,10 +1,10 @@
 #include <componentlabelling.h>
 #include <dataset.h>
 //#include "regionanalysis2.h"
-#include <regionanalysis.h>
+#include "regionanalysis.h"
 #include <cmath>
 #include <dataset.h>
-#include <thresholding.h>
+#include "thresholding.h"
 #include <trimesh.h>
 #include "trimeshspatialmodel.h"
 #include "maximalrepulsion.h"

@@ -2,9 +2,9 @@
 #include <componentlabelling.h>
 #include <otsuthresholding.h>
 //#include "regionanalysis2.h"
-#include <regionanalysis.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include <regionanalysis3d.h>
+#include "thresholding.h"
+#include "voxelmatrix.h"
 #include <volumehistogramexpansion.h>
 #include <voxelmatrixdilatation.h>
 #include <voxelmatrixerosion.h>
@@ -42,18 +42,23 @@ VoxelMatrix <float> findNucleoli(const VoxelMatrix<float>& originalVoxelMatrix, 
   regionMatrix.save( intermediateProcessesDir + filename + "-watershed.vm", true );
 
   VoxelMatrix<float> rangeMask, copyVoxelMatrix = originalVoxelMatrix;
-  EVAL("1");
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( regionMatrix );
+  VoxelMatrix<float> nucleoliMask;
+
+  /*
+
+  RegionAnalysis3D<float> regionAnalysis;
+  regionAnalysis.setLabelMatrix( regionMatrix );
+  regionAnalysis.setValueMatrix( copyVoxelMatrix );
+  regionAnalysis.setOutputMatrix( rangeMask );
   regionAnalysis.run();
 
-  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_CONTRAST, copyVoxelMatrix );
+  regionAnalysis.outputFillRegions( REGION_FEATURE_CONTRACTNESS );
   rangeMask.save( intermediateProcessesDir + filename + "-contrast.vm", true );
 
   VoxelMatrix<float> nucleoliMask = rangeMask;
-  EVAL("1");
   OtsuThresholding<float> otsuThresholding;
-  Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRAST, copyVoxelMatrix );
+
+  Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRACTNESS );
   Vector <unsigned int> histogram = featureValues.histogram( featureValues.min(), 1, floor(featureValues.max())+1 );
 
   Thresholding<float> thresholding;
@@ -100,7 +105,7 @@ VoxelMatrix <float> findNucleoli(const VoxelMatrix<float>& originalVoxelMatrix, 
   nucleoliMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
 
   //nucleoliMask.save( chromocentersDir + filename + ".vm", true );
-
+*/
   return nucleoliMask;
 }
 

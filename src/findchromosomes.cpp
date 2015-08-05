@@ -1,10 +1,10 @@
 #include <iostream>
 #include <componentlabelling.h>
-#include <otsuthresholding.h>
+#include "otsuthresholding.h"
 //#include "regionanalysis2.h"
-#include <regionanalysis.h>
-#include <thresholding.h>
-#include <voxelmatrix.h>
+#include <regionanalysis3d.h>
+#include "thresholding.h"
+#include "voxelmatrix.h"
 #include <volumehistogramexpansion.h>
 #include <voxelmatrixdilatation.h>
 #include <voxelmatrixerosion.h>
@@ -39,18 +39,23 @@ VoxelMatrix <float> findChromosomes(const VoxelMatrix<float>& originalVoxelMatri
   watershedTransform.MaskVoxelMatrixProcessing<float>::setMask( nucleusMask );
   watershedTransform.apply( regionMatrix );
 
-  RegionAnalysis<float> regionAnalysis;
-  regionAnalysis.setRegionMatrix( regionMatrix );
+  VoxelMatrix<float> chromosomeMask = rangeMask;
+
+  /*    uncomment
+  RegionAnalysis3D<float> regionAnalysis;
+  regionAnalysis.setLabelMatrix( regionMatrix );
+  regionAnalysis.setValueMatrix( copyVoxelMatrix );
+  regionAnalysis.setOutputMatrix( rangeMask );
   regionAnalysis.run();
-  regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_CONTRAST, copyVoxelMatrix );
-  //regionAnalysis.mapRegionFeature( rangeMask, REGION_FEATURE_MAXIMUM_VALUE, copyVoxelMatrix );
+
+  regionAnalysis.outputFillRegions( REGION_FEATURE_CONTRACTNESS );
+
   rangeMask.save( intermediateProcessesDir + filename + "-chromo-max.vm", true );
 
-  VoxelMatrix<float> chromosomeMask = rangeMask;
 
   OtsuThresholding<float> otsuThresholding;
   //Vector <float> featureValues = regionAnalysis.allRegionValues( rangeMask );
-  Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRAST, copyVoxelMatrix );
+  Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_CONTRACTNESS );
   //Vector <float> featureValues = regionAnalysis.computeRegionFeature( REGION_FEATURE_MAXIMUM_VALUE, copyVoxelMatrix );
   //Vector <unsigned int> histogram = featureValues.histogram( 0, 1, 255 );
   //featureValues.sort();
@@ -190,6 +195,6 @@ VoxelMatrix <float> findChromosomes(const VoxelMatrix<float>& originalVoxelMatri
 
   componentLabelling.apply( chromosomeMask );
   chromosomeMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
-
+*/
   return chromosomeMask;
 }
