@@ -58,6 +58,8 @@ extern void nucleoliEvaluator(const string&, const string&, const string&, const
 extern void uniformTest(const string&, const string&, DataSet&);
 extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
                                         const string&, const string&);
+extern VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>&,
+                                           const int&, const int&);
 
 extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
@@ -104,8 +106,8 @@ int main(int argc, char* argv[])
     cout << "          '11' to segment the nucleoli" << endl;
     cout << "          '12' to analyze the nucleoli" << endl;
     cout << "                                                          " << endl;
-    cout << "        spatial analysis (test and process real data)              " << endl;
-    cout << "       to test model methods themself:" << endl;
+    cout << "         spatial analysis (test and process real data)              " << endl;
+    cout << "         to test model methods themself:" << endl;
     cout << "           '6' and after choose descriptor and constraints" << endl;
     cout << "               '1' to use function F" << endl;
     cout << "               '2' to use function G" << endl;
@@ -116,7 +118,7 @@ int main(int argc, char* argv[])
     cout << "                  '2' to use distances to the border constraints" << endl;
     cout << "                  '3' to use both constraints" << endl;
     cout << "                                                         " << endl;
-    cout << "       to study real data:" << endl;
+    cout << "          to study real data:" << endl;
     cout << "           '7' (to study chromocenters organization) and after choose descriptor" << endl;
     cout << "           '7-nucleoli' (to study nucleoli organization)  and after choose descriptor" << endl;
     cout << "               '1' to use function F" << endl;
@@ -124,6 +126,7 @@ int main(int argc, char* argv[])
     cout << "               '3' to use function H" << endl;
     cout << "               '4' to use function B - distance to the border" << endl;
     cout << "               '5' to use function C - distance to the centroid" << endl;
+    cout << "               'all' to use all of them" << endl;
     cout << "                  '0' to not use constraints" << endl;
     cout << "                  '1' to use sized constraints ~ random" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
@@ -231,7 +234,7 @@ int main(int argc, char* argv[])
             ( argv[2] == std::string("1") || argv[2] == std::string("1a") || argv[2] == std::string("1+") ||  argv[2] == std::string("1c")
               || argv[2] == std::string("2")
               || argv[2] == std::string("3") || argv[2] == std::string("3_16b") || argv[2] == std::string("3m")
-              || argv[2] == std::string("4") || argv[2] == std::string("4-interdistances")
+              || argv[2] == std::string("4") || argv[2] == std::string("4-interdistances") || argv[2] == std::string("4-unify")
               || argv[2] == std::string("8") || argv[2] == std::string("9") || argv[2] == std::string("10")  || argv[2] == std::string("11") || argv[2] == std::string("12") )
             && ( argc > 3 ) )
   {
@@ -406,6 +409,23 @@ int main(int argc, char* argv[])
           //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
           chromocentersInterdistances( filename, analysisDir, individualChromocentersDataset );
           individualChromocentersDataset.save(analysisDir + filename + "_chromocentersInterdistances.csv", true );
+          LEAVE();
+        }
+
+        else if ( process == "4-unify" )
+        {
+          ENTER("Unifying labeling of two different regions");
+//          const int oldLabel = argv[3];
+//          const int newLabel = argv[4];
+          stringstream oldRegionLabel(argv[3]);
+          int oldLabel;
+          oldRegionLabel >> oldLabel;
+          stringstream newRegionLabel(argv[4]);
+          int newLabel;
+          newRegionLabel >> newLabel;
+          const VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
+          VoxelMatrix<float> changedVM = unifyLabels( ccsMask, oldLabel, newLabel );
+          changedVM.save( chromocentersDir + filename + "_unified.vm" );
           LEAVE();
         }
 
@@ -705,8 +725,8 @@ int main(int argc, char* argv[])
         {
           ostringstream oss;
           oss << constraints;
-          dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
-          //dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + "_random.csv", true );
+         // dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
+
         }
 
       }

@@ -40,19 +40,19 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
 
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
   nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
-  nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME,originalVoxelMatrix)[0] );//nucleus volume got from the voxelmatrix
+  nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0] );//nucleus volume got from the voxelmatrix
   nucleiDataset.setValue ( "nucleusVolume_tm", numNucleus, abs(triMesh.volume()) );//nucleus volume got from the trimesh
-  nucleiDataset.setValue ( "equivalentRadius_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_EQUIVALENT_RADIUS,originalVoxelMatrix)[0]);
+  nucleiDataset.setValue ( "equivalentRadius_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_EQUIVALENT_RADIUS)[0]);
   nucleiDataset.setValue ( "equivalentRadius_tm", numNucleus, abs(triMesh.equivalentRadius()) );
   nucleiDataset.setValue ( "voxelSizeUnit", numNucleus, originalVoxelMatrix.getVoxelCalibration().getLengthUnit().symbol() + "^3" );//real voxel size unit
-  nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS,originalVoxelMatrix)[0] );//flatness parameter
-  nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION,originalVoxelMatrix)[0] );//elongation parameter
-  nucleiDataset.setValue ( "sphericity_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SPHERICITY,originalVoxelMatrix)[0] );//sphericity parameter
+  nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS)[0] );//flatness parameter
+  nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION)[0] );//elongation parameter
+  nucleiDataset.setValue ( "sphericity_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );//sphericity parameter
   nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
-  nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA,originalVoxelMatrix)[0] );//surface area of the nucleus
+  nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA)[0] );//surface area of the nucleus
   nucleiDataset.setValue ( "surfaceArea_tm", numNucleus, abs(triMesh.area() ) );//nucleus volume got from the trimesh
-  nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTENSITY,originalVoxelMatrix)[0] );//sum of intensities of the nucleus volume
-  nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_DENSITY,originalVoxelMatrix)[0] );//compute the integrated density taking into account the real size of the nucleus
+  nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] * regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0]  );//sum of intensities of the nucleus volume
+  nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] );//compute the integrated density taking into account the real size of the nucleus
 
   //return nucleiDataset;
 }

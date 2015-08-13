@@ -52,34 +52,68 @@ void evaluator(
 
   DataSet saveTest;
 
+//  if ( function == "all" )
+//  {
+//    PRINT("all functions");
+//    SpatialDescriptorFunctionF<float> functionF;
+//    SpatialDescriptorFunctionG<float> functionG;
+//    SpatialDescriptorFunctionH<float> functionH;
+//    SpatialDescriptorDistanceToBorder<float> functionB;
+//    //functionB = new SpatialDescriptorDistanceToBorder<float>();
+//    functionB.setTriMesh( nucleusTriMesh );
+//    //spatialDescriptor = spatialDescriptorDistanceToBorder;
+//    SpatialDescriptorDistanceToCentroid<float> functionC;
+//    //functionC = new SpatialDescriptorDistanceToCentroid<float>();
+//    functionC.setTriMesh( nucleusTriMesh );
+//    //SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
+//    //spatialModelEvaluator.setModel( csrModel );
+//    //spatialModelEvaluator.setNumMonteCarloSamples( 99 );
+//    //modelEvaluator.addDescriptor( functionF );
+//    modelEvaluator.addDescriptor( functionG );
+//    modelEvaluator.addDescriptor( functionH );
+////    modelEvaluator.addDescriptor( functionB );
+////    modelEvaluator.addDescriptor( functionC );
+//    //modelEvaluator.setPrecision( 1.0 );
+//    TriMeshSpatialModel<float> tempTriMeshSpatialModel;
+//    tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
+//    tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
+//    tempTriMeshSpatialModel.initialize();
+//    //Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
+//    //functionF.setEvaluationPositions( evaluationPositions );
+//  }
   if ( function == "all" )
   {
     PRINT("all functions");
-    SpatialDescriptorFunctionF<float> functionF;
-    SpatialDescriptorFunctionG<float> functionG;
-    SpatialDescriptorFunctionH<float> functionH;
-    SpatialDescriptorDistanceToBorder<float> functionB;
-    //functionB = new SpatialDescriptorDistanceToBorder<float>();
-    functionB.setTriMesh( nucleusTriMesh );
-    //spatialDescriptor = spatialDescriptorDistanceToBorder;
-    SpatialDescriptorDistanceToCentroid<float> functionC;
-    //functionC = new SpatialDescriptorDistanceToCentroid<float>();
-    functionC.setTriMesh( nucleusTriMesh );
-    //SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
-    //spatialModelEvaluator.setModel( csrModel );
-    //spatialModelEvaluator.setNumMonteCarloSamples( 99 );
-    modelEvaluator.addDescriptor( functionF );
-    modelEvaluator.addDescriptor( functionG );
-    modelEvaluator.addDescriptor( functionH );
-//    modelEvaluator.addDescriptor( functionB );
-//    modelEvaluator.addDescriptor( functionC );
-    //modelEvaluator.setPrecision( 1.0 );
     TriMeshSpatialModel<float> tempTriMeshSpatialModel;
     tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
     tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
     tempTriMeshSpatialModel.initialize();
     Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
-    functionF.setEvaluationPositions( evaluationPositions );
+
+    SpatialDescriptorFunctionF<float>* spatialDescriptorFunctionF;
+    spatialDescriptorFunctionF = new SpatialDescriptorFunctionF<float>();
+    spatialDescriptorFunctionF->setEvaluationPositions( evaluationPositions );
+    spatialDescriptor = spatialDescriptorFunctionF;
+    modelEvaluator.addDescriptor( *spatialDescriptor );
+
+    spatialDescriptor = new SpatialDescriptorFunctionG<float>();
+    modelEvaluator.addDescriptor( *spatialDescriptor );
+
+    spatialDescriptor = new SpatialDescriptorFunctionH<float>();
+    modelEvaluator.addDescriptor( *spatialDescriptor );
+
+    SpatialDescriptorDistanceToBorder<float>* spatialDescriptorDistanceToBorder;
+    spatialDescriptorDistanceToBorder = new SpatialDescriptorDistanceToBorder<float>();
+    spatialDescriptorDistanceToBorder->setTriMesh( nucleusTriMesh );
+    spatialDescriptor = spatialDescriptorDistanceToBorder;
+    modelEvaluator.addDescriptor( *spatialDescriptor );
+
+    SpatialDescriptorDistanceToCentroid<float>* spatialDescriptorDistanceToCentroid;
+    spatialDescriptorDistanceToCentroid = new SpatialDescriptorDistanceToCentroid<float>();
+    spatialDescriptorDistanceToCentroid->setTriMesh( nucleusTriMesh );
+    spatialDescriptor = spatialDescriptorDistanceToCentroid;
+    modelEvaluator.addDescriptor( *spatialDescriptor );
+
   }
   else if ( function == "G" )
   {
@@ -193,6 +227,7 @@ void evaluator(
 
     EVAL('0');
     modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
+//    modelEvaluator.eval( vertices, pValues, ranks);
     EVAL('1');
 
     dataSet.setValue( "nucleus", row, filename );
@@ -203,10 +238,10 @@ void evaluator(
     dataSet.setValue( "G-maxDiff", row, maxDiff[1] );
     dataSet.setValue( "H-SDI", row, pValues[2] );
     dataSet.setValue( "H-maxDiff", row, maxDiff[2] );
-//    dataSet.setValue( "B-SDI", row, pValues[3] );
-//    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
-//    dataSet.setValue( "C-SDI", row, pValues[4] );
-//    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
+    dataSet.setValue( "B-SDI", row, pValues[3] );
+    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
+    dataSet.setValue( "C-SDI", row, pValues[4] );
+    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
 
     saveTest.setValue( "nucleus", 1, filename );
     saveTest.setValue( "class", 1, classif );//classification: mutant, tissue, etc.
@@ -216,10 +251,10 @@ void evaluator(
     saveTest.setValue( "G-maxDiff", 1, maxDiff[1] );
     saveTest.setValue( "H-SDI", 1, pValues[2] );
     saveTest.setValue( "H-maxDiff", 1, maxDiff[2] );
-//    saveTest.setValue( "B-SDI", 1, pValues[3] );
-//    saveTest.setValue( "B-maxDiff", 1, maxDiff[3] );
-//    saveTest.setValue( "C-SDI", 1, pValues[4] );
-//    saveTest.setValue( "C-maxDiff", 1, maxDiff[4] );
+    saveTest.setValue( "B-SDI", 1, pValues[3] );
+    saveTest.setValue( "B-maxDiff", 1, maxDiff[3] );
+    saveTest.setValue( "C-SDI", 1, pValues[4] );
+    saveTest.setValue( "C-maxDiff", 1, maxDiff[4] );
 
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;

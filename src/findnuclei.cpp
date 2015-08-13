@@ -22,7 +22,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
 
   MedianFilter<float> medianFilter2;
-  medianFilter2.setHalfSize( 2 );
+  medianFilter2.setHalfSize( 1.8);
   medianFilter2.apply( nucleusMask );
 
 
@@ -43,13 +43,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 //  thresholding2.apply( nucleusMask );
 //  //nucleusMask.save ( "/home/javier/Desktop/gaussian.vm", true );
 
-  HolesFillingf holesFilling;
   int sizeZ = originalVoxelMatrix.getSize3();
-
-  //to obtain a better filling, it's applied to each 2D slice instead of the complete 3D stack
-  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
-  holesFilling.apply( nucleusMask );
-  //for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
 
   ComponentLabelling<float> componentLabelling;
   componentLabelling.apply( nucleusMask );
@@ -82,6 +76,14 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
     for (int k = 0; k < sizeZ; ++k)  thresholding.levelSetMask( nucleusMask[k], histogram2.maxPos()+1 );
   }
 
+  HolesFillingf holesFilling;
+
+  //to obtain a better filling, it's applied to each 2D slice instead of the complete 3D stack
+  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
+  holesFilling.apply( nucleusMask );
+  //for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
+
+
 //  MedianFilter<float> medianFilter;
 //  medianFilter.setHalfSize( 2 );
 //  //medianFilter.setNumIterations( 2 );
@@ -112,44 +114,56 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
 
   //process to improve nuclei segmentation when the nucleoli touch the envelope
-  VoxelMatrix<float> structElement4;
-//  structElement4.setSize(3,3,3);
-  structElement4.setSize(13,13,3);
+  VoxelMatrix<float> structElement1, structElement2, structElement3, structElement4, structElement5;
+  structElement1.setSize(3,3,9);
+  structElement1.setOnes();
+  structElement2.setSize(3,3,7);
+  structElement2.setOnes();
+  structElement3.setSize(9,9,1);
+  structElement3.setOnes();
+  structElement4.setSize(5,5,1);
   structElement4.setOnes();
+  structElement5.setSize(5,5,3);
+  structElement5.setOnes();
+
+  VoxelMatrixErosion<float> voxelErosion1;
+  voxelErosion1.setStructElt( structElement3 );
+  voxelErosion1.apply( nucleusMask );
+
+  VoxelMatrixDilatation<float> voxelDilatation1;
+  voxelDilatation1.setStructElt( structElement1 );
+  voxelDilatation1.apply( nucleusMask );
 
   VoxelMatrixErosion<float> voxelErosion2;
   voxelErosion2.setStructElt( structElement4 );
   voxelErosion2.apply( nucleusMask );
 
-  VoxelMatrix<float> structElement3;
-  structElement3.setSize(3,3,3);
-  structElement3.setOnes();
-
   VoxelMatrixDilatation<float> voxelDilatation2;
-  voxelDilatation2.setStructElt( structElement3 );
+  voxelDilatation2.setStructElt( structElement2 );
   voxelDilatation2.apply( nucleusMask );
 
-  //16bits
-//  VoxelMatrix<float> structElement3;
-//  structElement3.setSize(9,9,9);
-//  structElement3.setOnes();
-
-//  VoxelMatrixDilatation<float> voxelDilatation2;
-//  voxelDilatation2.setStructElt( structElement3 );
-//  voxelDilatation2.apply( nucleusMask );
-
-//  VoxelMatrix<float> structElement4;
-//  structElement4.setSize(9,9,9);
-//  structElement4.setOnes();
-
-//  VoxelMatrixErosion<float> voxelErosion2;
-//  voxelErosion2.setStructElt( structElement4 );
-//  voxelErosion2.apply( nucleusMask );
+//  VoxelMatrixDilatation<float> voxelDilatation3;
+//  voxelDilatation3.setStructElt( structElement5 );
+//  voxelDilatation3.apply( nucleusMask );
 
 
+
+
+//  Thresholding<float> thresholding;
+//  thresholding.setForegroundIsAbove( true );
+////  thresholding.setThreshold( 1.0 );  //for images already segmented
+//  thresholding.setForeground( 1.0 );
+//  thresholding.setBackground( 0.0 );
+////  thresholding.apply( nucleusMask );  //for images already segmented and comment the next threshold
+
+//  //a final threshold is applied in each slide to leave only the biggest shape
+//  //(wich is labeled with 1, the other labeled shapes are set to 0)
+//  for (int k = 0; k < sizeZ; ++k)  thresholding.levelSetMask( nucleusMask[k], 0 );
+
+  for (int k = 0; k < sizeZ; ++k)  holesFilling.apply( nucleusMask[k] );
   holesFilling.apply( nucleusMask );
  //this was uncommented 12 june 15
-//  nucleusMask.fillIt(nucleusMask);
+  //nucleusMask.fillIt(nucleusMask);
   nucleusMask.setVoxelCalibration( originalVoxelMatrix.getVoxelCalibration() );
 
   return nucleusMask;

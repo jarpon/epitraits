@@ -42,7 +42,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   RegionAnalysis3D<float> regionAnalysisCCs;
   regionAnalysisCCs.setLabelMatrix( ccsMask );
-  regionAnalysis.setValueMatrix( originalVoxelMatrix );
+  regionAnalysisCCs.setValueMatrix( originalVoxelMatrix );
   regionAnalysisCCs.run();
 
   //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
@@ -75,6 +75,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   nucleiDataset.setValue ( "ccsIntegratedDensity", numNucleus, ccsIntegratedDensity.sum() );//integrated density of ccs taking into account real volume
   nucleiDataset.setValue ( "intRHF", numNucleus, ( ccsIntegratedDensity.sum()*ccsVolume.sum() ) / nucleusIntensity );//RHF: rate of heterochromatin (int.Density of ccs/ int.Density of nuclei)
 
+  EVAL (regionAnalysisCCs.numRegions() );
 /**///chromocenters individual information
   for (int numCC = 0; numCC < regionAnalysisCCs.numRegions(); numCC++ )
   {

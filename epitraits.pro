@@ -63,7 +63,11 @@ SOURCES += \
     src/spatialdescriptorborder2D.cpp \
     src/spatialmodeleval.cpp \
     src/cdftools2.cpp \
-    src/spatialmodelevaluator2.cpp
+    src/spatialmodelevaluator2.cpp \
+    src/trimeshspatialmodel2.cpp \
+    src/unifyingobjects.cpp \
+    src/spatialdescriptorfunctionhh.cpp \
+    src/spatialdescriptorfunctiongg.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \
@@ -78,5 +82,8 @@ HEADERS += \
     src/voxelmatrix.h \
     src/spatialdescriptorborder2D.h \
     src/cdftools2.h \
-    src/spatialmodelevaluator2.h
+    src/spatialmodelevaluator2.h \
+    src/trimeshspatialmodel2.h \
+    src/spatialdescriptorfunctionhh.h \
+    src/spatialdescriptorfunctiongg.h
 
