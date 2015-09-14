@@ -22,7 +22,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
 
   MedianFilter<float> medianFilter2;
-  medianFilter2.setHalfSize( 1.8);
+  medianFilter2.setHalfSize( 2 );
   medianFilter2.apply( nucleusMask );
 
 
@@ -32,6 +32,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
   otsuThresholding.setBackground( 0.0 );
   otsuThresholding.apply( nucleusMask );
 
+ nucleusMask.save( "/media/jarpon/WD-MIN-1TB/data-javier/maria/more/c0/segmented_nuclei/MK67_2 leaf002_1_c0_2.tif.vm", true);
 
 // // for originals in 16bits
 //  Thresholding<float> thresholding2;
@@ -115,9 +116,9 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
 
   //process to improve nuclei segmentation when the nucleoli touch the envelope
   VoxelMatrix<float> structElement1, structElement2, structElement3, structElement4, structElement5;
-  structElement1.setSize(3,3,9);
+  structElement1.setSize(7,7,9);
   structElement1.setOnes();
-  structElement2.setSize(3,3,7);
+  structElement2.setSize(7,7,7);
   structElement2.setOnes();
   structElement3.setSize(9,9,1);
   structElement3.setOnes();
@@ -126,21 +127,21 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
   structElement5.setSize(5,5,3);
   structElement5.setOnes();
 
-  VoxelMatrixErosion<float> voxelErosion1;
-  voxelErosion1.setStructElt( structElement3 );
-  voxelErosion1.apply( nucleusMask );
+//  VoxelMatrixErosion<float> voxelErosion1;
+//  voxelErosion1.setStructElt( structElement3 );
+//  voxelErosion1.apply( nucleusMask );
 
-  VoxelMatrixDilatation<float> voxelDilatation1;
-  voxelDilatation1.setStructElt( structElement1 );
-  voxelDilatation1.apply( nucleusMask );
+//  VoxelMatrixDilatation<float> voxelDilatation1;
+//  voxelDilatation1.setStructElt( structElement1 );
+//  voxelDilatation1.apply( nucleusMask );
 
-  VoxelMatrixErosion<float> voxelErosion2;
-  voxelErosion2.setStructElt( structElement4 );
-  voxelErosion2.apply( nucleusMask );
+//  VoxelMatrixErosion<float> voxelErosion2;
+//  voxelErosion2.setStructElt( structElement4 );
+//  voxelErosion2.apply( nucleusMask );
 
-  VoxelMatrixDilatation<float> voxelDilatation2;
-  voxelDilatation2.setStructElt( structElement2 );
-  voxelDilatation2.apply( nucleusMask );
+//  VoxelMatrixDilatation<float> voxelDilatation2;
+//  voxelDilatation2.setStructElt( structElement2 );
+//  voxelDilatation2.apply( nucleusMask );
 
 //  VoxelMatrixDilatation<float> voxelDilatation3;
 //  voxelDilatation3.setStructElt( structElement5 );

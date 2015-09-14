@@ -58,9 +58,9 @@ extern void nucleoliEvaluator(const string&, const string&, const string&, const
 extern void uniformTest(const string&, const string&, DataSet&);
 extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
                                         const string&, const string&);
-extern VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>&,
-                                           const int&, const int&);
-
+//extern VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>&,
+//                                           const int&, const int&);
+extern VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>&);
 extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
 
@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
     cout << "           '1c' to segment the nucleus with a cascade method" << endl;
     cout << "           '2' to analyze and quantify the nucleus" << endl;
     cout << "           '3' to segment the chromocenters" << endl;
+    cout << "           '3m' to segment manually the chromocenters; introduce -1 to discard the stack" << endl;
     cout << "           '4' to analyze and quantify chromocenters" << endl;
     cout << "           '4-interdistances' to quantify interdistances among chromocenters" << endl;
     cout << "           '5' to generate spatial models taking into account:" << endl;
@@ -417,15 +418,17 @@ int main(int argc, char* argv[])
           ENTER("Unifying labeling of two different regions");
 //          const int oldLabel = argv[3];
 //          const int newLabel = argv[4];
-          stringstream oldRegionLabel(argv[3]);
-          int oldLabel;
-          oldRegionLabel >> oldLabel;
-          stringstream newRegionLabel(argv[4]);
-          int newLabel;
-          newRegionLabel >> newLabel;
+//          stringstream oldRegionLabel(argv[3]);
+//          int oldLabel;
+//          oldRegionLabel >> oldLabel;
+//          stringstream newRegionLabel(argv[4]);
+//          int newLabel;
+//          newRegionLabel >> newLabel;
           const VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
-          VoxelMatrix<float> changedVM = unifyLabels( ccsMask, oldLabel, newLabel );
-          changedVM.save( chromocentersDir + filename + "_unified.vm" );
+          //VoxelMatrix<float> changedVM = unifyLabels( ccsMask, oldLabel, newLabel );
+          VoxelMatrix<float> changedVM = unifyLabels( ccsMask );
+          //changedVM.save( chromocentersDir + filename + "_unified.vm" );
+          changedVM.save( chromocentersDir + filename + ".vm", true );
           LEAVE();
         }
 

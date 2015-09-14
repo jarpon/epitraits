@@ -67,7 +67,8 @@ SOURCES += \
     src/trimeshspatialmodel2.cpp \
     src/unifyingobjects.cpp \
     src/spatialdescriptorfunctionhh.cpp \
-    src/spatialdescriptorfunctiongg.cpp
+    src/spatialdescriptorfunctiongg.cpp \
+    src/findnuclei_old.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \

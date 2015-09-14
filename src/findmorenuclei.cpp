@@ -23,7 +23,7 @@ VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>& originalVoxelMatrix,
   VoxelMatrix<float> nucleusMask = originalVoxelMatrix;
 
   MedianFilter<float> medianFilter2;
-  medianFilter2.setHalfSize( 2 );
+  medianFilter2.setHalfSize( 1.8 );
   medianFilter2.apply( nucleusMask );
 
 
@@ -77,22 +77,22 @@ VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>& originalVoxelMatrix,
    */
 
 
-  int labelTruncated = 0;
+//  int labelTruncated = 0;
 
-  for ( int i = 0; i < size1; ++i )
-    for ( int j = 0; j < size2; ++j )
-      for ( int k = 0; k < size3; ++k )
-          if ( i==0 || i==size1-1 || j==0 || j==size2-1 || k==0 || k==size3-1 )
-            if ( nucleusMask(i,j,k) != 0 )
-            {
-                labelTruncated = nucleusMask(i,j,k);
-                EVAL(labelTruncated);
-                for (int ii = 0; ii < size1; ++ii)
-                for (int jj = 0; jj < size2; ++jj)
-                  for (int kk = 0; kk < size3; ++kk)
-                     if ( nucleusMask(ii,jj,kk) == labelTruncated )
-                         nucleusMask(ii,jj,kk) = 0;
-            }
+//  for ( int i = 0; i < size1; ++i )
+//    for ( int j = 0; j < size2; ++j )
+//      for ( int k = 0; k < size3; ++k )
+//          if ( i==0 || i==size1-1 || j==0 || j==size2-1 || k==0 || k==size3-1 )
+//            if ( nucleusMask(i,j,k) != 0 )
+//            {
+//                labelTruncated = nucleusMask(i,j,k);
+//                EVAL(labelTruncated);
+//                for (int ii = 0; ii < size1; ++ii)
+//                for (int jj = 0; jj < size2; ++jj)
+//                  for (int kk = 0; kk < size3; ++kk)
+//                     if ( nucleusMask(ii,jj,kk) == labelTruncated )
+//                         nucleusMask(ii,jj,kk) = 0;
+//            }
 
   componentLabelling.apply( nucleusMask );
   const int numComponents = componentLabelling.getNumLabels();
@@ -140,22 +140,33 @@ VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>& originalVoxelMatrix,
 
 
             //process to improve nuclei segmentation when the nucleoli touch the envelope
-            VoxelMatrix<float> structElement4;
-            //structElement4.setSize(3,3,3);
-            structElement4.setSize(5,5,5);
-            structElement4.setOnes();
-
-            VoxelMatrixErosion<float> voxelErosion2;
-            voxelErosion2.setStructElt( structElement4 );
-            voxelErosion2.apply( tempNucleusMask );
-
-            VoxelMatrix<float> structElement3;
-            structElement3.setSize(3,3,3);
+            VoxelMatrix<float> structElement1, structElement2, structElement3, structElement4, structElement5;
+            structElement1.setSize(3,3,9);
+            structElement1.setOnes();
+            structElement2.setSize(3,3,7);
+            structElement2.setOnes();
+            structElement3.setSize(9,9,1);
             structElement3.setOnes();
+            structElement4.setSize(5,5,1);
+            structElement4.setOnes();
+            structElement5.setSize(5,5,3);
+            structElement5.setOnes();
 
-            VoxelMatrixDilatation<float> voxelDilatation2;
-            voxelDilatation2.setStructElt( structElement3 );
-            voxelDilatation2.apply( tempNucleusMask );
+//            VoxelMatrixErosion<float> voxelErosion1;
+//            voxelErosion1.setStructElt( structElement3 );
+//            voxelErosion1.apply( nucleusMask );
+
+//            VoxelMatrixDilatation<float> voxelDilatation1;
+//            voxelDilatation1.setStructElt( structElement1 );
+//            voxelDilatation1.apply( nucleusMask );
+
+//            VoxelMatrixErosion<float> voxelErosion2;
+//            voxelErosion2.setStructElt( structElement4 );
+//            voxelErosion2.apply( nucleusMask );
+
+//            VoxelMatrixDilatation<float> voxelDilatation2;
+//            voxelDilatation2.setStructElt( structElement2 );
+//            voxelDilatation2.apply( nucleusMask );
 
             for (int k = 0; k < size3; ++k)  holesFilling.apply( tempNucleusMask[k] );
 
@@ -170,22 +181,33 @@ VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>& originalVoxelMatrix,
         thresholding.levelSetMask( nucleusMask[k], histogram2.maxPos()+1 );
 
     //process to improve nuclei segmentation when the nucleoli touch the envelope
-    VoxelMatrix<float> structElement4;
-    //structElement4.setSize(3,3,3);
-    structElement4.setSize(9,9,9);
-    structElement4.setOnes();
-
-    VoxelMatrixErosion<float> voxelErosion2;
-    voxelErosion2.setStructElt( structElement4 );
-    voxelErosion2.apply( nucleusMask );
-
-    VoxelMatrix<float> structElement3;
-    structElement3.setSize(3,3,3);
+    VoxelMatrix<float> structElement1, structElement2, structElement3, structElement4, structElement5;
+    structElement1.setSize(3,3,9);
+    structElement1.setOnes();
+    structElement2.setSize(3,3,7);
+    structElement2.setOnes();
+    structElement3.setSize(9,9,1);
     structElement3.setOnes();
+    structElement4.setSize(5,5,1);
+    structElement4.setOnes();
+    structElement5.setSize(5,5,3);
+    structElement5.setOnes();
 
-    VoxelMatrixDilatation<float> voxelDilatation2;
-    voxelDilatation2.setStructElt( structElement3 );
-    voxelDilatation2.apply( nucleusMask );
+//    VoxelMatrixErosion<float> voxelErosion1;
+//    voxelErosion1.setStructElt( structElement3 );
+//    voxelErosion1.apply( nucleusMask );
+
+//    VoxelMatrixDilatation<float> voxelDilatation1;
+//    voxelDilatation1.setStructElt( structElement1 );
+//    voxelDilatation1.apply( nucleusMask );
+
+//    VoxelMatrixErosion<float> voxelErosion2;
+//    voxelErosion2.setStructElt( structElement4 );
+//    voxelErosion2.apply( nucleusMask );
+
+//    VoxelMatrixDilatation<float> voxelDilatation2;
+//    voxelDilatation2.setStructElt( structElement2 );
+//    voxelDilatation2.apply( nucleusMask );
 
     for (int k = 0; k < size3; ++k)  holesFilling.apply( nucleusMask[k] );
 
@@ -202,22 +224,33 @@ VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>& originalVoxelMatrix,
   else if ( numComponents == 1 )
   {
       //process to improve nuclei segmentation when the nucleoli touch the envelope
-      VoxelMatrix<float> structElement4;
-      //structElement4.setSize(3,3,3);
-      structElement4.setSize(9,9,9);
-      structElement4.setOnes();
+    VoxelMatrix<float> structElement1, structElement2, structElement3, structElement4, structElement5;
+    structElement1.setSize(3,3,9);
+    structElement1.setOnes();
+    structElement2.setSize(3,3,7);
+    structElement2.setOnes();
+    structElement3.setSize(9,9,1);
+    structElement3.setOnes();
+    structElement4.setSize(5,5,1);
+    structElement4.setOnes();
+    structElement5.setSize(5,5,3);
+    structElement5.setOnes();
 
-      VoxelMatrixErosion<float> voxelErosion2;
-      voxelErosion2.setStructElt( structElement4 );
-      voxelErosion2.apply( nucleusMask );
+//    VoxelMatrixErosion<float> voxelErosion1;
+//    voxelErosion1.setStructElt( structElement3 );
+//    voxelErosion1.apply( nucleusMask );
 
-      VoxelMatrix<float> structElement3;
-      structElement3.setSize(3,3,3);
-      structElement3.setOnes();
+//    VoxelMatrixDilatation<float> voxelDilatation1;
+//    voxelDilatation1.setStructElt( structElement1 );
+//    voxelDilatation1.apply( nucleusMask );
 
-      VoxelMatrixDilatation<float> voxelDilatation2;
-      voxelDilatation2.setStructElt( structElement3 );
-      voxelDilatation2.apply( nucleusMask );
+//    VoxelMatrixErosion<float> voxelErosion2;
+//    voxelErosion2.setStructElt( structElement4 );
+//    voxelErosion2.apply( nucleusMask );
+
+//    VoxelMatrixDilatation<float> voxelDilatation2;
+//    voxelDilatation2.setStructElt( structElement2 );
+//    voxelDilatation2.apply( nucleusMask );
 
       for (int k = 0; k < size3; ++k)  holesFilling.apply( nucleusMask[k] );
 

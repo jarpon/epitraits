@@ -305,9 +305,9 @@ VoxelMatrix<float> findNucleusAlternative(const VoxelMatrix<float>& originalVoxe
 // this was uncommented 12 june
 //  nucleusMask.fillIt(nucleusFill);
 //  //nucleusMask = nucleusFill;
-  nucleusFill.save ( "/home/javier/Desktop/gaussian2.vm", true );
+//  nucleusFill.save ( "/home/javier/Desktop/gaussian2.vm", true );
 
-  nucleusMask.save ( "/home/javier/Desktop/gaussian3.vm", true );
+  //nucleusMask.save ( "/home/javier/Desktop/gaussian3.vm", true );
 
 //  //process to improve nuclei segmentation when the nucleoli touch the envelope
   VoxelMatrix<float> structElement3;
