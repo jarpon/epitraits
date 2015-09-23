@@ -64,6 +64,7 @@ class TriMeshSpatialModel2 : public SpatialModel<CoordType,float>
 
     void addDistribution(); // adds current info (radii and/or distances to the border) to the model
     void addDistribution( const string& ); // adds current info (radii and/or distances to the border) to the model including the name of the objects kind
+    void addDistribution( const int, const Vector<CoordType>& ); // adds the number of objects and radii of a new objects distribution
     void addDistribution( const int, const Vector<CoordType>&, const Vector<CoordType>& ); // adds the number of objects, radii and distances to the border of a new objects distribution
     void addDistribution( const int, const string&, const Vector<CoordType>&, const Vector<CoordType>& ); // gets the number of objects, kind of objects, radii and distances to the border of a new objects distribution
     void getDistribution( const int, int, Vector<CoordType>, Vector<CoordType> ); // gets the number of objects, radii and distances to the border of the X objects distribution

@@ -444,19 +444,20 @@ void TriMeshSpatialModel2<CoordType>::addDistribution( const string& objectsName
  * number of objects, their radii and their distances to the border
 ****************************************************************/
 template<class CoordType>
-void TriMeshSpatialModel2<CoordType>::addDistribution( const int numObjects, const Vector<CoordType>& hardcoreDistances, const Vector<CoordType>& distancesToTheBorder )
+void TriMeshSpatialModel2<CoordType>::addDistribution( const int numObjects, const Vector<CoordType>& hardcoreDistances )
 {
   ENTER("void TriMeshSpatialModel2<CoordType>::addDistribution(...)");
 
   //    _allDistributionNumObjects[_allDistributionNumObjects.getSize()+1] = _numCompartments;
     _allDistributionNumObjects[_allDistributionNumObjects.getSize()] = _numCompartments;
     _allDistributionHardcoreDistances.append( hardcoreDistances );
-    _allDistributionDistancesToTheBorder.append( distancesToTheBorder );
+    //_allDistributionDistancesToTheBorder.append( distancesToTheBorder );
 
     _numDistributions++;
 
   LEAVE();
 }
+
 
 /*! Adds the information of a new objects distribution:
  * number of objects, their radii and their distances to the border

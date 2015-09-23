@@ -53,6 +53,8 @@ extern void spatialModelEvaluator(const string&, const string&, const string&, c
                           DataSet&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
+extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
+                          DataSet&, RandomGenerator&);
 extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
 extern void uniformTest(const string&, const string&, DataSet&);
@@ -615,7 +617,8 @@ int main(int argc, char* argv[])
     string test, function;
     int constraints;
 
-    if ( argv[2] == std::string("6") )       test = "model";
+    //if ( argv[2] == std::string("6") )       test = "model";
+    if ( argv[2] == std::string("6") )       test = "2compartments";
     else if ( argv[2] == std::string("7") )  test = "data";
     else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
 
@@ -680,13 +683,20 @@ int main(int argc, char* argv[])
 
           EVAL(filename);
 
-          if  ( test == "model" )
+//          if  ( test == "model" )
+//          {
+//            ostringstream oss;
+//            oss << constraints;
+//            spatialModelEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+////            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
+////            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
+//          }
+          if  ( test == "2compartments" )
           {
+            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
             ostringstream oss;
             oss << constraints;
-            spatialModelEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
-//            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
-//            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
+            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
           }
           else if ( test == "data" )
           {
