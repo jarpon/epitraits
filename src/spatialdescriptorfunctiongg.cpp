@@ -62,40 +62,54 @@ void SpatialDescriptorFunctionGG<CoordType>::setVerticesKind2(
 }
 
 //template<class CoordType>
-//Vector<Coordtype> SpatialDescriptorFunctionGG<CoordType>::getClosestNeighbors() const
+//Vector<CoordType> SpatialDescriptorFunctionGG<CoordType>::getClosestNeighbor()
 //{
-////  const int n = getNumVertices();
+//  const int n1 = _verticesKind1.getNumVertices();
+//  const int n2 = _verticesKind2.getNumVertices();
 
-////  if ( n == 0 )
-////  {
-////    Vector<T> vector;
-////    return vector;
-////  }
+//  if ( ( n1 == 0 ) || ( n2 == 0 ) )
+//  {
+//    Vector<CoordType> vector;
+//    return vector;
+//  }
 
-////  if ( n == 1 )
-////  {
-////    Vector<T> vector( 1 );
-////    vector[0] = 0;
-////    return vector;
-////  }
+//  if ( ( n1 == 1 ) || ( n2 == 1 ) )
+//  {
+//    Vector<CoordType> vector( 1 );
+//    vector[0] = 0;
+//    return vector;
+//  }
 
-////  ConstVertexIterator<T> vi( *this );
-////  ConstVertexIterator<T> vj( *this );
-////  Vector<T> squareDistances( n-1 );
-////  Vector<T> snnd( n );
-////  int i, j, k;
+////  ConstVertexIterator<CoordType> vi( *this );
+////  ConstVertexIterator<CoordType> vj( *this );
+////  ConstVertexIterator<CoordType> vi( _verticesKind1.vertexIterator() ); //if this does not work, move it to shape.cpp and use lines above
+////  ConstVertexIterator<CoordType> vj();
 
-////  for (i = 0; i < n; ++i, ++vi)
-////  {
-////    const Vector<T>& rvi = *vi.current();
-////    vj.rewind();
-////    for (j = 0, k = 0; j < n; ++j, ++vj)
-////      if ( i != j )
-////        squareDistances[k++] = rvi.sdistance( *vj.current() );
-////    snnd[i] = squareDistances.min();
-////  }
+//  Vector<CoordType> squareDistances( n1+n2-1 );
+//  Vector<CoordType> snnd( n1+n2 );
+//  int i, j, k;
 
-////  return snnd;
+//  for (i = 0; i < n1; ++i, ++vi)
+//  {
+//    const Vector<CoordType>& rvi = *vi.current();
+//    vj.rewind();
+//    for (j = 0, k = 0; j < n2; ++j, ++vj)
+//      //if ( i != j )
+//        squareDistances[k++] = rvi.sdistance( *vj.current() );
+//    snnd[i] = squareDistances.min();
+//  }
+
+//  for (i = 0; i < n2; ++i, ++vi)
+//  {
+//    const Vector<CoordType>& rvi = *vi.current();
+//    vj.rewind();
+//    for (j = 0, k = squareDistances.getSize(); j < n1; ++j, ++vj)
+//      //if ( i != j )
+//        squareDistances[k++] = rvi.sdistance( *vj.current() );
+//    snnd[i+n1] = squareDistances.min();
+//  }
+
+//  return snnd;
 //}
 
 
@@ -109,11 +123,11 @@ void SpatialDescriptorFunctionGG<CoordType>::eval(
   {
     ProgramError error;
     error.setWhat( "Error calling the program" );
-    error.setWhat( "There is not other kind of objects set" );
-    error.setWhat( "Are you looking for the normal H-Function?s" );
+    error.setWhat( "There is not other kind of objects set up" );
+    error.setWhat( "Are you looking for the normal G-Function?" );
   }
 
-//  x = getClosestNeighbors();
+  x = _verticesKind1.nearestNeighborDistances( _verticesKind2 );
   x.apply( sqrt );
   x.sort();
 

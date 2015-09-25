@@ -97,6 +97,7 @@ int main(int argc, char* argv[])
     cout << "           '3' to segment the chromocenters" << endl;
     cout << "           '3m' to segment manually the chromocenters; introduce -1 to discard the stack" << endl;
     cout << "           '4' to analyze and quantify chromocenters" << endl;
+    cout << "           '4-unify' to unify labels (i.e. chromocenter which appears as 2 different labels" << endl;
     cout << "           '4-interdistances' to quantify interdistances among chromocenters" << endl;
     cout << "           '5' to generate spatial models taking into account:" << endl;
     cout << "                 - real distances to the border" << endl;

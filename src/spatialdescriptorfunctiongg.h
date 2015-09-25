@@ -29,6 +29,8 @@ class SpatialDescriptorFunctionGG : public SpatialDescriptor<CoordType>
     Vertices<CoordType> _verticesKind1;
     Vertices<CoordType> _verticesKind2;
 
+    Vector<CoordType> getClosestNeighbor();
+
 };
 
 
