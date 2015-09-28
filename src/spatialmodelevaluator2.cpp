@@ -18,6 +18,8 @@
 
 //#include <cdftools.h>
 #include "cdftools2.h"
+#define TRACE
+#include <trace.h>
 
 template<class CoordType,class PixelType>
 SpatialModelEvaluator<CoordType,PixelType>::SpatialModelEvaluator()
@@ -259,7 +261,11 @@ void SpatialModelEvaluator<CoordType,PixelType>::evalSDIandMaxDiff(
   ranks.resize( _descriptors.size() );
   maxDiff.resize( _descriptors.size() );
 
+  EVAL("here1");
+
   monteCarloSamples1 = _model->drawSamples( _numMonteCarloSamples, numVertices );
+
+  EVAL("here2");
   monteCarloSamples2 = _model->drawSamples( _numMonteCarloSamples, numVertices );
   for (size_t i = 0; i < _descriptors.size(); ++i)
     eval( vertices, *_descriptors[i], monteCarloSamples1, monteCarloSamples2, pValues[i], ranks[i], maxDiff[i], i==0?dataSet:0 );

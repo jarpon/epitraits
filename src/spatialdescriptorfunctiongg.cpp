@@ -11,6 +11,9 @@
 
 #include <cdftools.h>
 
+#define TRACE
+#include <trace.h>
+
 template<class CoordType>
 SpatialDescriptorFunctionGG<CoordType>::SpatialDescriptorFunctionGG() : SpatialDescriptor<CoordType>()
 {
@@ -127,6 +130,7 @@ void SpatialDescriptorFunctionGG<CoordType>::eval(
     error.setWhat( "Are you looking for the normal G-Function?" );
   }
 
+  EVAL("inside G'");
   x = _verticesKind1.nearestNeighborDistances( _verticesKind2 );
   x.apply( sqrt );
   x.sort();

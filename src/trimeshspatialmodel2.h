@@ -43,6 +43,7 @@ class TriMeshSpatialModel2 : public SpatialModel<CoordType,float>
     bool checkInterObjectDistances(const Vector<CoordType>&, const Vertices<CoordType>&);
 
     Vertices<CoordType> drawSample(const int);
+    Vertices<CoordType>  drawSample2( ); // vertices of two distributions
 
     const CoordType& getHardcoreDistances(const int) const;
     Vector<CoordType>& getHardcoreDistances();
@@ -84,7 +85,7 @@ class TriMeshSpatialModel2 : public SpatialModel<CoordType,float>
     Vector<string> _objectsNames;
     int getNumDistributions();
 
-    void drawSample( Vertices<CoordType>&, Vertices<CoordType>& ); // vertices of two distributions
+    //void drawSample( Vertices<CoordType>&, Vertices<CoordType>& ); // vertices of two distributions
     void drawSample( Vertices<CoordType>&, Vector<string>& ); // vertices of any distribution and vector with the corresponding one
 
   private:
@@ -104,7 +105,7 @@ class TriMeshSpatialModel2 : public SpatialModel<CoordType,float>
     Vector<CoordType> _distanceToBorder;
     Vector<CoordType> _distanceToBorderRange;
 
-    Vector<CoordType> _allDistributionNumObjects;
+    Vector<int> _allDistributionNumObjects;
     Vector<CoordType> _allDistributionHardcoreDistances;
     Vector<CoordType> _allDistributionDistancesToTheBorder;
 

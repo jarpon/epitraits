@@ -12,7 +12,7 @@
 #include <programerror.h>
 #include <dataset.h>
 
-//#define TRACE
+#define TRACE
 #include <trace.h>
 #include <sstream>
 
@@ -44,6 +44,7 @@ TriMeshSpatialModel2<CoordType>::TriMeshSpatialModel2()
  // _hardcoreDistancesRange.setZeros(2);
   _distanceToBorder.setZeros(1);
  // _distanceToBorderRange.setZeros(2);
+  _allDistributionDistancesToTheBorder.setSize( 0 );
 }
 
 /*! Destroys it.
@@ -170,29 +171,36 @@ void TriMeshSpatialModel2<CoordType>::setDistanceToBorder(const Vector<CoordType
 template<class CoordType>
 Vertices<CoordType> TriMeshSpatialModel2<CoordType>::drawSample(const int numPoints)
 {
-  if ( _numCompartments == 0 )
-    _numCompartments = numPoints;
+  ENTER("void TriMeshSpatialModel2<CoordType>::drawSample( ... )")
 
-  if ( ( _hardcoreDistances[0] == 0 ) && ( _hardcoreDistancesRange[1] == 0 ) &&
-       ( _distanceToBorder[0] == 0 ) && ( _distanceToBorderRange[1] == 0 ) )
+  if ( _numDistributions == 1 )
+  {
+    if ( _numCompartments == 0 )
+      _numCompartments = numPoints;
 
-    return randomVertices();
+    if ( ( _hardcoreDistances[0] == 0 ) && ( _hardcoreDistancesRange[1] == 0 ) &&
+         ( _distanceToBorder[0] == 0 ) && ( _distanceToBorderRange[1] == 0 ) )
 
-  else if ( ( _hardcoreDistances[0] == 0 ) && ( _hardcoreDistancesRange[1] == 0 ) &&
-          ( ( _distanceToBorder[0] != 0 ) || ( _distanceToBorderRange[1] != 0 ) ) )
+      return randomVertices();
 
-    return distanceToTheBorder();
+    else if ( ( _hardcoreDistances[0] == 0 ) && ( _hardcoreDistancesRange[1] == 0 ) &&
+            ( ( _distanceToBorder[0] != 0 ) || ( _distanceToBorderRange[1] != 0 ) ) )
 
-  else if ( ( ( _hardcoreDistances[0] != 0 ) || ( _hardcoreDistancesRange[1] != 0 ) ) &&
-              ( _distanceToBorder[0] == 0 ) && ( _distanceToBorderRange[1] == 0 ) )
+      return distanceToTheBorder();
 
-    return hardcoreDistances();
+    else if ( ( ( _hardcoreDistances[0] != 0 ) || ( _hardcoreDistancesRange[1] != 0 ) ) &&
+                ( _distanceToBorder[0] == 0 ) && ( _distanceToBorderRange[1] == 0 ) )
 
-  else //if ( ( ( _hardcoreDistances[0] != 0 ) || ( _hardcoreDistancesRange[1] != 0 ) ) &&
-       //     ( ( _distanceToBorder[0] != 0 ) || ( _distanceToBorderRange[1] != 0 ) ) )
+      return hardcoreDistances();
 
-    return hardcoreAndToTheBorderDistances();
+    else //if ( ( ( _hardcoreDistances[0] != 0 ) || ( _hardcoreDistancesRange[1] != 0 ) ) &&
+         //     ( ( _distanceToBorder[0] != 0 ) || ( _distanceToBorderRange[1] != 0 ) ) )
 
+      return hardcoreAndToTheBorderDistances();
+  }
+  else drawSample2(  );
+
+  LEAVE();
 }
 
 /*! Diverts to the correct function depending on the conditions.
@@ -241,10 +249,21 @@ void TriMeshSpatialModel2<CoordType>::drawSample( Vertices<CoordType>& vertices,
  *  The output is two updated vertices with the corresponding objects of each class.
 ****************************************************************/
 template<class CoordType>
-void TriMeshSpatialModel2<CoordType>::drawSample( Vertices<CoordType>& dist1, Vertices<CoordType>& dist2 )
+Vertices<CoordType> TriMeshSpatialModel2<CoordType>::drawSample2( )
 {
-  RandomGenerator& randomGenerator = this->getRandomGenerator();
-  randomizesOrder(randomGenerator);
+//  RandomGenerator& randomGenerator = this->getRandomGenerator();
+//  randomizesOrder(randomGenerator);
+
+//  order = allDistributionObjectsNames;
+
+  EVAL ("this is going well");
+  EVAL (_allDistributionHardcoreDistances);
+  EVAL (_allDistributionNumObjects.getSize());
+  EVAL (_numDistributions);
+  _hardcoreDistances = _allDistributionHardcoreDistances;
+  _numCompartments = _allDistributionNumObjects.sum();
+  EVAL(_hardcoreDistances);
+  return hardcoreDistances();
 
   if ( ( _hardcoreDistances[0] == 0 ) && ( _hardcoreDistancesRange[1] == 0 ) &&
        ( _distanceToBorder[0] == 0 ) && ( _distanceToBorderRange[1] == 0 ) )
@@ -255,13 +274,13 @@ void TriMeshSpatialModel2<CoordType>::drawSample( Vertices<CoordType>& dist1, Ve
 
       Vertices<CoordType> tempAllVertices = randomVertices();
 
-      for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
-      {
-          if ( allDistributionObjectsNames[i] == _objectsNames[1] )
-              dist1.append( tempAllVertices[i] );
-          else
-              dist2.append( tempAllVertices[i] );
-      }
+//      for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
+//      {
+//          if ( allDistributionObjectsNames[i] == _objectsNames[1] )
+//              dist1.append( tempAllVertices[i] );
+//          else
+//              dist2.append( tempAllVertices[i] );
+//      }
 
   }
 
@@ -271,13 +290,13 @@ void TriMeshSpatialModel2<CoordType>::drawSample( Vertices<CoordType>& dist1, Ve
 
         Vertices<CoordType> tempAllVertices = distanceToTheBorder();
 
-        for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
-        {
-            if ( allDistributionObjectsNames[i] == _objectsNames[1] )
-                dist1.append( tempAllVertices[i] );
-            else
-                dist2.append( tempAllVertices[i] );
-        }
+//        for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
+//        {
+//            if ( allDistributionObjectsNames[i] == _objectsNames[1] )
+//                dist1.append( tempAllVertices[i] );
+//            else
+//                dist2.append( tempAllVertices[i] );
+//        }
 
     }
 
@@ -285,15 +304,19 @@ void TriMeshSpatialModel2<CoordType>::drawSample( Vertices<CoordType>& dist1, Ve
               ( _distanceToBorder[0] == 0 ) && ( _distanceToBorderRange[1] == 0 ) )
 
   {
-      Vertices<CoordType> tempAllVertices = hardcoreDistances();
+    ENTER("void TriMeshSpatialModel2<CoordType>::drawSample2( ... )")
 
-      for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
-      {
-          if ( allDistributionObjectsNames[i] == _objectsNames[1] )
-              dist1.append( tempAllVertices[i] );
-          else
-              dist2.append( tempAllVertices[i] );
-      }
+      hardcoreDistances();
+
+//      for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
+//      {
+//          if ( allDistributionObjectsNames[i] == _objectsNames[1] )
+//              dist1.append( tempAllVertices[i] );
+//          else
+//              dist2.append( tempAllVertices[i] );
+//      }
+
+    LEAVE();
   }
 
   else //if ( ( ( _hardcoreDistances[0] != 0 ) || ( _hardcoreDistancesRange[1] != 0 ) ) &&
@@ -301,13 +324,13 @@ void TriMeshSpatialModel2<CoordType>::drawSample( Vertices<CoordType>& dist1, Ve
   {
       Vertices<CoordType> tempAllVertices = hardcoreAndToTheBorderDistances();
 
-      for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
-      {
-          if ( allDistributionObjectsNames[i] == _objectsNames[1] )
-              dist1.append( tempAllVertices[i] );
-          else
-              dist2.append( tempAllVertices[i] );
-      }
+//      for ( int i = 0; i < _allDistributionNumObjects.getSize(); i++ )
+//      {
+//          if ( allDistributionObjectsNames[i] == _objectsNames[1] )
+//              dist1.append( tempAllVertices[i] );
+//          else
+//              dist2.append( tempAllVertices[i] );
+//      }
   }
 }
 
@@ -441,19 +464,32 @@ void TriMeshSpatialModel2<CoordType>::addDistribution( const string& objectsName
 }
 
 /*! Adds the information of a new objects distribution:
- * number of objects, their radii and their distances to the border
+ * number of objects and their radii
 ****************************************************************/
 template<class CoordType>
 void TriMeshSpatialModel2<CoordType>::addDistribution( const int numObjects, const Vector<CoordType>& hardcoreDistances )
 {
   ENTER("void TriMeshSpatialModel2<CoordType>::addDistribution(...)");
 
-  //    _allDistributionNumObjects[_allDistributionNumObjects.getSize()+1] = _numCompartments;
-    _allDistributionNumObjects[_allDistributionNumObjects.getSize()] = _numCompartments;
+  EVAL (_allDistributionNumObjects);
+    //not the best way
+    //_allDistributionNumObjects.setSize( _allDistributionNumObjects.getSize() + 1 );
+    EVAL (_allDistributionNumObjects);
+    Vector<int> temp (1);
+    temp[0] = numObjects;
+
+    _allDistributionNumObjects.append( temp );
     _allDistributionHardcoreDistances.append( hardcoreDistances );
+    _numCompartments += numObjects;
     //_allDistributionDistancesToTheBorder.append( distancesToTheBorder );
 
-    _numDistributions++;
+    ++_numDistributions;
+
+    EVAL (_allDistributionHardcoreDistances);
+    EVAL (_allDistributionNumObjects);
+    EVAL( _numCompartments );
+    EVAL (_numDistributions);
+
 
   LEAVE();
 }
@@ -631,7 +667,8 @@ template<class CoordType>
 Vertices<CoordType> TriMeshSpatialModel2<CoordType>::hardcoreDistances()
 {
   //ENTER("void TriMeshSpatialModel2<CoordType>::hardcoreDistances()");
-
+  EVAL(_hardcoreDistances);
+  EVAL(_numCompartments);
   Vertices<CoordType> vertices( 3, 0, 0, 0 );
   Vector<CoordType> vertex( 3 );
   //Vector<CoordType> test( 3 );
@@ -679,6 +716,11 @@ Vertices<CoordType> TriMeshSpatialModel2<CoordType>::hardcoreDistances()
   }
 
   //LEAVE();
+
+  for ( int i = 0; i < _numCompartments; ++i)
+  {
+    EVAL(vertices[i]);
+  }
 
   return vertices;
 }
