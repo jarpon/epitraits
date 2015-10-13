@@ -62,7 +62,8 @@ void evaluator(
 
   const int numPoints = datasetNucleus.size()[0];
 
-  const int numPatterns = 99;
+  //const int numPatterns = 99;
+  const int numPatterns = 1;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
@@ -112,8 +113,9 @@ void evaluator(
     PRINT("G'");
     SpatialDescriptorFunctionGG<float>* spatialDescriptorGG;
     spatialDescriptorGG = new SpatialDescriptorFunctionGG<float>();
-    spatialDescriptorGG->setVerticesKind1( vertices1 );
-    spatialDescriptorGG->setVerticesKind2( vertices2 );
+//    spatialDescriptorGG->setVerticesKind1( vertices1 );
+//    spatialDescriptorGG->setVerticesKind2( vertices2 );
+    spatialDescriptorGG->setVertices( vertices1, vertices2 );
     spatialDescriptor = spatialDescriptorGG;
   }
   else if ( function == "H" )

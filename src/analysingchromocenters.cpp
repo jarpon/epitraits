@@ -86,17 +86,45 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   nucleiDataset.setValue ( "intRHF", numNucleus, ( ccsIntensity.sum() ) / nucleusIntensity );//RHF: rate of heterochromatin (int.Density of ccs/ int.Density of nuclei)
 
 
+  int numCompartments = regionAnalysisCCs.numRegions();
+
+  float tempDistance;
+  Vector<float> temp1, temp2;
+  Vector<float> min, max;
+  min.setSize( numCompartments );
+  max.setSize( numCompartments );
 
   EVAL ( num );
 
 /**///chromocenters individual information
-  for (int numCC = 0; numCC < regionAnalysisCCs.numRegions(); numCC++ )
+  for (int numCC = 0; numCC < numCompartments; numCC++ )
   {
     chromocentersDataset.setValue ( "name", numCC+totalNumCCs, filename );
     chromocentersDataset.setValue ( "class", numCC+totalNumCCs, classif );//classification: mutant, tissue, etc.
     chromocentersDataset.setValue ( "idCC", numCC+totalNumCCs, numCC+1 );
 
     centroid = centroids[numCC];
+
+    min[numCC] = 100;
+    max[numCC] = 0;
+
+    for (int j = 0; j < numCompartments; ++j)
+    {
+      if ( numCC != j )
+      {
+        {
+          temp2 = centroids[j];
+          tempDistance = centroid.distance(temp2);
+        }
+
+        if ( tempDistance < min[numCC] )
+          min[numCC] = tempDistance;
+
+        if ( tempDistance > max[numCC] )
+          max[numCC] = tempDistance;
+      }
+    }
+
     chromocentersDataset.setValue ( "centroidCoordX", numCC+totalNumCCs, centroid[X] );
     chromocentersDataset.setValue ( "centroidCoordY", numCC+totalNumCCs, centroid[Y] );
     chromocentersDataset.setValue ( "centroidCoordZ", numCC+totalNumCCs, centroid[Z] );
@@ -130,6 +158,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     chromocentersDataset.setValue ( "ccsIntegratedDensity", numCC+totalNumCCs, ccsIntegratedDensity[numCC] );
     //this last relativeCCsIntensity is the intensity of each cc divided by the total cc's intensity
     chromocentersDataset.setValue ( "relativeCCsIntensity", numCC+totalNumCCs, ccsIntensity[numCC] / ccsIntegratedDensity.sum() );
+    chromocentersDataset.setValue ( "minDistanceToCC", numCC+totalNumCCs, min[numCC] );
+    chromocentersDataset.setValue ( "maxDistanceToCC", numCC+totalNumCCs, max[numCC] );
 
     individualChromocentersDataset.setValue ( "id", numCC, filename );
     individualChromocentersDataset.setValue ( "idCC", numCC, numCC+1 );
@@ -149,8 +179,49 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     individualChromocentersDataset.setValue ( "ccsIntensity", numCC, ccsIntensity[numCC] );
     individualChromocentersDataset.setValue ( "ccsIntegratedDensity", numCC, ccsIntegratedDensity[numCC] );
     individualChromocentersDataset.setValue ( "relativeCCsIntensity", numCC, ccsIntegratedDensity[numCC] * ccsVolume[numCC] / ( ccsIntegratedDensity.sum() * ccsVolume.sum() ) );
+    individualChromocentersDataset.setValue ( "minDistanceToCC", numCC, min[numCC] );
+    individualChromocentersDataset.setValue ( "maxDistanceToCC", numCC, max[numCC] );
 
   }
+
+//  for (int i = 0; i < numCompartments; ++i)
+//  {
+//    temp1 = centroids[i];
+
+//    min[i] = 100;
+//    max[i] = 0;
+
+//    for (int j = 0; j < numCompartments; ++j)
+//    {
+//      if ( i != j )
+//      {
+//        {
+//          temp2 = centroids[j];
+//          tempDistance = temp1.distance(temp2);
+//        }
+//        EVAL("here");
+
+//        if ( tempDistance < min[i] )
+//          min[i] = tempDistance;
+//        EVAL("here");
+
+//        if ( tempDistance > max[i] )
+//          max[i] = tempDistance;
+
+//      }
+//    }
+//  }
+
+//  EVAL("here");
+
+//  for (int numCC = 0; numCC < numCompartments; numCC++ )
+//  {
+//    chromocentersDataset.setValue ( "minDistanceToCC", numCC+totalNumCCs, min[numCC] );
+//    chromocentersDataset.setValue ( "maxDistanceToCC", numCC+totalNumCCs, max[numCC] );
+
+//    individualChromocentersDataset.setValue ( "minDistanceToCC", numCC, min[numCC] );
+//    individualChromocentersDataset.setValue ( "maxDistanceToCC", numCC, max[numCC] );
+//  }
 
   totalNumCCs += regionAnalysisCCs.numRegions();
 

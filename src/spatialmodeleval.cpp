@@ -77,8 +77,8 @@ void spatialModelEvaluator(
 
   modelEvaluator.setDescriptor( *spatialDescriptor );
 
-  //for (int i = 0; i < numSamples; ++i)
-  for (int i = 0; i < 1; ++i)
+  for (int i = 0; i < numSamples; ++i)
+  //for (int i = 0; i < 1; ++i)
   {
     EVAL( i );
     ostringstream oss; //we suppose as much 99 labels
@@ -86,11 +86,10 @@ void spatialModelEvaluator(
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
     Vertices<float> vertices = triMeshSpatialModel.drawSample( numPoints );
-    vertices.save( parentDir + "/" + filename + ".vx", true );
-    //float pValue = modelEvaluator.eval( vertices, &saveTest );
-    //saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_" + oss.str() + ".csv", true );
-    //dataSet.setValue( "pValues", i, pValue );
-    //EVAL( pValue );
+    vertices.save( parentDir + "/" + filename +  "_" + oss.str() + ".vx", true );
+    float index = modelEvaluator.eval( vertices, &saveTest );
+    saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_" + oss.str() + ".csv", true );
+    dataSet.setValue( "pValues", i, index );
   }
 }
 

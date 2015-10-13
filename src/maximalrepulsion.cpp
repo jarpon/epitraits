@@ -14,9 +14,11 @@
 #include <curvestack.h>
 #include <vertexstack.h>
 
-//#define TRACE
+#define TRACE
 #include <trace.h>
 #include <sstream>
+
+#include <limits>       // std::numeric_limits
 
 using namespace std;
 
@@ -60,6 +62,7 @@ void MaximalRepulsionTriMeshSpatialModel<CoordType>::setTriMesh(const TriMesh<Co
 }
 
 /*! Gets the current energy of the system
+ * Minimizing the inverse of the sum of all the interdistances
 ****************************************************************/
 template<class CoordType>
 CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy1(const Vertices<CoordType>& vertices)
@@ -77,6 +80,7 @@ CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy1(const Verti
 }
 
 /*! Gets the current energy of the system
+ * Minimizing the inverse of the sum of the distances between closest objects
 ****************************************************************/
 template<class CoordType>
 CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy2(const Vertices<CoordType>& vertices)
@@ -84,17 +88,24 @@ CoordType MaximalRepulsionTriMeshSpatialModel<CoordType>::getEnergy2(const Verti
   int numPoints = vertices.getNumVertices();
   Vector<CoordType> distancesCompartment(numPoints), minDistances(numPoints);
 
-  for ( int i = 0; i < numPoints; ++i )
-  {
-    for ( int j = 0; j < numPoints; ++j )
-      if ( j!= i)
-        distancesCompartment[j] = vertices[i].distance(vertices[j]);
-      else
-        distancesCompartment[j] = 10000;
-    minDistances[i] = distancesCompartment.min();
-  }
+  minDistances = vertices.squareNearestNeighborDistances();
+//  for ( int i = 0; i < numPoints; ++i )
+//  {
+//    for ( int j = 0; j < numPoints; ++j )
+//    {
+//      if ( j!= i)
+//        distancesCompartment[j] = vertices[i].distance(vertices[j]);
+//      else
+//        distancesCompartment[j] = numeric_limits<float>::max();
+//    }
+////    EVAL(distancesCompartment);
+//    minDistances[i] = distancesCompartment.min();
+//  }
+
+  EVAL(minDistances);
 
   return 1/minDistances.sum();
+
 }
 
 
@@ -268,21 +279,22 @@ Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(c
       //float currentDistanceToBorder = distancesToBorder[i];
 
 //      //calculates old energy ------- using 1st method -- all interdistances
-//      float oldEnergy = getEnergy(currentVertices, 2);
+      float oldEnergy = getEnergy(currentVertices, 2);
       //calculates new energy ------- using 2nd method -- distance to the closest one
-      float oldEnergy = getEnergy(currentVertices, 1);
+      //float oldEnergy = getEnergy(currentVertices, 1);
 
       //moves the compartment in a random direction a distance smaller than twice the current distance to the border
       //CoordType radius = 3*currentDistanceToBorder;
-      CoordType radius = (distancesToBorder[i]-_hardcoreDistances[i])*.99;
+      //CoordType radius = (distancesToBorder[i]-_hardcoreDistances[i])*.99;
+      CoordType radius = (_hardcoreDistances[i])*.1;
       movedVertex = moveCompartment(i, currentVertices, radius);
       currentVertices[i] = movedVertex;
 
       ++numberAttempts[i];
 //      //calculates new energy ------- using 1st method -- all interdistances
-//      float newEnergy = getEnergy(currentVertices, 2);
+      float newEnergy = getEnergy(currentVertices, 2);
       //calculates new energy ------- using 2nd method -- distance to the closest one
-      float newEnergy = getEnergy(currentVertices, 1);
+//      float newEnergy = getEnergy(currentVertices, 1);
 
       bool secondChance = false;
       //gives "an opportunity" to accept a "bad" energy change depending on its probability
@@ -298,59 +310,58 @@ Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(c
 //        EVAL(oldEnergy );
       }
 
-      //check if the conditions and therefore the new position are accepted
-      if ( (newEnergy-oldEnergy < 0) || secondChance == true )
+      //checks whether the object is within the confined space or not
+      //**to remember: distances to other objects are not tested because they do are in getEnergy
+      if ( _triMeshQuery.contains(movedVertex) )
       {
-        distancesToBorder[i] = _triMeshQuery.closestPoint( movedVertex, triMeshVertex );
-
-        if (info == true )
+        //check if the conditions and therefore the new position are accepted
+        if ( (newEnergy-oldEnergy < 0) || secondChance == true )
         {
-          dataset.setValue("probs",numMovements,exp(-(newEnergy-oldEnergy)));
-          dataset.setValue("deltaEnergy",numMovements,newEnergy-oldEnergy);
-          dataset.setValue("newEnergy",numMovements,newEnergy);
-          dataset.setValue("numMovements",numMovements,numMovements);
+          distancesToBorder[i] = _triMeshQuery.closestPoint( movedVertex, triMeshVertex );
 
-          dataset2.setValue("numMovements",globalMovements,globalMovements);
-          dataset2.setValue("deltaEnergy",globalMovements,newEnergy-oldEnergy);
-          dataset2.setValue("newEnergy",globalMovements,newEnergy);
+          if (info == true )
+          {
+            dataset.setValue("probs",numMovements,exp(-(newEnergy-oldEnergy)));
+            dataset.setValue("deltaEnergy",numMovements,newEnergy-oldEnergy);
+            dataset.setValue("newEnergy",numMovements,newEnergy);
+            dataset.setValue("numMovements",numMovements,numMovements);
+
+            dataset2.setValue("numMovements",globalMovements,globalMovements);
+            dataset2.setValue("deltaEnergy",globalMovements,newEnergy-oldEnergy);
+            dataset2.setValue("newEnergy",globalMovements,newEnergy);
+          }
+
+          if ( newEnergy < minEnergy[0] )
+          {
+            minEnergy[0] = newEnergy;
+            minEnergy[1] = globalMovements;
+            minEnergyVertices = currentVertices;
+            EVAL(minEnergy[0]);
+            EVAL(minEnergy[1]);
+          }
+
+  //        EVAL(newEnergy);
+          ++numMovements;
+          ++numberMovements[i];
+          ++globalMovements;
         }
-
-        if ( newEnergy < minEnergy[0] )
-        {
-          minEnergy[0] = newEnergy;
-          minEnergy[1] = globalMovements;
-          minEnergyVertices = currentVertices;
-          EVAL(minEnergy[0]);
-          EVAL(minEnergy[1]);
-        }
-
-
-
-//        EVAL(newEnergy);
-        ++numMovements;
-        ++numberMovements[i];
-        ++globalMovements;
       }
       else currentVertices[i] = vertex; //if the movement is not accepted we return to the previous position
       //EVAL(numberMovements);
 
-
 //      for ( int c = 0; c < _numCompartments; ++c)
 //        curveStack[c].append(currentVertices[c]);
 
-
     }
 
-//    curveStack.save( "/home/jarpon/Desktop/new/trace", true );
-
-    if (info == true)
-    {
-      ostringstream iss;
-      iss << globalCycles;
-      currentVertices.save( "/home/jarpon/Desktop/new/maxRepulsion" + iss.str() + ".vx", true );
-      dataset.save("/home/jarpon/Desktop/new/data" + iss.str() + ".csv",true);
-      dataset2.save("/home/jarpon/Desktop/new/dataEnergy.csv",true);
-    }
+//    if (info == true)
+//    {
+//      ostringstream iss;
+//      iss << globalCycles;
+//      currentVertices.save( "/home/jarpon/Desktop/new/maxRepulsion" + iss.str() + ".vx", true );
+//      dataset.save("/home/jarpon/Desktop/new/data" + iss.str() + ".csv",true);
+//      dataset2.save("/home/jarpon/Desktop/new/dataEnergy.csv",true);
+//    }
 
 //    EVAL(globalMovements);
 //    EVAL(numberMovements);
@@ -360,7 +371,6 @@ Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(c
 
 //  EVAL(curveStack.getNumVertices());
 
-//  if (info == true) minEnergyVertices.save( "/home/jarpon/Desktop/new/minEnergyVertices.vx", true );
 //  EVAL(minEnergy[0]);
 //  EVAL(globalMovements);
   for (int cc = 0; cc < _numCompartments; ++cc)

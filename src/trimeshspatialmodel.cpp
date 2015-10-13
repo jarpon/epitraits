@@ -322,6 +322,8 @@ Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreDistances()
 
   Vertices<CoordType> vertices( 3, 0, 0, 0 );
   Vector<CoordType> vertex( 3 );
+//  RandomGenerator& randomGenerator = this->getRandomGenerator();
+
   //Vector<CoordType> test( 3 );
   int attempts;
   const int maxAttempts = 150;
@@ -340,6 +342,9 @@ Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreDistances()
     throw programError;
   }
 
+  //randomizes the order of the compartments
+//  randomizesOrder(randomGenerator);
+//  EVAL(_hardcoreDistances);
   for (int i = 0; i < _numCompartments; ++i)
   {
     attempts = 0;
@@ -426,7 +431,7 @@ Vertices<CoordType> TriMeshSpatialModel<CoordType>::hardcoreAndToTheBorderDistan
     vertices.append( vertex );
 
     EVAL(attempts);
-    if ( attempts > maxAttempts )
+    if ( attempts >= maxAttempts )
     {
       //EVAL(attempts);
       Exception exception;

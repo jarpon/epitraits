@@ -33,7 +33,7 @@ void evaluator(
 {
   const string analysisDir = parentDir + "/analysis/";
   string classif = parentDir;
-  classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
+  classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
 
   //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
@@ -52,35 +52,6 @@ void evaluator(
 
   DataSet saveTest;
 
-//  if ( function == "all" )
-//  {
-//    PRINT("all functions");
-//    SpatialDescriptorFunctionF<float> functionF;
-//    SpatialDescriptorFunctionG<float> functionG;
-//    SpatialDescriptorFunctionH<float> functionH;
-//    SpatialDescriptorDistanceToBorder<float> functionB;
-//    //functionB = new SpatialDescriptorDistanceToBorder<float>();
-//    functionB.setTriMesh( nucleusTriMesh );
-//    //spatialDescriptor = spatialDescriptorDistanceToBorder;
-//    SpatialDescriptorDistanceToCentroid<float> functionC;
-//    //functionC = new SpatialDescriptorDistanceToCentroid<float>();
-//    functionC.setTriMesh( nucleusTriMesh );
-//    //SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
-//    //spatialModelEvaluator.setModel( csrModel );
-//    //spatialModelEvaluator.setNumMonteCarloSamples( 99 );
-//    //modelEvaluator.addDescriptor( functionF );
-//    modelEvaluator.addDescriptor( functionG );
-//    modelEvaluator.addDescriptor( functionH );
-////    modelEvaluator.addDescriptor( functionB );
-////    modelEvaluator.addDescriptor( functionC );
-//    //modelEvaluator.setPrecision( 1.0 );
-//    TriMeshSpatialModel<float> tempTriMeshSpatialModel;
-//    tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
-//    tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
-//    tempTriMeshSpatialModel.initialize();
-//    //Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
-//    //functionF.setEvaluationPositions( evaluationPositions );
-//  }
   if ( function == "all" )
   {
     PRINT("all functions");
@@ -220,15 +191,12 @@ void evaluator(
     }
 
     const int row = dataSet.numRows();
-
     vector<float> pValues;
     vector<int> ranks;
     vector<float> maxDiff;
 
-    EVAL('0');
     modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
 //    modelEvaluator.eval( vertices, pValues, ranks);
-    EVAL('1');
 
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
