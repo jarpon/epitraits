@@ -312,38 +312,43 @@ Vertices<CoordType> MaximalRepulsionTriMeshSpatialModel<CoordType>::drawSample(c
 
       //checks whether the object is within the confined space or not
       //**to remember: distances to other objects are not tested because they do are in getEnergy
-      if ( _triMeshQuery.contains(movedVertex) )
+      if ( ( _triMeshQuery.contains(movedVertex) ) )
       {
-        //check if the conditions and therefore the new position are accepted
-        if ( (newEnergy-oldEnergy < 0) || secondChance == true )
+        float tempDistanceToTheBorder = _triMeshQuery.closestPoint( movedVertex, triMeshVertex );
+
+        if  ( tempDistanceToTheBorder > _hardcoreDistances[i] )
         {
-          distancesToBorder[i] = _triMeshQuery.closestPoint( movedVertex, triMeshVertex );
-
-          if (info == true )
+          //check if the conditions and therefore the new position are accepted
+          if ( (newEnergy-oldEnergy < 0) || secondChance == true )
           {
-            dataset.setValue("probs",numMovements,exp(-(newEnergy-oldEnergy)));
-            dataset.setValue("deltaEnergy",numMovements,newEnergy-oldEnergy);
-            dataset.setValue("newEnergy",numMovements,newEnergy);
-            dataset.setValue("numMovements",numMovements,numMovements);
+            distancesToBorder[i] = tempDistanceToTheBorder;
 
-            dataset2.setValue("numMovements",globalMovements,globalMovements);
-            dataset2.setValue("deltaEnergy",globalMovements,newEnergy-oldEnergy);
-            dataset2.setValue("newEnergy",globalMovements,newEnergy);
+            if (info == true )
+            {
+              dataset.setValue("probs",numMovements,exp(-(newEnergy-oldEnergy)));
+              dataset.setValue("deltaEnergy",numMovements,newEnergy-oldEnergy);
+              dataset.setValue("newEnergy",numMovements,newEnergy);
+              dataset.setValue("numMovements",numMovements,numMovements);
+
+              dataset2.setValue("numMovements",globalMovements,globalMovements);
+              dataset2.setValue("deltaEnergy",globalMovements,newEnergy-oldEnergy);
+              dataset2.setValue("newEnergy",globalMovements,newEnergy);
+            }
+
+            if ( newEnergy < minEnergy[0] )
+            {
+              minEnergy[0] = newEnergy;
+              minEnergy[1] = globalMovements;
+              minEnergyVertices = currentVertices;
+              EVAL(minEnergy[0]);
+              EVAL(minEnergy[1]);
+            }
+
+    //        EVAL(newEnergy);
+            ++numMovements;
+            ++numberMovements[i];
+            ++globalMovements;
           }
-
-          if ( newEnergy < minEnergy[0] )
-          {
-            minEnergy[0] = newEnergy;
-            minEnergy[1] = globalMovements;
-            minEnergyVertices = currentVertices;
-            EVAL(minEnergy[0]);
-            EVAL(minEnergy[1]);
-          }
-
-  //        EVAL(newEnergy);
-          ++numMovements;
-          ++numberMovements[i];
-          ++globalMovements;
         }
       }
       else currentVertices[i] = vertex; //if the movement is not accepted we return to the previous position
