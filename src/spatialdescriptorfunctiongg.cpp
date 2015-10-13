@@ -11,6 +11,9 @@
 
 #include <cdftools.h>
 
+#define TRACE
+#include <trace.h>
+
 template<class CoordType>
 SpatialDescriptorFunctionGG<CoordType>::SpatialDescriptorFunctionGG() : SpatialDescriptor<CoordType>()
 {
@@ -61,43 +64,6 @@ void SpatialDescriptorFunctionGG<CoordType>::setVerticesKind2(
     _verticesKind2 = vertices;
 }
 
-//template<class CoordType>
-//Vector<Coordtype> SpatialDescriptorFunctionGG<CoordType>::getClosestNeighbors() const
-//{
-////  const int n = getNumVertices();
-
-////  if ( n == 0 )
-////  {
-////    Vector<T> vector;
-////    return vector;
-////  }
-
-////  if ( n == 1 )
-////  {
-////    Vector<T> vector( 1 );
-////    vector[0] = 0;
-////    return vector;
-////  }
-
-////  ConstVertexIterator<T> vi( *this );
-////  ConstVertexIterator<T> vj( *this );
-////  Vector<T> squareDistances( n-1 );
-////  Vector<T> snnd( n );
-////  int i, j, k;
-
-////  for (i = 0; i < n; ++i, ++vi)
-////  {
-////    const Vector<T>& rvi = *vi.current();
-////    vj.rewind();
-////    for (j = 0, k = 0; j < n; ++j, ++vj)
-////      if ( i != j )
-////        squareDistances[k++] = rvi.sdistance( *vj.current() );
-////    snnd[i] = squareDistances.min();
-////  }
-
-////  return snnd;
-//}
-
 
 template<class CoordType>
 void SpatialDescriptorFunctionGG<CoordType>::eval(
@@ -109,11 +75,12 @@ void SpatialDescriptorFunctionGG<CoordType>::eval(
   {
     ProgramError error;
     error.setWhat( "Error calling the program" );
-    error.setWhat( "There is not other kind of objects set" );
-    error.setWhat( "Are you looking for the normal H-Function?s" );
+    error.setWhat( "There is not other kind of objects set up" );
+    error.setWhat( "Are you looking for the normal G-Function?" );
   }
 
-//  x = getClosestNeighbors();
+  EVAL("inside G'");
+  x = _verticesKind1.nearestNeighborDistances( _verticesKind2 );
   x.apply( sqrt );
   x.sort();
 

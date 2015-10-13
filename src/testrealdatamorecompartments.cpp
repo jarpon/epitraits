@@ -39,9 +39,31 @@ void evaluator(
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
   const DataSet datasetKinda2( analysisDir + filename + "_kinda2.csv" );
 
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> eqRadiiKinda2 = datasetKinda2.getValues<float>( "equivalentRadius_tm" );
+
+  Vertices<float> vertices1 ( 3, datasetNucleus.size()[0], 0, 0 );
+  for ( int i = 0; i < datasetNucleus.size()[0]; ++i )
+  {
+    vertices1[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+    vertices1[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+    vertices1[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+    EVAL(vertices1[i]);
+  }
+
+  Vertices<float> vertices2 ( 3, datasetKinda2.size()[0], 0, 0 );
+  for ( int i = 0; i < datasetKinda2.size()[0]; ++i )
+  {
+    vertices2[i][0] = datasetKinda2.getValue<float>( "centroidCoordX", i );
+    vertices2[i][1] = datasetKinda2.getValue<float>( "centroidCoordY", i );
+    vertices2[i][2] = datasetKinda2.getValue<float>( "centroidCoordZ", i );
+    EVAL(vertices2[i]);
+  }
+
   const int numPoints = datasetNucleus.size()[0];
 
-  const int numPatterns = 99;
+  //const int numPatterns = 99;
+  const int numPatterns = 1;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
@@ -52,35 +74,6 @@ void evaluator(
 
   DataSet saveTest;
 
-//  if ( function == "all" )
-//  {
-//    PRINT("all functions");
-//    SpatialDescriptorFunctionF<float> functionF;
-//    SpatialDescriptorFunctionG<float> functionG;
-//    SpatialDescriptorFunctionH<float> functionH;
-//    SpatialDescriptorDistanceToBorder<float> functionB;
-//    //functionB = new SpatialDescriptorDistanceToBorder<float>();
-//    functionB.setTriMesh( nucleusTriMesh );
-//    //spatialDescriptor = spatialDescriptorDistanceToBorder;
-//    SpatialDescriptorDistanceToCentroid<float> functionC;
-//    //functionC = new SpatialDescriptorDistanceToCentroid<float>();
-//    functionC.setTriMesh( nucleusTriMesh );
-//    //SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
-//    //spatialModelEvaluator.setModel( csrModel );
-//    //spatialModelEvaluator.setNumMonteCarloSamples( 99 );
-//    //modelEvaluator.addDescriptor( functionF );
-//    modelEvaluator.addDescriptor( functionG );
-//    modelEvaluator.addDescriptor( functionH );
-////    modelEvaluator.addDescriptor( functionB );
-////    modelEvaluator.addDescriptor( functionC );
-//    //modelEvaluator.setPrecision( 1.0 );
-//    TriMeshSpatialModel2<float> tempTriMeshSpatialModel2;
-//    tempTriMeshSpatialModel2.setRandomGenerator( randomGenerator );
-//    tempTriMeshSpatialModel2.setTriMesh( nucleusTriMesh );
-//    tempTriMeshSpatialModel2.initialize();
-//    //Vertices<float> evaluationPositions = tempTriMeshSpatialModel2.drawSample( 10000 );
-//    //functionF.setEvaluationPositions( evaluationPositions );
-//  }
   if ( function == "all" )
   {
     PRINT("all functions");
@@ -118,7 +111,12 @@ void evaluator(
   else if ( function == "G" )
   {
     PRINT("G'");
-    spatialDescriptor = new SpatialDescriptorFunctionGG<float>();
+    SpatialDescriptorFunctionGG<float>* spatialDescriptorGG;
+    spatialDescriptorGG = new SpatialDescriptorFunctionGG<float>();
+//    spatialDescriptorGG->setVerticesKind1( vertices1 );
+//    spatialDescriptorGG->setVerticesKind2( vertices2 );
+    spatialDescriptorGG->setVertices( vertices1, vertices2 );
+    spatialDescriptor = spatialDescriptorGG;
   }
   else if ( function == "H" )
   {
@@ -178,56 +176,53 @@ void evaluator(
   {
     modelEvaluator.setDescriptor( *spatialDescriptor );
 
-    Vertices<float> vertices ( 3, numPoints, 0, 0 );
-    for ( int i = 0; i < numPoints; ++i )
-    {
-      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-      EVAL(vertices[i]);
-    }
-
-
-    for ( int i = 0; i < datasetKinda2.numRows(); ++i )
-    {
-      Vector<float> temp(3);
-      temp[0] = datasetKinda2.getValue<float>( "centroidCoordX", i );
-      temp[1] = datasetKinda2.getValue<float>( "centroidCoordY", i );
-      temp[2] = datasetKinda2.getValue<float>( "centroidCoordZ", i );
-      vertices.append( temp );
-      EVAL(temp);
-    }
-
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
 
   //  float pValue = modelEvaluator.eval( vertices, &saveTest );
   //  EVAL( pValue );
 
-    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
-    EVAL( output[0] );
-    EVAL( output[1] );
+    Vertices<float> verticesAll ( 3, datasetNucleus.size()[0]+datasetKinda2.size()[0], 0, 0 );
+    verticesAll.append( vertices1 );
+    verticesAll.append( vertices2 );
+
+    EVAL("here");
+//    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( verticesAll, &saveTest );
+//    EVAL( output[0] );
+//    EVAL( output[1] );
+
+    vector<float> pValues;
+    vector<int> ranks;
+    vector<float> maxDiff;
+
+    modelEvaluator.evalSDIandMaxDiff( vertices1, pValues, ranks, maxDiff);
+
+    const int row = dataSet.numRows();
+
+    saveTest.setValue( "nucleus", row, filename );
+    saveTest.setValue( "class", row, classif );//classification: mutant, tissue, etc.
+    saveTest.setValue( "G-SDI", row, pValues[0] );
+    saveTest.setValue( "G-maxDiff", row, maxDiff[0] );
 
     saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_2kind.csv", true );
   //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
-    const int row = dataSet.size()[0];
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
     dataSet.setValue( "descriptor", row, function );//spatial descriptor
     //dataSet.setValue( "index", row, pValue );
-    dataSet.setValue( "index", row, output[0] );
-    dataSet.setValue( "signedMaxDiff", row, output[1] );
+
   }
+
   else
   {
-    Vertices<float> vertices ( 3, numPoints, 0, 0 );
-    for ( int i = 0; i < numPoints; ++i )
-    {
-      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-      EVAL(vertices[i]);
-    }
+//    Vertices<float> vertices ( 3, numPoints, 0, 0 );
+//    for ( int i = 0; i < numPoints; ++i )
+//    {
+//      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+//      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+//      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+//      EVAL(vertices[i]);
+//    }
 
     const int row = dataSet.numRows();
 
@@ -235,10 +230,8 @@ void evaluator(
     vector<int> ranks;
     vector<float> maxDiff;
 
-    EVAL('0');
-    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
+    modelEvaluator.evalSDIandMaxDiff( vertices1, pValues, ranks, maxDiff);
 //    modelEvaluator.eval( vertices, pValues, ranks);
-    EVAL('1');
 
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
@@ -328,14 +321,14 @@ void sizeConstrained(
   const Vector<float> eqRadiiKinda2 = datasetKinda2.getValues<float>( "equivalentRadius_tm" );
   //old data
   //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
-  EVAL(eqRadii);
 
   TriMeshSpatialModel2<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
-  triMeshSpatialModel.setNumberOfCompartments( 2 );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.addDistribution( datasetCCs.numRows(), eqRadii );
+  EVAL(eqRadii);
   triMeshSpatialModel.addDistribution( datasetKinda2.numRows(), eqRadiiKinda2 );
+  EVAL(eqRadiiKinda2);
   triMeshSpatialModel.initialize();
 
   evaluator(

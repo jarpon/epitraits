@@ -32,7 +32,7 @@ VoxelMatrix<float> findNucleus(const VoxelMatrix<float>& originalVoxelMatrix)
   otsuThresholding.setBackground( 0.0 );
   otsuThresholding.apply( nucleusMask );
 
- nucleusMask.save( "/media/jarpon/WD-MIN-1TB/data-javier/maria/more/c0/segmented_nuclei/MK67_2 leaf002_1_c0_2.tif.vm", true);
+ //nucleusMask.save( "/media/jarpon/WD-MIN-1TB/data-javier/maria/more/c0/segmented_nuclei/MK67_2 leaf002_1_c0_2.tif.vm", true);
 
 // // for originals in 16bits
 //  Thresholding<float> thresholding2;
