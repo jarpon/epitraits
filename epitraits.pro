@@ -69,7 +69,8 @@ SOURCES += \
     src/spatialdescriptorfunctionhh.cpp \
     src/spatialdescriptorfunctiongg.cpp \
     src/findnuclei_old.cpp \
-    src/testrealdatamorecompartments.cpp
+    src/testrealdatamorecompartments.cpp \
+    src/spatialdescriptorfunctionm.cpp
 
 HEADERS += \
     src/trimeshspatialmodel.h \
@@ -87,5 +88,6 @@ HEADERS += \
     src/spatialmodelevaluator2.h \
     src/trimeshspatialmodel2.h \
     src/spatialdescriptorfunctionhh.h \
-    src/spatialdescriptorfunctiongg.h
+    src/spatialdescriptorfunctiongg.h \
+    src/spatialdescriptorfunctionm.h
 
