@@ -1,10 +1,9 @@
 #ifndef SPATIALDESCRIPTORFUNCTIONM_H
 #define SPATIALDESCRIPTORFUNCTIONM_H
 
-
 #include "spatialdescriptor.h"
-#include <trimesh.h>
 
+#include <trimeshquery.h>
 
 template<class CoordType>
 class SpatialDescriptorFunctionM : public SpatialDescriptor<CoordType>
@@ -13,39 +12,26 @@ class SpatialDescriptorFunctionM : public SpatialDescriptor<CoordType>
 
     SpatialDescriptorFunctionM();
 
+    void setCurve(const Curve<CoordType>&);
     void setTriMesh(const TriMesh<CoordType>&);
     void setPropertiesTriMesh( const Shape<CoordType>& );
-    //void setPropertiesTriMesh(const TriMesh<CoordType>&);
 
-    //void setPointPatterns(const Vertices<CoordType>&);
-
-    void eval(const Vertices<CoordType>&,
-              Vector<CoordType>&,
-              Vector<CoordType>&);
-
-//    CoordType getProperties(//TriMesh<CoordType>&,
-//                             int&,
-//                             Vector<CoordType>& );
-
-    CoordType triangleInterpolation(const Triangle<CoordType>&,
-                                    const Vector<CoordType>&,
-                                    const Vector<CoordType>&);
-    //TriMesh<CoordType> getPropertiesMap();
-
+    void eval(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
 
 private:
 
     bool _externalProperties;
     const TriMesh<CoordType>* _triMesh;
     const Shape<CoordType>* _propertiesMap;
+    const Curve<CoordType>* _curve;
+    TriMeshQuery<CoordType> _triMeshQuery;
 
-    CoordType getValue( const Vector<CoordType>&,
-                             const int& = 0 );
+    CoordType getValue( const Vector<CoordType>&, const int& = 0 );
+    CoordType triangleInterpolation(const Triangle<CoordType>&, const Vector<CoordType>&, const Vector<CoordType>&);
 
-//    const Vertices<CoordType>* _pointPatterns;
+    void eval3D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
+    void eval2D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
 
 };
-
-
 
 #endif // SPATIALDESCRIPTORFUNCTIONM_H

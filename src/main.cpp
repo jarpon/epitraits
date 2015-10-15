@@ -703,7 +703,7 @@ int main(int argc, char* argv[])
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );
             //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
-            realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+ //           realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
 
             //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
 

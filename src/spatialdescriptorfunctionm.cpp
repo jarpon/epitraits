@@ -3,6 +3,11 @@
 // * \author Javier Arpon (ja), INRA
 // * \author Thotino Gobin-Gansou (tg-g), INRA
 // * \date   2015.10.15 - creation (ja)
+// * \brief  M-function statistics for spatial point patterns
+// * \details This class implements the distance-to-border cumulative
+// * distribution. This is one of the available spatial descriptors
+// * for point patterns.
+// * The class handles the 2D and the 3D cases.
 // * \brief  Study the peripheral positioning of volumes respect an envelope property
 //****************************************************************/
 
