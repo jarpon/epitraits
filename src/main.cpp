@@ -55,8 +55,8 @@ extern void realDataEvaluator(const string&, const string&, const string&, const
                           DataSet&, RandomGenerator&);
 extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
-extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
-                          DataSet&, RandomGenerator&);
+//extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
+//                          DataSet&, RandomGenerator&);
 extern void uniformTest(const string&, const string&, DataSet&);
 extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
                                         const string&, const string&);
@@ -716,7 +716,7 @@ int main(int argc, char* argv[])
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );
             //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
-            nucleoliEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+//            nucleoliEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
 
             //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
 

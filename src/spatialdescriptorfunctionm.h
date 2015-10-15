@@ -27,7 +27,8 @@ private:
     TriMeshQuery<CoordType> _triMeshQuery;
 
     CoordType getValue( const Vector<CoordType>&, const int& = 0 );
-    CoordType triangleInterpolation(const Triangle<CoordType>&, const Vector<CoordType>&, const Vector<CoordType>&);
+    CoordType triangleInterpolation(const Triangle<CoordType>&, const Vector<CoordType>&, bool);
+    CoordType verticesInterpolation(const Vector<CoordType>&, const Vector<CoordType>&);
 
     void eval3D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
     void eval2D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
