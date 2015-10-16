@@ -1,5 +1,5 @@
-//#include <spatialmodelevaluator.h>
-#include "spatialmodelevaluator2.h"
+#include <spatialmodelevaluator.h>
+//#include "spatialmodelevaluator2.h"
 #include <spatialdescriptorfunctionf.h>
 #include <spatialdescriptorfunctiong.h>
 #include <spatialdescriptorfunctionh.h>
@@ -10,7 +10,7 @@
 //#include "spatialdescriptorcentroid.h"
 //#include "maximalrepulsion.h"
 #include "maxrepulsionwithdistances.h"
-#include "spatialdescriptormaxima.h"
+#include <spatialmodelcompleterandomness3d.h>
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
@@ -62,11 +62,11 @@ void evaluator(
   if ( function == "all" )
   {
     PRINT("all functions");
-    TriMeshSpatialModel<float>* tempTriMeshSpatialModel;
-    tempTriMeshSpatialModel->setRandomGenerator( randomGenerator );
-    tempTriMeshSpatialModel->setTriMesh( nucleusTriMesh );
-    tempTriMeshSpatialModel->initialize();
-    Vertices<float> evaluationPositions = tempTriMeshSpatialModel->drawSample( 10000 );
+    SpatialModelCompleteRandomness3D<float> tempTriMeshSpatialModel;
+    tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
+    tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
+    tempTriMeshSpatialModel.initialize();
+    Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
 
     SpatialDescriptorFunctionF<float>* spatialDescriptorFunctionF;
     spatialDescriptorFunctionF = new SpatialDescriptorFunctionF<float>();
@@ -86,13 +86,11 @@ void evaluator(
     spatialDescriptor = spatialDescriptorFunctionB;
     modelEvaluator.addDescriptor( *spatialDescriptor );
 
-    // spatialdescriptorfunctionC misses the declaration of "setCenter"
-//    SpatialDescriptorFunctionC<float>* spatialDescriptorFunctionC;
-//    spatialDescriptorFunctionC = new SpatialDescriptorFunctionC<float>();
-//    Vector<float> centroid = nucleusTriMesh.cog();
-//    spatialDescriptorFunctionC->setCenter( centroid );
-//    spatialDescriptor = spatialDescriptorFunctionC;
-//    modelEvaluator.addDescriptor( *spatialDescriptor );
+    SpatialDescriptorFunctionC<float>* spatialDescriptorFunctionC;
+    spatialDescriptorFunctionC = new SpatialDescriptorFunctionC<float>();
+    spatialDescriptorFunctionC->setCenter( nucleusTriMesh.cog() );
+    spatialDescriptor = spatialDescriptorFunctionC;
+    modelEvaluator.addDescriptor( *spatialDescriptor );
 
   }
   else if ( function == "G" )
@@ -124,11 +122,11 @@ void evaluator(
   else //if ( function == "F" )
   {
     PRINT("F");
-    TriMeshSpatialModel<float>* tempTriMeshSpatialModel;
-    tempTriMeshSpatialModel->setRandomGenerator( randomGenerator );
-    tempTriMeshSpatialModel->setTriMesh( nucleusTriMesh );
-    tempTriMeshSpatialModel->initialize();
-    Vertices<float> evaluationPositions = tempTriMeshSpatialModel->drawSample( 10000 );
+    SpatialModelCompleteRandomness3D<float> tempTriMeshSpatialModel;
+    tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
+    tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
+    tempTriMeshSpatialModel.initialize();
+    Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
     //evaluationPositions.save( parentDir + "/spatial_models/" + filename + "_Fpattern-" + ".vx", true);
     SpatialDescriptorFunctionF<float>* spatialDescriptorFunctionF;
     spatialDescriptorFunctionF = new SpatialDescriptorFunctionF<float>();
@@ -154,12 +152,12 @@ void evaluator(
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
 
-  //  float pValue = modelEvaluator.eval( vertices, &saveTest );
-  //  EVAL( pValue );
+    float sdi = modelEvaluator.eval( vertices, &saveTest );
+  //  EVAL( sdi );
 
-    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
-    EVAL( output[0] );
-    EVAL( output[1] );
+//    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
+//    EVAL( output[0] );
+//    EVAL( output[1] );
 
     saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
   //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
@@ -167,9 +165,9 @@ void evaluator(
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
     dataSet.setValue( "descriptor", row, function );//spatial descriptor
-    //dataSet.setValue( "index", row, pValue );
-    dataSet.setValue( "index", row, output[0] );
-    dataSet.setValue( "signedMaxDiff", row, output[1] );
+    dataSet.setValue( "index", row, sdi );
+    //dataSet.setValue( "index", row, output[0] );
+    //dataSet.setValue( "signedMaxDiff", row, output[1] );
   }
   else
   {
@@ -183,38 +181,38 @@ void evaluator(
     }
 
     const int row = dataSet.numRows();
-    vector<float> pValues;
+    vector<float> sdis;
     vector<int> ranks;
-    vector<float> maxDiff;
+//    vector<float> maxDiff;
 
-    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
-//    modelEvaluator.eval( vertices, pValues, ranks);
+//    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
+    modelEvaluator.eval( vertices, sdis, ranks);
 
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
-    dataSet.setValue( "F-SDI", row, pValues[0] );
-    dataSet.setValue( "F-maxDiff", row, maxDiff[0] );
-    dataSet.setValue( "G-SDI", row, pValues[1] );
-    dataSet.setValue( "G-maxDiff", row, maxDiff[1] );
-    dataSet.setValue( "H-SDI", row, pValues[2] );
-    dataSet.setValue( "H-maxDiff", row, maxDiff[2] );
-    dataSet.setValue( "B-SDI", row, pValues[3] );
-    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
-    dataSet.setValue( "C-SDI", row, pValues[4] );
-    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
+    dataSet.setValue( "F-SDI", row, sdis[0] );
+//    dataSet.setValue( "F-maxDiff", row, maxDiff[0] );
+    dataSet.setValue( "G-SDI", row, sdis[1] );
+//    dataSet.setValue( "G-maxDiff", row, maxDiff[1] );
+    dataSet.setValue( "H-SDI", row, sdis[2] );
+//    dataSet.setValue( "H-maxDiff", row, maxDiff[2] );
+    dataSet.setValue( "B-SDI", row, sdis[3] );
+//    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
+    dataSet.setValue( "C-SDI", row, sdis[4] );
+//    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
 
     saveTest.setValue( "nucleus", 1, filename );
     saveTest.setValue( "class", 1, classif );//classification: mutant, tissue, etc.
-    saveTest.setValue( "F-SDI", 1, pValues[0] );
-    saveTest.setValue( "F-maxDiff", 1, maxDiff[0] );
-    saveTest.setValue( "G-SDI", 1, pValues[1] );
-    saveTest.setValue( "G-maxDiff", 1, maxDiff[1] );
-    saveTest.setValue( "H-SDI", 1, pValues[2] );
-    saveTest.setValue( "H-maxDiff", 1, maxDiff[2] );
-    saveTest.setValue( "B-SDI", 1, pValues[3] );
-    saveTest.setValue( "B-maxDiff", 1, maxDiff[3] );
-    saveTest.setValue( "C-SDI", 1, pValues[4] );
-    saveTest.setValue( "C-maxDiff", 1, maxDiff[4] );
+    saveTest.setValue( "F-SDI", 1, sdis[0] );
+//    saveTest.setValue( "F-maxDiff", 1, maxDiff[0] );
+    saveTest.setValue( "G-SDI", 1, sdis[1] );
+//    saveTest.setValue( "G-maxDiff", 1, maxDiff[1] );
+    saveTest.setValue( "H-SDI", 1, sdis[2] );
+//    saveTest.setValue( "H-maxDiff", 1, maxDiff[2] );
+    saveTest.setValue( "B-SDI", 1, sdis[3] );
+//    saveTest.setValue( "B-maxDiff", 1, maxDiff[3] );
+    saveTest.setValue( "C-SDI", 1, sdis[4] );
+//    saveTest.setValue( "C-maxDiff", 1, maxDiff[4] );
 
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
@@ -239,14 +237,14 @@ void evaluator_completeSpatialRandomness(
 
   //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  TriMeshSpatialModel<float>* triMeshSpatialModel;
-  triMeshSpatialModel->setRandomGenerator( randomGenerator );
-  triMeshSpatialModel->setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel->initialize();
+  SpatialModelCompleteRandomness3D<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.initialize();
 
   evaluator(
     nucleusTriMesh,
-    *triMeshSpatialModel,
+    triMeshSpatialModel,
     filename, parentDir,
     function, constraints,
     dataSet, randomGenerator );
@@ -281,15 +279,15 @@ void evaluator_sizeConstrained(
   //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
   EVAL(eqRadii);
 
-  SpatialModelHardcoreDistance3D<float>* triMeshSpatialModel;
-  triMeshSpatialModel->setRandomGenerator( randomGenerator );
-  triMeshSpatialModel->setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel->setHardcoreDistances( eqRadii );
-  triMeshSpatialModel->initialize();
+  SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setHardcoreDistances( eqRadii );
+  triMeshSpatialModel.initialize();
 
   evaluator(
     nucleusTriMesh,
-    *triMeshSpatialModel,
+    triMeshSpatialModel,
     filename, parentDir,
     function, constraints,
     dataSet, randomGenerator );
@@ -306,19 +304,19 @@ void evaluator_distanceConstrained(
   //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const string analysisDir = parentDir + "/analysis/";
-  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  const DataSet datasetNucleus( analysisDir + filename + ".csv" );
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
 
-  SpatialModelBorderDistance3D<float>* triMeshSpatialModel;
-  triMeshSpatialModel->setRandomGenerator( randomGenerator );
-  triMeshSpatialModel->setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel->setDistancesToBorder( distancesToBorder );
-  triMeshSpatialModel->initialize();
+  SpatialModelBorderDistance3D<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setDistancesToBorder( distancesToBorder );
+  triMeshSpatialModel.initialize();
 
   evaluator(
     nucleusTriMesh,
-    *triMeshSpatialModel,
+    triMeshSpatialModel,
     filename, parentDir,
     function, constraints,
     dataSet, randomGenerator );
@@ -353,15 +351,15 @@ void evaluator_sizeAndDistanceConstrained(
   EVAL(eqRadii);
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
 
-  SpatialModelHardcoreBorderDistance3D<float>* triMeshSpatialModel;
-  triMeshSpatialModel->setRandomGenerator( randomGenerator );
-  triMeshSpatialModel->setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel->setDistancesToBorder( distancesToBorder );
-  triMeshSpatialModel->setHardcoreDistances( eqRadii );
-  triMeshSpatialModel->initialize();
+  SpatialModelHardcoreBorderDistance3D<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setDistancesToBorder( distancesToBorder );
+  triMeshSpatialModel.setHardcoreDistances( eqRadii );
+  triMeshSpatialModel.initialize();
 
   evaluator(
-    nucleusTriMesh, *triMeshSpatialModel, filename, parentDir,
+    nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
     function, constraints, dataSet, randomGenerator );
 }
 
@@ -392,14 +390,14 @@ void evaluator_MaximalRepulsionConstrained(
   //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
   EVAL(eqRadii);
 
-  SpatialModelMaximalRepulsion3D<float>* triMeshSpatialModel;
-  triMeshSpatialModel->setRandomGenerator( randomGenerator );
-  triMeshSpatialModel->setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel->setHardcoreDistances( eqRadii );
-  triMeshSpatialModel->initialize();
+  SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
+  triMeshSpatialModel.setRandomGenerator( randomGenerator );
+  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setHardcoreDistances( eqRadii );
+  triMeshSpatialModel.initialize();
 
   evaluator(
-    nucleusTriMesh, *triMeshSpatialModel, filename, parentDir,
+    nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
     function, constraints, dataSet, randomGenerator );
 }
 
