@@ -33,6 +33,7 @@ template<class CoordType>
 SpatialDescriptorFunctionM<CoordType>::SpatialDescriptorFunctionM() : SpatialDescriptor<CoordType>()
 {
   _curve = 0;
+  _externalProperties = 0;
 }
 
 /*! Sets the boundary curve (used only in the 2D case).
@@ -49,7 +50,42 @@ template<class CoordType>
 void SpatialDescriptorFunctionM<CoordType>::setTriMesh(const TriMesh<CoordType>& triMesh)
 {
   _triMeshQuery.setTriMesh( triMesh );
-  _externalProperties = false;
+}
+
+/*! Sets an external 3D mesh map with the properties of the boundary.
+****************************************************************/
+template<class CoordType>
+void SpatialDescriptorFunctionM<CoordType>::setExternalProperties(const TriMesh<CoordType>& triMesh)
+{
+  _propertiesTriMesh = &triMesh;
+  _externalProperties = 3;
+}
+
+/*! Sets an external curve map with the properties of the boundary.
+****************************************************************/
+template<class CoordType>
+void SpatialDescriptorFunctionM<CoordType>::setExternalProperties(const Curve<CoordType>& curve)
+{
+  _propertiesCurve= &curve;
+  _externalProperties = 4;
+}
+
+/*! Sets an external vertices map with the properties of the boundary.
+****************************************************************/
+template<class CoordType>
+void SpatialDescriptorFunctionM<CoordType>::setExternalProperties(const Vertices<CoordType>& vertices)
+{
+  _propertiesVertices = &vertices;
+  _externalProperties = 2;
+}
+
+/*! Sets an external vector with the properties of the boundary.
+****************************************************************/
+template<class CoordType>
+void SpatialDescriptorFunctionM<CoordType>::setExternalProperties(const Vector<CoordType>& vector)
+{
+  _propertiesVector = &vector;
+  _externalProperties = 1;
 }
 
 /*! Computes the ECDF of the property of the closest point within the boundary
@@ -65,29 +101,42 @@ void SpatialDescriptorFunctionM<CoordType>::eval(
 {
   switch( vertices.getSpace() )
   {
-    case 2: eval2D( vertices, xEcdf, yEcdf );
+    //case 2: eval2D( vertices, xEcdf, yEcdf );
     case 3: eval3D( vertices, xEcdf, yEcdf );
   }
 }
 
-template<class CoordType>
-void SpatialDescriptorFunctionM<CoordType>::eval2D(
-  const Vertices<CoordType>& vertices,
-  Vector<CoordType>& xEcdf,
-  Vector<CoordType>& yEcdf)
-{
-  const int numVertices = vertices.getSize();
-  Vector<CoordType> closestPoint;
+///*! Computes the ECDF of the property of the closest point within the boundary
+// *  on the pattern given by \c vertices for 2D cases
+// *
+// * Returns the coordinates \c xEcdf, \c yEcdf of the points of the ECDF.
+//****************************************************************/
+//template<class CoordType>
+//void SpatialDescriptorFunctionM<CoordType>::eval2D(
+//  const Vertices<CoordType>& vertices,
+//  Vector<CoordType>& xEcdf,
+//  Vector<CoordType>& yEcdf)
+//{
+//  const int numVertices = vertices.getSize();
+//  Vector<CoordType> closestPoint;
 
-  xEcdf.setSize( numVertices );
-  for (int i = 0; i < numVertices; ++i)
-    xEcdf[i] = _curve->closestPoint( vertices[i], closestPoint );
-  xEcdf.sort();
+//  xEcdf.setSize( numVertices );
+//  for (int i = 0; i < numVertices; ++i)
+//  {
+//    _curve->closestPoint( vertices[i], closestPoint );
+//    xEcdf[i] = get2DValue( vertices[i], closestPoint );
+//  }
+//  xEcdf.sort();
 
-  CDFTools<CoordType> cdftools;
-  yEcdf = cdftools.cdf( xEcdf );
-}
+//  CDFTools<CoordType> cdftools;
+//  yEcdf = cdftools.cdf( xEcdf );
+//}
 
+/*! Computes the ECDF of the property of the closest point within the boundary
+ *  on the pattern given by \c vertices for 3D cases
+ *
+ * Returns the coordinates \c xEcdf, \c yEcdf of the points of the ECDF.
+****************************************************************/
 template<class CoordType>
 void SpatialDescriptorFunctionM<CoordType>::eval3D(
   const Vertices<CoordType>& vertices,
@@ -101,9 +150,8 @@ void SpatialDescriptorFunctionM<CoordType>::eval3D(
   xEcdf.setSize( numVertices );
   for (int i = 0; i < numVertices; ++i)
   {
-    vertex = vertices[i];
-    _triMeshQuery.closestPoint( vertex, triMeshVertex, triangleIndex );
-    xEcdf[i] = getValue( vertex, triangleIndex );
+    _triMeshQuery.closestPoint( vertices[i], triMeshVertex, triangleIndex );
+    xEcdf[i] = get3DValue( vertices[i], triangleIndex );
   }
   xEcdf.sort();
 
@@ -111,78 +159,68 @@ void SpatialDescriptorFunctionM<CoordType>::eval3D(
   yEcdf = cdftools.cdf( xEcdf );
 }
 
-
+/*!
+ * Get the intensity at position \par position in the triangle \par triangle.
+ *
+ * The intensity is interpolated from the ones at the triangle vertices.
+ */
 template<class CoordType>
-void SpatialDescriptorFunctionM<CoordType>::setPropertiesTriMesh(const Shape<CoordType>& properties )
+Vector<CoordType> SpatialDescriptorFunctionM<CoordType>::useTriMesh(
+//    const Vector<CoordType>& position,
+    const int& triangleIndex)
 {
-  _propertiesMap = &properties;
-  _externalProperties = true;
+  Vector<CoordType> properties(3);
+//  Triangle<CoordType> triangle;
+  Triangle<int> colorTriangle;
+  TriMesh<int> tempTriMesh;
 
-  // in this example the property is the intensity map of the envelope
-//  TriMesh<CoordType> triMeshPropertyMap( _propertiesTriMesh->getSpace(), _propertiesTriMesh->getSize() );
+  if ( _externalProperties == 3 )
+    tempTriMesh = _propertiesTriMesh->getVertexColors();
+  else
+    tempTriMesh = _triMeshQuery.getTriMesh().getVertexColors();
 
-//  for ( int i = 0; i < _propertiesTriMesh->getSize(); ++i )
-//  {
-////    triMeshPropertyMap[i][X] = int(_propertiesTriMesh[i][X]);
-////    triMeshPropertyMap[i][Y] = int(_propertiesTriMesh[i][Y]);
-////    triMeshPropertyMap[i][Z] = int(_propertiesTriMesh[i][Z]);
-//      triMeshPropertyMap[i][X] = _propertiesTriMesh[i][X];
-//      triMeshPropertyMap[i][Y] = _propertiesTriMesh[i][Y];
-//      triMeshPropertyMap[i][Z] = _propertiesTriMesh[i][Z];
+  colorTriangle = tempTriMesh.triangle( triangleIndex );
+//  triangle = _triMeshQuery.getTriMesh().triangle( triangleIndex );
 
-//  }
+  properties[0] = colorTriangle[0][X];
+  properties[1] = colorTriangle[1][X];
+  properties[2] = colorTriangle[2][X];
 
-//  for ( int i = 0; i < _propertiesTriMesh->getNumTriangles(); ++i )
-//  {
-//    //EVAL(_propertiesTriMesh.getTriangleIndexes(i));
-//    triMeshPropertyMap.addTriangle(
-//          _propertiesTriMesh->getTriangleIndexes(i)[0],
-//          _propertiesTriMesh->getTriangleIndexes(i)[1],
-//          _propertiesTriMesh->getTriangleIndexes(i)[2] );
-//  }
-
-  //_triMesh.setVertexColors( new TriMesh<CoordType>( triMeshPropertyMap ) );
-//  _triMesh->setVertexColors( new TriMesh<CoordType>( _propertiesTriMesh ) );
-//  _triMesh->setVertexColors( _propertiesTriMesh );
+  return properties;
+//  return ( ( ( properties[0] * vertex.distance( triangle[0] ) ) + ( properties[1] * vertex.distance( triangle[1] ) ) + ( properties[2] * vertex.distance( triangle[2] ) ) )
+//      / ( vertex.distance( triangle[0] ) + vertex.distance(triangle[1]) + vertex.distance(triangle[2]) ) );
 }
 
+///*!
+// * Get the intensity at position \par position in the triangle \par triangle.
+// *
+// * The intensity is interpolated from the ones at the triangle vertices.
+// */
 //template<class CoordType>
-//void SpatialDescriptorFunctionM<CoordType>::eval(
-//    const Vertices<CoordType>& vertices,
-//    Vector<CoordType>& xvalues,
-//    Vector<CoordType>& yvalues
-//    )
+//Vector<CoordType> SpatialDescriptorFunctionM<CoordType>::useCurve(
+////    const Vector<CoordType>& position,
+//    const int& triangleIndex)
 //{
-//  int triangleIndex;
+//  Vector<CoordType> properties(3);
+////  Triangle<CoordType> triangle;
+//  Triangle<int> colorTriangle;
+//  TriMesh<int> tempTriMesh;
 
-//    ENTER( "void SpatialDescriptorFunctionM<CoordType>::eval(...)" );
-//    const int numVertices = vertices.getSize();
+//  if ( _externalProperties == 3 )
+//    tempTriMesh = _propertiesTriMesh->getVertexColors();
+//  else
+//    tempTriMesh = _triMeshQuery.getTriMesh().getVertexColors();
 
-//    Vector<CoordType> vertex(3);
-//    Vector<CoordType> triMeshVertex(3);
-//    xvalues.setSize( numVertices );
-//    TriMeshQuery<CoordType> triMeshQuery;
+//  colorTriangle = tempTriMesh.triangle( triangleIndex );
+////  triangle = _triMeshQuery.getTriMesh().triangle( triangleIndex );
 
-//    triMeshQuery.setTriMesh( _triMesh );
-//    for (int i = 0; i < numVertices; ++i)
-//    {
+//  properties[0] = colorTriangle[0][X];
+//  properties[1] = colorTriangle[1][X];
+//  properties[2] = colorTriangle[2][X];
 
-//      xvalues[i]= getValue( vertex, triangleIndex );
-//    }
-//    xvalues.sort();
-
-//    CDFTools<CoordType> cdftools;
-//    yvalues = cdftools.cdf( xvalues );
-
-////    DataSet dataCFDTools;
-////    for(int i=0; i< numVertices; ++i)
-////    {
-////      dataCFDTools.setValue<CoordType>("yvalues", i, yvalues[i]);
-////      dataCFDTools.setValue<CoordType>("xvalues", i, xvalues[i]);
-////    }
-////    dataCFDTools.save(realPointDir + "/CumulativeFonctionDistribution.csv", true);
-
-//    LEAVE();
+//  return properties;
+////  return ( ( ( properties[0] * vertex.distance( triangle[0] ) ) + ( properties[1] * vertex.distance( triangle[1] ) ) + ( properties[2] * vertex.distance( triangle[2] ) ) )
+////      / ( vertex.distance( triangle[0] ) + vertex.distance(triangle[1]) + vertex.distance(triangle[2]) ) );
 //}
 
 /*!
@@ -191,36 +229,27 @@ void SpatialDescriptorFunctionM<CoordType>::setPropertiesTriMesh(const Shape<Coo
  * The intensity is interpolated from the ones at the triangle vertices.
  */
 template<class CoordType>
-CoordType SpatialDescriptorFunctionM<CoordType>::triangleInterpolation(
-    const Triangle<CoordType>& triangle,
-    const Vector<CoordType>& position,
-    bool externalInfo)
+Vector<CoordType> SpatialDescriptorFunctionM<CoordType>::useVertices(
+//    const Vector<CoordType>& vertex,
+    const int& triangleIndex)
 {
   Vector<CoordType> properties(3);
-  Triangle<CoordType> triangle;
+//  Triangle<CoordType> triangle;
 
-  if ( externalInfo == false )
-  {
-    triangle = _triMeshQuery->triangle( triangleIndex );
+  Vector<unsigned int> positions(3);
+  positions = _triMeshQuery.getTriMesh().getTriangleIndexes( triangleIndex );
 
-//    properties[X] = _triMesh->triangle(triangleIndex)[0][X];
-//    properties[Y] = _triMesh->triangle(triangleIndex)[1][X];
-//    properties[Z] = _triMesh->triangle(triangleIndex)[2][X];
-    properties[X] = triangle[0][X];
-    properties[Y] = triangle[1][X];
-    properties[Z] = triangle[2][X];
-  }
-  else
-  {
-    triangle = _externalProperties->triangle( triangleIndex );
-    properties[X] = triangle[0][X];
-    properties[Y] = triangle[1][X];
-    properties[Z] = triangle[2][X];
-  }
+//  triangle = _triMeshQuery.getTriMesh( ).triangle( triangleIndex );
 
-  return ( ( ( properties[0] * position.distance( triangle[0] ) ) + ( properties[1] * position.distance( triangle[1] ) ) + ( properties[2] * position.distance( triangle[2] ) ) )
-      / ( position.distance( triangle[0] ) + position.distance(triangle[1]) + position.distance(triangle[2]) ) );
+  properties[X] = _propertiesVertices[positions[0]][0][X];
+  properties[Y] = _propertiesVertices[positions[1]][0][X];
+  properties[Z] = _propertiesVertices[positions[2]][0][X];
+
+  return properties;
+//  return ( ( ( properties[0] * vertex.distance( triangle[0] ) ) + ( properties[1] * vertex.distance( triangle[1] ) ) + ( properties[2] * vertex.distance( triangle[2] ) ) )
+//      / ( vertex.distance( triangle[0] ) + vertex.distance(triangle[1]) + vertex.distance(triangle[2]) ) );
 }
+
 
 /*!
  * Get the intensity at position \par position in the triangle \par triangle.
@@ -228,82 +257,75 @@ CoordType SpatialDescriptorFunctionM<CoordType>::triangleInterpolation(
  * The intensity is interpolated from the ones at the triangle vertices.
  */
 template<class CoordType>
-CoordType SpatialDescriptorFunctionM<CoordType>::verticesInterpolation(
-    const Triangle<CoordType>& vertices,
-    const Vector<CoordType>& position)
+Vector<CoordType> SpatialDescriptorFunctionM<CoordType>::useVector(
+//    const Vector<CoordType>& vertex,
+    const int& triangleIndex)
 {
   Vector<CoordType> properties(3);
 
-  properties[X] = _externalProperties[vertices[0]];
-  properties[Y] = _externalProperties[vertices[1]];
-  properties[Z] = _externalProperties[vertices[2]];
+  Vector<unsigned int> positions(3);
+  positions = _triMeshQuery.getTriMesh().getTriangleIndexes( triangleIndex );
 
-  return ( ( ( properties[0] * position.distance( triangle[0] ) ) + ( properties[1] * position.distance( triangle[1] ) ) + ( properties[2] * position.distance( triangle[2] ) ) )
-      / ( position.distance( triangle[0] ) + position.distance(triangle[1]) + position.distance(triangle[2]) ) );
+
+
+  properties[X] = _propertiesVector[positions[0]][X];
+  properties[Y] = _propertiesVector[positions[1]][X];
+  properties[Z] = _propertiesVector[positions[2]][X];
+
+  return properties;
+//  return ( ( ( properties[0] * vertex.distance( triangle[0] ) ) + ( properties[1] * vertex.distance( triangle[1] ) ) + ( properties[2] * vertex.distance( triangle[2] ) ) )
+//      / ( vertex.distance( triangle[0] ) + vertex.distance(triangle[1]) + vertex.distance(triangle[2]) ) );}
 }
 
 /*!
  *
  */
 template<class CoordType>
-CoordType SpatialDescriptorFunctionM<CoordType>::getValue(
-    const Vector<CoordType>& position,
+CoordType SpatialDescriptorFunctionM<CoordType>::get3DValue(
+    const Vector<CoordType>& vertex,
     const int& triangleIndex )
 {
+  Vector<CoordType> propertyValues;
   Triangle<CoordType> triangle;
-  triangle = _triMesh->triangle( triangleIndex );
-  Vector<unsigned int> vertices(3);
-  vertices = _triMesh->getTriangleIndexes( triangleIndex );
-  Vector<CoordType> properties(3);
-  TriMesh<int> colortm( 3,0 );
-  colortm = _triMesh->getVertexColors();
 
-  CoordType value;
+  triangle = _triMeshQuery.getTriMesh( ).triangle( triangleIndex );
 
-  switch( _propertiesMap->getShapeType() )
+  switch( _externalProperties )
   {
-    case Vertices: value = verticesInterpolation( vertices, position );
-    case TriMesh: value = triangleInterpolation( triangle, position, _externalProperties );
-    default value = triangleInterpolation( triangle, position, _externalProperties );
+    case 0: propertyValues = useTriMesh( triangleIndex );
+    case 1: propertyValues = useVector( triangleIndex );
+    case 2: propertyValues = useVertices( triangleIndex );
+    case 3: propertyValues = useTriMesh( triangleIndex );
   }
 
-  return value;
-  //return triangleInterpolation( triangle, properties, position );
+//  return value;
+  return ( ( ( propertyValues[0] * vertex.distance( triangle[0] ) ) + ( propertyValues[1] * vertex.distance( triangle[1] ) ) + ( propertyValues[2] * vertex.distance( triangle[2] ) ) )
+      / ( vertex.distance( triangle[0] ) + vertex.distance(triangle[1]) + vertex.distance(triangle[2]) ) );
+
 }
 
+///*!
+// *
+// */
 //template<class CoordType>
-//CoordType SpatialDescriptorFunctionM<CoordType>::getProperties(
-//    int& triangleIndex,
-//    Vector<CoordType>& position)
+//CoordType SpatialDescriptorFunctionM<CoordType>::get2DValue(
+//    const Vector<CoordType>& vertex,
+//    const int& triangleIndex )
 //{
+//  Vector<CoordType> propertyValues;
 //  Triangle<CoordType> triangle;
-//  triangle = _triMesh.triangle( triangleIndex );
-//  Vector<CoordType> vertices(3);
-//  vertices = _triMesh->getTriangleIndexes( triangleIndex );
-//  Vector<CoordType> properties(3);
-//  TriMesh<int> colortm( 3,0 );
-//  colortm = triMesh.getVertexColors();
 
-//  for(int i = 0; i < triMesh.getNumTriangles() ; i++)
+//  switch( _externalProperties )
 //  {
-//    colortm.addTriangle(
-//          triMesh.getTriangleIndexes(i)[0],
-//          triMesh.getTriangleIndexes(i)[1],
-//          triMesh.getTriangleIndexes(i)[2] );
+//    case 0: propertyValues = useCurve( triangleIndex );
+//    case 1: propertyValues = useVector( triangleIndex );
+//    case 4: propertyValues = useCurve( triangleIndex );
 //  }
 
-////  intensities[X] = CoordType ( colortm.triangle(triangleIndex)[0][X] );
-////  intensities[Y] = CoordType ( colortm.triangle(triangleIndex)[1][X] );
-////  intensities[Z] = CoordType ( colortm.triangle(triangleIndex)[2][X] );
-////  CoordType intensity;
-////  intensity = triangleInterpolation( triangle, intensities, position );
-////return intensity;
+////  return value;
+//  return ( ( ( propertyValues[0] * vertex.distance( triangle[0] ) ) + ( propertyValues[1] * vertex.distance( triangle[1] ) ) + ( propertyValues[2] * vertex.distance( triangle[2] ) ) )
+//      / ( vertex.distance( triangle[0] ) + vertex.distance(triangle[1]) + vertex.distance(triangle[2]) ) );
 
-//  properties[X] = colortm.triangle(triangleIndex)[0][X];
-//  properties[Y] = colortm.triangle(triangleIndex)[1][X];
-//  properties[Z] = colortm.triangle(triangleIndex)[2][X];
-
-//  return triangleInterpolation( triangle, properties, position );
 //}
 
 

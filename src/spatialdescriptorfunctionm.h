@@ -14,24 +14,36 @@ class SpatialDescriptorFunctionM : public SpatialDescriptor<CoordType>
 
     void setCurve(const Curve<CoordType>&);
     void setTriMesh(const TriMesh<CoordType>&);
-    void setPropertiesTriMesh( const Shape<CoordType>& );
+
+    void setExternalProperties( const TriMesh<CoordType>& );
+    void setExternalProperties( const Curve<CoordType>& );
+    void setExternalProperties( const Vertices<CoordType>& );
+    void setExternalProperties( const Vector<CoordType>& );
 
     void eval(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
 
 private:
 
-    bool _externalProperties;
-    const TriMesh<CoordType>* _triMesh;
-    const Shape<CoordType>* _propertiesMap;
     const Curve<CoordType>* _curve;
     TriMeshQuery<CoordType> _triMeshQuery;
 
-    CoordType getValue( const Vector<CoordType>&, const int& = 0 );
-    CoordType triangleInterpolation(const Triangle<CoordType>&, const Vector<CoordType>&, bool);
-    CoordType verticesInterpolation(const Vector<CoordType>&, const Vector<CoordType>&);
+    int _externalProperties;
+    const TriMesh<CoordType>*  _propertiesTriMesh;
+    const Curve<CoordType>*    _propertiesCurve;
+    const Vertices<CoordType>* _propertiesVertices;
+    const Vector<CoordType>*   _propertiesVector;
+
+    CoordType get3DValue( const Vector<CoordType>&, const int& = 0 );
+//    CoordType get2DValue( const Vector<CoordType>&, const int& = 0 );
+
+    Vector<CoordType> useTriMesh(const int&);
+    Vector<CoordType> useCurve(const int&);
+    Vector<CoordType> useVertices(const int&);
+    Vector<CoordType> useVector(const int&);
+
 
     void eval3D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
-    void eval2D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
+//    void eval2D(const Vertices<CoordType>&, Vector<CoordType>&, Vector<CoordType>&);
 
 };
 

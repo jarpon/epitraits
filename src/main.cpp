@@ -113,14 +113,16 @@ int main(int argc, char* argv[])
     cout << "         spatial analysis (test and process real data)              " << endl;
     cout << "         to test model methods themself:" << endl;
     cout << "           '6' and after choose descriptor and constraints" << endl;
-    cout << "               '1' to use function F" << endl;
-    cout << "               '2' to use function G" << endl;
-    cout << "               '3' to use function H" << endl;
-    cout << "               '4' to use distance to the border descriptor" << endl;
-    cout << "                  '0' to not use constraints" << endl;
-    cout << "                  '1' to use sized constraints ~ random" << endl;
+    cout << "               '1' to use F-function" << endl;
+    cout << "               '2' to use G-function" << endl;
+    cout << "               '3' to use H-function" << endl;
+    cout << "               '4' to use B-function" << endl;
+    cout << "               '4' to use C-function" << endl;
+    cout << "                  '0' to not use de complete random model" << endl;
+    cout << "                  '1' to use hardcore distances to constrain the model" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
-    cout << "                  '3' to use both constraints" << endl;
+    cout << "                  '3' to use the hardcore and the boundary constraints" << endl;
+    cout << "                  '3' to use maximal repulsion model" << endl;
     cout << "                                                         " << endl;
     cout << "          to study real data:" << endl;
     cout << "           '7' (to study chromocenters organization) and after choose descriptor" << endl;
@@ -703,7 +705,7 @@ int main(int argc, char* argv[])
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );
             //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
- //           realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+            realDataEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
 
             //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
 
