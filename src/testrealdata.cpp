@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
+#include <iostream>
+#include <string>
 
 #define TRACE
 #include <trace.h>
@@ -45,6 +47,8 @@ void evaluator(
   //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
+  const DataSet globalAnalysis( analysisDir + "nuclei.csv" );
+  DataSet copyGlobalAnalysis = globalAnalysis;
 
   const int numPoints = datasetNucleus.size()[0];
 
@@ -153,21 +157,58 @@ void evaluator(
     iss << constraints;
 
     float sdi = modelEvaluator.eval( vertices, &saveTest );
-  //  EVAL( sdi );
 
 //    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
 //    EVAL( output[0] );
 //    EVAL( output[1] );
 
-    saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
+
+   // saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
   //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
     const int row = dataSet.size()[0];
+    EVAL(row);
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
     dataSet.setValue( "descriptor", row, function );//spatial descriptor
     dataSet.setValue( "index", row, sdi );
     //dataSet.setValue( "index", row, output[0] );
     //dataSet.setValue( "signedMaxDiff", row, output[1] );
+
+    Vector<string> nucleiNames;
+    nucleiNames.setSize( copyGlobalAnalysis.numRows() );
+    EVAL( copyGlobalAnalysis.columnType(0) );
+
+    if ( copyGlobalAnalysis.columnType(0) == "%s" )
+      nucleiNames = copyGlobalAnalysis.getValues<string>( copyGlobalAnalysis.variableNames()[0] );
+    else if ( copyGlobalAnalysis.columnType(0) == "%d" )
+    {
+      for ( int i = 0; i < copyGlobalAnalysis.numRows(); ++i )
+      {
+        double tempNames = copyGlobalAnalysis.getValue<double>( copyGlobalAnalysis.variableNames()[0], i );
+        ostringstream tempName;
+        tempName << tempNames;
+        nucleiNames[i] = tempName.str();
+      }
+    }
+
+    int numCurrentNucleus = 0;
+
+    EVAL(filename);
+    for ( int j = 0; j < nucleiNames.getSize(); ++j )
+      if ( nucleiNames[j] == filename )
+      {
+        EVAL( nucleiNames[j] )
+        numCurrentNucleus = j;
+      }
+
+    EVAL (numCurrentNucleus);
+    string na = "NA";
+
+    if ( ( sdi <= 1 ) && ( numCurrentNucleus != -1 ) )
+      copyGlobalAnalysis.setValue( function, numCurrentNucleus, sdi );
+    else
+      copyGlobalAnalysis.setValue( function, numCurrentNucleus, na );
+
   }
   else
   {
@@ -187,6 +228,42 @@ void evaluator(
 
 //    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
     modelEvaluator.eval( vertices, sdis, ranks);
+
+    const Vector<string>& nucleiNames = globalAnalysis.getValues<string>( "name" );
+    int numCurrentNucleus = 0;
+
+    for ( int j = 0; j < nucleiNames.getSize(); ++j )
+      if ( nucleiNames[j] == filename )
+        numCurrentNucleus = j;
+
+    EVAL(numCurrentNucleus);
+
+    string na = "NA";
+    EVAL(sdis.size());
+
+    for ( int jj = 0; jj < sdis.size(); ++jj )
+    {
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
+        copyGlobalAnalysis.setValue( "F", numCurrentNucleus, na );
+      else
+        copyGlobalAnalysis.setValue( "F", numCurrentNucleus, sdis[jj] );
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
+        copyGlobalAnalysis.setValue( "G", numCurrentNucleus, na );
+      else
+        copyGlobalAnalysis.setValue( "G", numCurrentNucleus, sdis[jj] );
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
+        copyGlobalAnalysis.setValue( "H", numCurrentNucleus, na );
+      else
+        copyGlobalAnalysis.setValue( "H", numCurrentNucleus, sdis[jj] );
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
+        copyGlobalAnalysis.setValue( "B", numCurrentNucleus, na );
+      else
+        copyGlobalAnalysis.setValue( "B", numCurrentNucleus, sdis[jj] );
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
+        copyGlobalAnalysis.setValue( "C", numCurrentNucleus, na );
+      else
+        copyGlobalAnalysis.setValue( "C", numCurrentNucleus, sdis[jj] );
+    }
 
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
@@ -218,6 +295,8 @@ void evaluator(
     iss << constraints;
 
     saveTest.save( analysisDir + iss.str() + "/" + filename + "_all.csv", true );
+    copyGlobalAnalysis.save( analysisDir + "/" + "nuclei_complete.csv", true );
+
   }
 
 

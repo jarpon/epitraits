@@ -1,4 +1,4 @@
-#include "trimeshspatialmodel.h"
+#include <trimeshspatialmodel.h>
 #include "maximalrepulsion.h"
 
 #include <randomgenerator.h>

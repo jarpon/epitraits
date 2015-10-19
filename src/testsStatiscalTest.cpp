@@ -4,12 +4,13 @@
 #include <spatialdescriptorfunctionf.h>
 #include <spatialdescriptorfunctiong.h>
 #include <spatialdescriptorfunctionh.h>
-#include "spatialdescriptorborder.h"
-#include "spatialdescriptorcentroid.h"
+#include <spatialdescriptorfunctionb.h>
+#include <spatialdescriptorfunctionc.h>
 #include "spatialmodelboundaryinteraction.h"
 #include <spatialmodelcompleterandomness.h>
-#include "spatialmodelevaluator2.h"
-#include "spatialdescriptorborder2D.h"
+//#include "spatialmodelevaluator2.h"
+#include <spatialmodelevaluator.h>
+//#include "spatialdescriptorborder2D.h"
 
 
 #include <cmath>
@@ -195,7 +196,7 @@ void testPattern(
   vector<float> maxDiff;
 
   //spatialModelEvaluator.eval( pattern1, pValues, ranks );
-  spatialModelEvaluator.evalSDIandMaxDiff( pattern1, pValues, ranks, maxDiff);
+  //spatialModelEvaluator.evalSDIandMaxDiff( pattern1, pValues, ranks, maxDiff);
   gDataSet.setValue( "F1-SDI", r, pValues[0] );
   gDataSet.setValue( "F1-maxDiff", r, maxDiff[0] );
   gDataSet.setValue( "G1-SDI", r, pValues[1] );
@@ -228,7 +229,7 @@ void testPattern(
   vector<int> ranks2;
   vector<float> maxDiff2;
   //spatialModelEvaluator2.eval( pattern2, pValues2, ranks2 );
-  spatialModelEvaluator2.evalSDIandMaxDiff( pattern2, pValues2, ranks2, maxDiff2 );
+  //spatialModelEvaluator2.evalSDIandMaxDiff( pattern2, pValues2, ranks2, maxDiff2 );
   gDataSet.setValue( "F2-SDI", r, pValues2[0] );
   gDataSet.setValue( "F2-maxDiff", r, maxDiff2[0] );
   gDataSet.setValue( "G2-SDI", r, pValues2[1] );

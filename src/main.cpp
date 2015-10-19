@@ -47,14 +47,14 @@ extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
 //extern void nucleoliAnalysis(VoxelMatrix<float>&, const string&, const string&,
 //                                  int&, DataSet&, DataSet&);
-extern void spatialModelAnalysis(TriMesh<float>&,
-                          const string&, const string&, const int& );
-extern void spatialModelEvaluator(const string&, const string&, const string&, const int,
-                          DataSet&, RandomGenerator&);
+//extern void spatialModelAnalysis(TriMesh<float>&,
+//                          const string&, const string&, const int& );
+//extern void spatialModelEvaluator(const string&, const string&, const string&, const int,
+//                          DataSet&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
-extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
-                          DataSet&, RandomGenerator&);
+//extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
+//                          DataSet&, RandomGenerator&);
 //extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
 //                          DataSet&, RandomGenerator&);
 extern void uniformTest(const string&, const string&, DataSet&);
@@ -67,7 +67,6 @@ extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
 
 //extern void analyzeSample(const string&, const int&, int&, DataSet&, DataSet&);
-
 int main(int argc, char* argv[])
 {
 //  Stopwatch stopWatch;
@@ -585,7 +584,7 @@ int main(int argc, char* argv[])
         //TriMesh<float> nucleusTriMesh ( shapesDir + filename + "_nucleus.tm" );
         TriMesh<float> nucleusTriMesh ( shapesDir + filename + ".tm" );
 
-        spatialModelAnalysis( nucleusTriMesh, filename, parentDir, numPatterns );
+//        spatialModelAnalysis( nucleusTriMesh, filename, parentDir, numPatterns );
 
       }
       else cout << "Error" << endl;
@@ -696,7 +695,7 @@ int main(int argc, char* argv[])
 //          }
           if  ( test == "2compartments" )
           {
-            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+//            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
             ostringstream oss;
             oss << constraints;
             dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
