@@ -28,10 +28,132 @@
 #include <iostream>
 #include <string>
 
+#include <stringtools.h>
+#include <fstream>
+#include <sstream>
+#include <unistd.h>
+ #include <cstdlib>
+
 #define TRACE
 #include <trace.h>
 using namespace std;
 
+
+Vector<string> getNamesList(std::string inputDir)
+{
+  std::string fileTmp = inputDir + "nuclei.csv";
+
+  EVAL(fileTmp);
+  char sbuffer[200];
+  char fileIn[200];
+  char currentLine[250];
+  std::ifstream inputFile;
+  chdir(inputDir.c_str());
+  //sprintf( sbuffer, "ls -1 *.csv > %s",  fileTmp.c_str() );
+  //system( sbuffer );
+
+  // ouvre le tmp crée et lit par ligne
+  sprintf( fileIn, "%s", fileTmp.c_str());
+  inputFile.open ( fileIn, std::ifstream::in );
+  while ( inputFile.good() )
+  {
+    inputFile.getline( currentLine, 80 );
+    if (inputFile.gcount () == 0)
+    {
+      PRINT("fichier vide")
+          break;
+    }
+    PRINT("Dossier  en traitement : " );
+    EVAL(currentLine);
+  }
+  Vector<string> list;
+  return list;
+}
+
+Vector<string> loadFromCSV2( const int& rows, const int& columns )
+{
+  EVAL(rows);
+  EVAL(columns);
+    float data[rows][columns];
+    std::ifstream file( "/home/jarpon/data/wt/all/analysis/nuclei.csv");
+
+    for(int row = 0; row < rows; ++row)
+    {
+        std::string line;
+        std::getline(file, line);
+        if ( !file.good() )
+            break;
+
+        std::stringstream iss(line);
+        //EVAL(line); //good
+
+        for (int col = 0; col < columns; ++col)
+        {
+            std::string val;
+            std::getline(iss, val, '\t');
+            //EVAL(val);
+            if ( !iss.good() )
+            {
+                break;
+                  EVAL('here!');
+            }
+
+            std::stringstream convertor(val);
+            convertor >> data[row][col];
+            //EVAL(data[row][col])
+    EVAL('here!');
+        }
+    }
+    EVAL('here!');
+    Vector<string> listNames;
+    listNames.setSize( rows - 1 );
+    for( int i=0; i<int(rows); i++ )
+      listNames[i] = data[i+1][0];
+
+    return listNames;
+}
+
+
+Vector<string> loadFromCSV( const std::string& filename )
+{
+  EVAL(filename);
+
+    std::ifstream       file( filename.c_str() );
+    std::vector< std::vector<std::string> >   matrix;
+    std::vector<std::string>   row;
+    std::string                line;
+    std::string                cell;
+
+    while( file )
+    {
+        std::getline(file,line);
+        std::stringstream lineStream(line);
+        row.clear();
+
+        while( std::getline( lineStream, cell, ',' ) )
+            row.push_back( cell );
+
+        if( !row.empty() )
+            matrix.push_back( row );
+    }
+
+    for( int i=0; i<int(matrix.size()); i++ )
+    {
+        for( int j=0; j<int(matrix[i].size()); j++ )
+        {
+            std::cout << matrix[i][j] << " ";
+            EVAL(matrix[i][j])
+        }
+
+        std::cout << std::endl;
+    }
+
+    Vector<string> listNames;
+    for( int i=0; i<int(matrix.size()); i++ )
+      listNames[i] = matrix[0][i];
+
+    return listNames;
+}
 
 void evaluator(
   const TriMesh<float>& nucleusTriMesh,
@@ -49,6 +171,15 @@ void evaluator(
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   const DataSet globalAnalysis( analysisDir + "nuclei.csv" );
   DataSet copyGlobalAnalysis = globalAnalysis;
+
+
+
+  Vector<string> nucleiNames;
+  //nucleiNames.setSize( copyGlobalAnalysis.numRows() );
+  nucleiNames = loadFromCSV2 ( copyGlobalAnalysis.numRows()+1, copyGlobalAnalysis.size()[1]+1);
+
+
+
 
   const int numPoints = datasetNucleus.size()[0];
 
@@ -174,22 +305,52 @@ void evaluator(
     //dataSet.setValue( "index", row, output[0] );
     //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-    Vector<string> nucleiNames;
-    nucleiNames.setSize( copyGlobalAnalysis.numRows() );
+
+
     EVAL( copyGlobalAnalysis.columnType(0) );
 
-    if ( copyGlobalAnalysis.columnType(0) == "%s" )
-      nucleiNames = copyGlobalAnalysis.getValues<string>( copyGlobalAnalysis.variableNames()[0] );
-    else if ( copyGlobalAnalysis.columnType(0) == "%d" )
+//    for ( int i = 0; i < copyGlobalAnalysis.numRows(); ++i )
+//    {
+//      int tempNames = copyGlobalAnalysis.getValue<int>( copyGlobalAnalysis.variableNames()[0], i );
+//      nucleiNames[i] = StringTools::toString( tempNames );
+//    EVAL(nucleiNames[i]);
+//    }
+
+    for ( int i = 0; i < copyGlobalAnalysis.numRows(); ++i )
     {
-      for ( int i = 0; i < copyGlobalAnalysis.numRows(); ++i )
-      {
-        double tempNames = copyGlobalAnalysis.getValue<double>( copyGlobalAnalysis.variableNames()[0], i );
-        ostringstream tempName;
-        tempName << tempNames;
-        nucleiNames[i] = tempName.str();
-      }
+      nucleiNames[i] = StringTools::toString(
+            copyGlobalAnalysis.getValue<int>( copyGlobalAnalysis.variableNames()[0], i ) );
+      EVAL(nucleiNames[i]);
     }
+
+//    if ( copyGlobalAnalysis.columnType(0) == "%s" )
+//      nucleiNames = copyGlobalAnalysis.getValues<string>( copyGlobalAnalysis.variableNames()[0] );
+//    else if ( copyGlobalAnalysis.columnType(0) == "%d" )
+//    {
+//      for ( int i = 0; i < copyGlobalAnalysis.numRows(); ++i )
+//      {
+//        int tempNames = copyGlobalAnalysis.getValue<int>( copyGlobalAnalysis.variableNames()[0], i );
+//        ostringstream tempName;
+//        tempName << tempNames;
+//        nucleiNames[i] = StringTools::toString( tempNames );
+//        EVAL(nucleiNames[i]);
+////        EVAL(tempNames);
+//        EVAL(filename);
+//      }
+//    }
+//    else if ( copyGlobalAnalysis.columnType(0) == "%f" )
+//    {
+//      for ( int i = 0; i < copyGlobalAnalysis.numRows(); ++i )
+//      {
+//        float tempNames = copyGlobalAnalysis.getValue<float>( copyGlobalAnalysis.variableNames()[0], i );
+//        ostringstream tempName;
+//        tempName << tempNames;
+//        nucleiNames[i] = tempName.str();
+//        EVAL(nucleiNames[i]);
+//        EVAL(tempNames);
+//        EVAL(filename);
+//      }
+//    }
 
     int numCurrentNucleus = 0;
 
@@ -473,6 +634,7 @@ void evaluator_MaximalRepulsionConstrained(
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
+  //triMeshSpatialModel.setNumMonteCarloCycles( 1000 );
   triMeshSpatialModel.initialize();
 
   evaluator(
