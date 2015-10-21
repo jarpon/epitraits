@@ -5,7 +5,7 @@
 #include <spatialdescriptorfunctionh.h>
 #include <spatialdescriptorfunctionb.h>
 #include <spatialdescriptorfunctionc.h>
-#include <spatialmodelmaximalrepulsion3d.h>
+#include "spatialmodelmaximalrepulsion3d.h"
 //#include "spatialdescriptorborder.h"
 //#include "spatialdescriptorcentroid.h"
 //#include "maximalrepulsion.h"
@@ -39,42 +39,6 @@
 using namespace std;
 
 
-Vector<string> loadFromCSV( const string& dataset, const int& rows, const int& columns, const char& separator )
-{
-    //std::ifstream file( "/home/jarpon/data/stefy/Col_BIO2/CryoDAPI0_t0_t3_TR1/analysis/nuclei.csv");
-  std::ifstream file( dataset.c_str() ) ;
-
-  Vector<string> listNames;
-  listNames.setSize( rows - 1 );
-
-  for(int row = 0; row < rows; ++row)
-  {
-      std::string line;
-      std::getline(file, line);
-      if ( !file.good() )
-          break;
-
-      std::stringstream iss(line);
-
-      for (int col = 0; col < columns; ++col)
-      {
-          std::string val;
-          //std::getline(iss, val, '\t');
-          std::getline(iss, val, separator );
-          //EVAL(val);
-          if ( col == 0 && row > 0 )
-            listNames[row-1] = val;
-
-          if ( !iss.good() )
-              break;
-      }
-  }
-//  EVAL(listNames);
-
-  return listNames;
-}
-
-
 void evaluator(
   const TriMesh<float>& nucleusTriMesh,
   TriMeshSpatialModel<float>& triMeshSpatialModel,
@@ -91,21 +55,11 @@ void evaluator(
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   DataSet globalAnalysis( analysisDir + "nuclei.csv" );
 
-  char separator = globalAnalysis.getFieldSeparator();
-  Vector<string> nucleiNames;
-
-  nucleiNames = loadFromCSV ( analysisDir + "nuclei.csv", globalAnalysis.numRows()+1, globalAnalysis.size()[1]+1, separator);
-//  for ( int i = 0; i < globalAnalysis.numRows(); ++i )
-//  {
-//    EVAL( nucleiNames[i] );
-//    globalAnalysis.setValue( globalAnalysis.variableNames()[0], i, nucleiNames[i] );
-//  }
-//  EVAL("here");
-  globalAnalysis.save( analysisDir + "/" + "nuclei_copy.csv", true );
+  Vector<string> nucleiNames ;
 
   const int numPoints = datasetNucleus.size()[0];
 
-  const int numPatterns = 99;
+  const int numPatterns = 1;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
@@ -116,9 +70,11 @@ void evaluator(
 
   DataSet saveTest;
 
+  //setting function parameters
   if ( function == "all" )
   {
     PRINT("all functions");
+
     SpatialModelCompleteRandomness3D<float> tempTriMeshSpatialModel;
     tempTriMeshSpatialModel.setRandomGenerator( randomGenerator );
     tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
@@ -148,7 +104,6 @@ void evaluator(
     spatialDescriptorFunctionC->setCenter( nucleusTriMesh.cog() );
     spatialDescriptor = spatialDescriptorFunctionC;
     modelEvaluator.addDescriptor( *spatialDescriptor );
-
   }
   else if ( function == "G" )
   {
@@ -192,8 +147,22 @@ void evaluator(
   }
 
 
+  //processing data
   if ( function != "all" )
   {
+    string newVariable;
+    switch ( constraints )
+    {
+      case 0: newVariable = "SpatialModelCompleteRandomness3D_" + function + "-SDI";
+      case 1: newVariable = "SpatialModelHardcoreDistance3D_" + function + "-SDI";
+      case 2: newVariable = "spatialModelBorderDistance3D_" + function + "-SDI";
+      case 3: newVariable = "SpatialModelBorderHardcoreDistance3D_" + function + "-SDI";
+      case 4: newVariable = "SpatialModelMaximalRepulsion3D_" + function + "-SDI";
+    }
+
+    globalAnalysis.setValues<float>( newVariable, -1 );
+
+
     modelEvaluator.setDescriptor( *spatialDescriptor );
 
     Vertices<float> vertices ( 3, numPoints, 0, 0 );
@@ -219,7 +188,7 @@ void evaluator(
    // saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
   //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
     const int row = dataSet.size()[0];
-    EVAL(row);
+
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
     dataSet.setValue( "descriptor", row, function );//spatial descriptor
@@ -227,6 +196,7 @@ void evaluator(
     //dataSet.setValue( "index", row, output[0] );
     //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
+    //unifying datasets
     int numCurrentNucleus = 0;
 
     EVAL(filename);
@@ -238,12 +208,9 @@ void evaluator(
       }
 
     EVAL (numCurrentNucleus);
-    string na = "NA";
 
-    if ( ( sdi <= 1 ) && ( numCurrentNucleus != -1 ) )
-      globalAnalysis.setValue<float>( function, numCurrentNucleus, sdi );
-    else
-      globalAnalysis.setValue<string>( function, numCurrentNucleus, na );
+    globalAnalysis.setValue<float>( newVariable, numCurrentNucleus, sdi );
+
 
   }
   else
@@ -276,28 +243,49 @@ void evaluator(
     string na = "NA";
     EVAL(sdis.size());
 
+    string newVariable;
+    switch ( constraints )
+    {
+      case 0: newVariable = "SpatialModelCompleteRandomness3D_";
+      case 1: newVariable = "SpatialModelHardcoreDistance3D_";
+      case 2: newVariable = "spatialModelBorderDistance3D_";
+      case 3: newVariable = "SpatialModelBorderHardcoreDistance3D_";
+      case 4: newVariable = "SpatialModelMaximalRepulsion3D_";
+    }
+
+//    const Vector<string> variables;
+//    //variables = globalAnalysis.variableNames();
+//    int pos = variables.find( newVariable + "F-SDI" );
+    globalAnalysis.setValues<float>( newVariable, -1 );
+    globalAnalysis.setValues<float>( newVariable, -1 );
+    globalAnalysis.setValues<float>( newVariable, -1 );
+    globalAnalysis.setValues<float>( newVariable, -1 );
+    globalAnalysis.setValues<float>( newVariable, -1 );
+
+
+    //unifying datasets
     for ( int jj = 0; jj < sdis.size(); ++jj )
     {
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
-        globalAnalysis.setValue<string>( "F", numCurrentNucleus, na );
+        globalAnalysis.setValue<string>( newVariable + "F-SDI", numCurrentNucleus, na );
       else
-        globalAnalysis.setValue<float>( "F", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue<float>( newVariable + "F-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
-        globalAnalysis.setValue<string>( "G", numCurrentNucleus, na );
+        globalAnalysis.setValue<string>( newVariable + "G-SDI", numCurrentNucleus, na );
       else
-        globalAnalysis.setValue<float>( "G", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue<float>( newVariable + "G-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
-        globalAnalysis.setValue<string>( "H", numCurrentNucleus, na );
+        globalAnalysis.setValue<string>( newVariable + "H-SDI", numCurrentNucleus, na );
       else
-        globalAnalysis.setValue<float>( "H", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue<float>( newVariable + "H-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
-        globalAnalysis.setValue<string>( "B", numCurrentNucleus, na );
+        globalAnalysis.setValue<string>( newVariable + "B-SDI", numCurrentNucleus, na );
       else
-        globalAnalysis.setValue<float>( "B", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue<float>( newVariable + "B-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
-        globalAnalysis.setValue<string>( "C", numCurrentNucleus, na );
+        globalAnalysis.setValue<string>( "C-SDI", numCurrentNucleus, na );
       else
-        globalAnalysis.setValue<float>( "C", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue<float>( newVariable + "C-SDI", numCurrentNucleus, sdis[jj] );
     }
 
     dataSet.setValue( "nucleus", row, filename );
@@ -500,7 +488,7 @@ void evaluator_MaximalRepulsionConstrained(
   //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
 
   //new data
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
   //old data
   //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
   EVAL(eqRadii);
@@ -508,8 +496,8 @@ void evaluator_MaximalRepulsionConstrained(
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModel.setNumMonteCarloCycles( 10 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
-  //triMeshSpatialModel.setNumMonteCarloCycles( 1000 );
   triMeshSpatialModel.initialize();
 
   evaluator(

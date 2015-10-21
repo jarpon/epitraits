@@ -3,6 +3,7 @@
 //#include "regionanalysis2.h"
 //#include "regionanalysis.h"
 #include <regionanalysis3d.h>
+#include <regionanalysis2d.h>
 #include <cmath>
 #include <marchingcubes.h>
 #include <thresholding.h>
@@ -10,6 +11,41 @@
 
 #define TRACE
 #include <trace.h>
+
+PixelMatrix<float> getMaximumIntensity(const VoxelMatrix<float>& ccsMask)
+{
+  const int size1 = ccsMask.getSize1();
+  const int size2 = ccsMask.getSize2();
+  const int size3 = ccsMask.getSize3();
+
+  PixelMatrix<float> maxIntensity( size1, size2 );
+  maxIntensity.setZeros();
+
+  for ( int k = 0; k < size3; ++k )
+  {
+    for (int i = 0; i < size1; ++i )
+    {
+      for ( int j = 0; j < size2; ++j )
+      {
+        if ( maxIntensity(i,j) < ccsMask(i,j,k) )
+          maxIntensity(i,j) = ccsMask(i,j,k);
+      }
+    }
+  }
+
+  EVAL(ccsMask.getVoxelCalibration().getVoxelHeight());
+  EVAL(ccsMask.getVoxelCalibration().getVoxelWidth());
+  PixelCalibration  pixelCalibration;
+  pixelCalibration.setPixelHeight( ccsMask.getVoxelCalibration().getVoxelHeight() );
+  pixelCalibration.setPixelWidth( ccsMask.getVoxelCalibration().getVoxelWidth() );
+  pixelCalibration.setLengthUnit( ccsMask.getVoxelCalibration().getLengthUnit() );
+
+  maxIntensity.setPixelCalibration( pixelCalibration );
+  EVAL(maxIntensity.getPixelCalibration().getPixelHeight());
+  EVAL(maxIntensity.getPixelCalibration().getPixelWidth());
+  return maxIntensity;
+}
+
 
 void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, const string& parentDir,
                            const int& numNucleus, int& totalNumCCs,
@@ -63,9 +99,22 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
 
   Vertices<float> centroids = regionAnalysisCCs.regionCentroids();
-  Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME );
-  Vector<float> ccsEqRadius = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS );
-  Vector<float> ccsSurfaceArea = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_SURFACE_AREA );
+  Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME )/pow(3.,1./2.);//SPF correction
+  //Vector<float> ccsEqRadius = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
+
+  PixelMatrix<float> ccs2DMask;
+  ccs2DMask = getMaximumIntensity( ccsMask );
+  ccs2DMask.saveAsImage( parentDir + "/analysis/" + originalName + ".tif", true );
+
+  RegionAnalysis2D<float> regionAnalysis2D;
+  regionAnalysis2D.setLabelMatrix( ccs2DMask );
+  regionAnalysis2D.setValueMatrix( getMaximumIntensity( originalVoxelMatrix ) );
+  regionAnalysis2D.run();
+
+  Vector<float> ccsEqRadius = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS );//SPF correction -> max area correction -> eq radius
+  EVAL(ccsEqRadius);
+
+  Vector<float> ccsSurfaceArea = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_SURFACE_AREA )/pow(3.,1./4.);//SPF correction
   //Vector<float> ccsRelativeVolume = ccsVolume.operator *( ccsVolume.sum() );
   //Vector<float> ccsRelativeVolume = ccsVolumeR); //relative volume of cc within the nucleus
   Vector<float> ccsFlatness = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_FLATNESS );
@@ -142,7 +191,9 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
     float distanceToBorder = centroid.distance( vertexTriMesh );
     float ccVolume_tm = fabs(triMesh.volume());
-    float eqRadius_tm = triMesh.equivalentRadius();
+    //float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
+
+    float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> max area correction -> eq radius
 
     chromocentersDataset.setValue ( "equivalentRadius_vm", numCC+totalNumCCs, ccsEqRadius[numCC] );
     chromocentersDataset.setValue ( "equivalentRadius_tm", numCC+totalNumCCs, eqRadius_tm );

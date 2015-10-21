@@ -70,7 +70,8 @@ SOURCES += \
     src/spatialdescriptorfunctiongg.cpp \
     src/findnuclei_old.cpp \
     src/testrealdatamorecompartments.cpp \
-    src/spatialdescriptorfunctionm.cpp
+    src/spatialdescriptorfunctionm.cpp \
+    src/spatialmodelmaximalrepulsion3d.cpp
 
 HEADERS += \
    # src/trimeshspatialmodel.h \
@@ -89,5 +90,6 @@ HEADERS += \
   #  src/trimeshspatialmodel2.h \
     src/spatialdescriptorfunctionhh.h \
     src/spatialdescriptorfunctiongg.h \
-    src/spatialdescriptorfunctionm.h
+    src/spatialdescriptorfunctionm.h \
+    src/spatialmodelmaximalrepulsion3d.h
 
