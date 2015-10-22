@@ -227,23 +227,30 @@ void SpatialModelMaximalRepulsion3D<CoordType>::moveVertex(
   CoordType radius = r;
   bool ok = false;
 
-  EVAL( triMeshQuery.contains(vertices[v]) );
-  EVAL( checkHardcoreDistances(vertices[v],v,vertices) );
-  do {
-    n = 0;
+  try {
+    EVAL( triMeshQuery.contains(vertices[v]) );
+    EVAL( checkHardcoreDistances(vertices[v],v,vertices) );
+    EVAL (radius);
+    do {
+      n = 0;
 
-    do
-    {
-      vertex = vertices[v];
-     // EVAL(vertex);
-      vertex[X] += randomGenerator.uniformLF( -radius, radius );
-      vertex[Y] += randomGenerator.uniformLF( -radius, radius );
-      vertex[Z] += randomGenerator.uniformLF( -radius, radius );
-    } while ( ++n < 100 &&  !triMeshQuery.contains(vertex) || !checkHardcoreDistances(vertex,v,vertices) );
+      do
+      {
+        vertex = vertices[v];
+       // EVAL(vertex);
+        vertex[X] += randomGenerator.uniformLF( -radius, radius );
+        vertex[Y] += randomGenerator.uniformLF( -radius, radius );
+        vertex[Z] += randomGenerator.uniformLF( -radius, radius );
+      } while ( ++n < 100 &&  !triMeshQuery.contains(vertex) || !checkHardcoreDistances(vertex,v,vertices) );
 
-    if ( n < 100 ) ok = true;
-    radius /= 2;
-  } while ( !ok );
+      if ( n < 100 ) ok = true;
+      radius /= 2;
+    } while ( !ok );
+  }
+  catch(Exception exception)
+  {
+    EVAL(exception.getWhat());
+  }
 
   vertices[v] = vertex;
 }
@@ -259,11 +266,29 @@ bool SpatialModelMaximalRepulsion3D<CoordType>::checkHardcoreDistances(
   const Vector<CoordType>& hardcoreDistances = this->getHardcoreDistances();
   Vector<CoordType> triMeshVertex;
   if ( this->getTriMeshQuery().closestPoint(vertex,triMeshVertex) < hardcoreDistances[v] )
+  {
+    //EVAL( hardcoreDistances.epsilon() );
+    EVAL( this->getTriMeshQuery().closestPoint(vertex,triMeshVertex));
+    EVAL ( hardcoreDistances[v] );
     return false;
+  }
+
+  try {
 
   for (int i = 0; i < vertices.getNumVertices(); ++i)
     if ( i != v && vertices[i].distance(vertex) < hardcoreDistances[i] + hardcoreDistances[v] )
+    {
+      EVAL( hardcoreDistances.epsilon() );
+      EVAL( vertices[i].distance(vertex) );
+      EVAL( hardcoreDistances[i] );
+      EVAL ( hardcoreDistances[v] );
       return false;
+    }
+  }
+  catch(Exception exception)
+  {
+    EVAL(exception.getWhat());
+  }
 
   return true;
 }

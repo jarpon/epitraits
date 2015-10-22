@@ -1,9 +1,9 @@
 #include <componentlabelling.h>
 #include <dataset.h>
-//#include "regionanalysis2.h"
-//#include "regionanalysis.h"
-#include <regionanalysis3d.h>
-#include <regionanalysis2d.h>
+#include "regionanalysis2d.h"
+#include "regionanalysis3d.h"
+//#include <regionanalysis3d.h>
+//#include <regionanalysis2d.h>
 #include <cmath>
 #include <marchingcubes.h>
 #include <thresholding.h>
@@ -78,6 +78,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   regionAnalysisCCs.setValueMatrix( originalVoxelMatrix );
   regionAnalysisCCs.run();
   EVAL (regionAnalysisCCs.numRegions() );
+  EVAL(regionAnalysisCCs.getRegion(1).getLabel());
+
 
   int num = regionAnalysisCCs.condenseRegionLabels();
   regionAnalysisCCs.run();
@@ -101,18 +103,26 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   Vertices<float> centroids = regionAnalysisCCs.regionCentroids();
   Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME )/pow(3.,1./2.);//SPF correction
   //Vector<float> ccsEqRadius = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
-
-  PixelMatrix<float> ccs2DMask;
-  ccs2DMask = getMaximumIntensity( ccsMask );
-  ccs2DMask.saveAsImage( parentDir + "/analysis/" + originalName + ".tif", true );
-
+  Vector<float> ccsEqRadius;
+  ccsEqRadius.setSize( regionAnalysisCCs.numRegions() );
   RegionAnalysis2D<float> regionAnalysis2D;
-  regionAnalysis2D.setLabelMatrix( ccs2DMask );
-  regionAnalysis2D.setValueMatrix( getMaximumIntensity( originalVoxelMatrix ) );
-  regionAnalysis2D.run();
+//  Vector<float> regionValues;
+//  regionValues = regionAnalysisCCs.RegionAnalysisBase<float>::allRegionValues( );
 
-  Vector<float> ccsEqRadius = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS );//SPF correction -> max area correction -> eq radius
-  EVAL(ccsEqRadius);
+  for ( int i = 0; i < regionAnalysisCCs.numRegions(); ++i )
+  {
+    PixelMatrix<float> ccs2DMask;
+    ccs2DMask = regionAnalysisCCs.getLabel2DProjection( regionAnalysisCCs.getRegions()[i].getLabel() );
+    EVAL(regionAnalysisCCs.getRegions()[i].getLabel());
+    ccs2DMask.saveAsImage( parentDir + "/analysis/" + originalName + ".tif", true );
+
+    regionAnalysis2D.setLabelMatrix( ccs2DMask );
+    //regionAnalysis2D.setValueMatrix( getMaximumIntensity( originalVoxelMatrix ) );
+    regionAnalysis2D.run();
+
+    ccsEqRadius[i] = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )[0]/sqrt(3.);//SPF correction -> max area correction -> eq radius
+    EVAL(ccsEqRadius[i]);
+  }
 
   Vector<float> ccsSurfaceArea = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_SURFACE_AREA )/pow(3.,1./4.);//SPF correction
   //Vector<float> ccsRelativeVolume = ccsVolume.operator *( ccsVolume.sum() );

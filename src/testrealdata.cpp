@@ -59,7 +59,7 @@ void evaluator(
 
   const int numPoints = datasetNucleus.size()[0];
 
-  const int numPatterns = 1;
+  const int numPatterns = 99;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
@@ -488,7 +488,8 @@ void evaluator_MaximalRepulsionConstrained(
   //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
 
   //new data
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
+  Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
+  //eqRadii.operator /=(sqrt(3.));
   //old data
   //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
   EVAL(eqRadii);
@@ -496,7 +497,7 @@ void evaluator_MaximalRepulsionConstrained(
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setNumMonteCarloCycles( 10 );
+  //triMeshSpatialModel.setNumMonteCarloCycles( 10 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
 

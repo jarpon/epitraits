@@ -71,7 +71,9 @@ SOURCES += \
     src/findnuclei_old.cpp \
     src/testrealdatamorecompartments.cpp \
     src/spatialdescriptorfunctionm.cpp \
-    src/spatialmodelmaximalrepulsion3d.cpp
+    src/spatialmodelmaximalrepulsion3d.cpp \
+    src/regionanalysis2d.cpp \
+    src/regionanalysis3d.cpp
 
 HEADERS += \
    # src/trimeshspatialmodel.h \
@@ -91,5 +93,7 @@ HEADERS += \
     src/spatialdescriptorfunctionhh.h \
     src/spatialdescriptorfunctiongg.h \
     src/spatialdescriptorfunctionm.h \
-    src/spatialmodelmaximalrepulsion3d.h
+    src/spatialmodelmaximalrepulsion3d.h \
+    src/regionanalysis2d.h \
+    src/regionanalysis3d.h
 
