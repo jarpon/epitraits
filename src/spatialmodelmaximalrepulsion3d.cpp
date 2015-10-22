@@ -55,7 +55,6 @@ int SpatialModelMaximalRepulsion3D<CoordType>::getNumMonteCarloCycles() const
 template<class CoordType>
 CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<CoordType>& vertices) const
 {
-  EVAL("energy");
   Vector<CoordType> minDistances = vertices.squareNearestNeighborDistances();
   minDistances.apply( sqrt );
   return 1.0 / minDistances.mean();
@@ -121,17 +120,12 @@ template<class CoordType>
 Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const int numPoints)
 {
   ENTER("Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const int)");
-  EVAL(getNumMonteCarloCycles());
+
   const int outerSteps = getNumMonteCarloCycles();
   const int innerSteps = numPoints;
   const CoordType beta = computeBeta();
   const CoordType maxRadius = this->getTriMesh().equivalentRadius() / 50.0;
-  EVAL(this->getTriMesh().equivalentRadius());
-  EVAL(outerSteps);
-  EVAL(innerSteps);
   Vertices<CoordType> vertices = SpatialModelHardcoreDistance3D<CoordType>::drawSample( numPoints );
-  EVAL(vertices.getSize());
-  EVAL(vertices[0][1]);
   RandomGenerator& randomGenerator = this->getRandomGenerator();
   CoordType currentEnergy, newEnergy, deltaEnergy;
   Vector<CoordType> vertex;
@@ -144,9 +138,6 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const 
   _energyProfile.setZeros( outerSteps );
   convergenceTest.setData( _energyProfile );
   convergenceTest.setRange( 100 );
-
-  EVAL(outerSteps);
-  EVAL(innerSteps);
 
   for (i = 0; !converged && i < outerSteps; ++i)
   {
@@ -168,18 +159,12 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const 
       acceptTransition = deltaEnergy <= .0 || randomGenerator.uniformLF() < exp( -beta*deltaEnergy );
 
       if ( acceptTransition )
-      {
         currentEnergy = newEnergy;
-        EVAL("accepted");
-      }
-      else { vertices[v] = vertex;
-        EVAL("rejected");
-      }
+      else vertices[v] = vertex;
       sumEnergy += currentEnergy;
     }
 
     _energyProfile[i] = sumEnergy / innerSteps;
-    EVAL(_energyProfile[i]);
     converged = convergenceTest.isPositive( i );
   }
 
@@ -217,40 +202,22 @@ template<class CoordType>
 void SpatialModelMaximalRepulsion3D<CoordType>::moveVertex(
   Vertices<CoordType>& vertices,
   const int v,
-  const CoordType r)
+  const CoordType radius)
 {
   RandomGenerator& randomGenerator = this->getRandomGenerator();
   const TriMeshQuery<CoordType>& triMeshQuery = this->getTriMeshQuery();
   Vector<CoordType> vertex;
 
-  int n;
-  CoordType radius = r;
-  bool ok = false;
-
-  try {
+  do
+  {
     EVAL( triMeshQuery.contains(vertices[v]) );
     EVAL( checkHardcoreDistances(vertices[v],v,vertices) );
     EVAL (radius);
-    do {
-      n = 0;
-
-      do
-      {
-        vertex = vertices[v];
-       // EVAL(vertex);
-        vertex[X] += randomGenerator.uniformLF( -radius, radius );
-        vertex[Y] += randomGenerator.uniformLF( -radius, radius );
-        vertex[Z] += randomGenerator.uniformLF( -radius, radius );
-      } while ( ++n < 100 &&  !triMeshQuery.contains(vertex) || !checkHardcoreDistances(vertex,v,vertices) );
-
-      if ( n < 100 ) ok = true;
-      radius /= 2;
-    } while ( !ok );
-  }
-  catch(Exception exception)
-  {
-    EVAL(exception.getWhat());
-  }
+    vertex = vertices[v];
+    vertex[X] += randomGenerator.uniformLF( -radius, radius );
+    vertex[Y] += randomGenerator.uniformLF( -radius, radius );
+    vertex[Z] += randomGenerator.uniformLF( -radius, radius );
+  } while ( !triMeshQuery.contains(vertex) || !checkHardcoreDistances(vertex,v,vertices) );
 
   vertices[v] = vertex;
 }
@@ -266,29 +233,11 @@ bool SpatialModelMaximalRepulsion3D<CoordType>::checkHardcoreDistances(
   const Vector<CoordType>& hardcoreDistances = this->getHardcoreDistances();
   Vector<CoordType> triMeshVertex;
   if ( this->getTriMeshQuery().closestPoint(vertex,triMeshVertex) < hardcoreDistances[v] )
-  {
-    //EVAL( hardcoreDistances.epsilon() );
-    EVAL( this->getTriMeshQuery().closestPoint(vertex,triMeshVertex));
-    EVAL ( hardcoreDistances[v] );
     return false;
-  }
-
-  try {
 
   for (int i = 0; i < vertices.getNumVertices(); ++i)
     if ( i != v && vertices[i].distance(vertex) < hardcoreDistances[i] + hardcoreDistances[v] )
-    {
-      EVAL( hardcoreDistances.epsilon() );
-      EVAL( vertices[i].distance(vertex) );
-      EVAL( hardcoreDistances[i] );
-      EVAL ( hardcoreDistances[v] );
       return false;
-    }
-  }
-  catch(Exception exception)
-  {
-    EVAL(exception.getWhat());
-  }
 
   return true;
 }
@@ -317,9 +266,7 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::computeBeta()
 
   for (int i = 0; i < n; ++i)
   {
-    EVAL(i);
     vertices1 = SpatialModelHardcoreDistance3D<CoordType>::drawSample( numPoints );
-    PRINT("done");
     vertices2 = vertices1;
     vertices2.detach();
     int v = randomGenerator.uniformL( numPoints );

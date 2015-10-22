@@ -5,7 +5,7 @@
 #include <spatialdescriptorfunctionh.h>
 #include <spatialdescriptorfunctionb.h>
 #include <spatialdescriptorfunctionc.h>
-#include "spatialmodelmaximalrepulsion3d.h"
+#include <spatialmodelmaximalrepulsion3d.h>
 //#include "spatialdescriptorborder.h"
 //#include "spatialdescriptorcentroid.h"
 //#include "maximalrepulsion.h"
