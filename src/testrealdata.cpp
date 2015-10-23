@@ -54,8 +54,31 @@ void evaluator(
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   DataSet globalAnalysis( analysisDir + "nuclei.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
-  Vector<string> nucleiNames ;
+  Vertices<float> vertices;
+  EVAL( ccsInfo.size()[0] );
+  Vector<string> tempFileNames, nucleiNames;
+  tempFileNames = globalAnalysis.getValues<string>( ccsInfo.variableNames()[0] );
+
+  Vector<int> posCCSlist;
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      posCCSlist.setSize( posCCSlist.getSize() + 1 );
+      posCCSlist[posCCSlist.getSize() - 1] = j;
+    }
+
+  for ( int j = posCCSlist[0]; j < posCCSlist[posCCSlist.getSize()-1]; ++j )
+  {
+    EVAL(j);
+    vertices[j][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
+    vertices[j][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
+    vertices[j][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+    EVAL(vertices[j]);
+  }
+
+  //Vector<string> nucleiNames ;
   nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
   //unifying datasets
@@ -67,7 +90,7 @@ void evaluator(
 
 //  EVAL (numCurrentNucleus);
 
-  const int numPoints = datasetNucleus.size()[0];
+  //const int numPoints = vertices.getNumVertices();
   const int numPatterns = 99;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
@@ -162,11 +185,21 @@ void evaluator(
     string newVariable;
     switch ( constraints )
     {
-      case 0: newVariable = "SpatialModelCompleteRandomness3D_" + function + "-SDI";
-      case 1: newVariable = "SpatialModelHardcoreDistance3D_" + function + "-SDI";
-      case 2: newVariable = "spatialModelBorderDistance3D_" + function + "-SDI";
-      case 3: newVariable = "SpatialModelBorderHardcoreDistance3D_" + function + "-SDI";
-      case 4: newVariable = "SpatialModelMaximalRepulsion3D_" + function + "-SDI";
+      case 0:
+        newVariable = ( "SpatialModelCompleteRandomness3D_" + function + "-SDI" );
+        break;
+      case 1:
+        newVariable = ( "SpatialModelHardcoreDistance3D_" + function + "-SDI" );
+        break;
+      case 2:
+        newVariable = ( "spatialModelBorderDistance3D_" + function + "-SDI" );
+        break;
+      case 3:
+        newVariable = ( "SpatialModelBorderHardcoreDistance3D_" + function + "-SDI" );
+        break;
+      case 4:
+        newVariable = ( "SpatialModelMaximalRepulsion3D_" + function + "-SDI" );
+        break;
     }
 
     //globalAnalysis.setValues<float>( newVariable, -1 );
@@ -175,14 +208,14 @@ void evaluator(
 
     modelEvaluator.setDescriptor( *spatialDescriptor );
 
-    Vertices<float> vertices ( 3, numPoints, 0, 0 );
-    for ( int i = 0; i < numPoints; ++i )
-    {
-      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-      EVAL(vertices[i]);
-    }
+//    Vertices<float> vertices ( 3, numPoints, 0, 0 );
+//    for ( int i = 0; i < numPoints; ++i )
+//    {
+//      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+//      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+//      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+//      EVAL(vertices[i]);
+//    }
 
 
     ostringstream iss; //we suppose as much 99 labels
@@ -226,14 +259,14 @@ void evaluator(
   }
   else
   {
-    Vertices<float> vertices ( 3, numPoints, 0, 0 );
-    for ( int i = 0; i < numPoints; ++i )
-    {
-      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-      EVAL(vertices[i]);
-    }
+//    Vertices<float> vertices ( 3, numPoints, 0, 0 );
+//    for ( int i = 0; i < numPoints; ++i )
+//    {
+//      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
+//      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
+//      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
+//      EVAL(vertices[i]);
+//    }
 
     const int row = dataSet.numRows();
     vector<float> sdis;
