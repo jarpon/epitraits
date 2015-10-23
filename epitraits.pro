@@ -73,7 +73,8 @@ SOURCES += \
     src/spatialdescriptorfunctionm.cpp \
     src/regionanalysis2d.cpp \
     src/regionanalysis3d.cpp \
-    src/spatialmodelmaximalrepulsion3d.cpp
+    src/spatialmodelmaximalrepulsion3d.cpp \
+    src/trimeshspatialmodel2.cpp
 
 HEADERS += \
    # src/trimeshspatialmodel.h \
@@ -95,5 +96,6 @@ HEADERS += \
     src/spatialdescriptorfunctionm.h \
     src/regionanalysis2d.h \
     src/regionanalysis3d.h \
-    src/spatialmodelmaximalrepulsion3d.h
+    src/spatialmodelmaximalrepulsion3d.h \
+    src/trimeshspatialmodel2.h
 

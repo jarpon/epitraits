@@ -46,19 +46,28 @@ void evaluator(
   const string& function, const int& constraints,
   DataSet& dataSet, RandomGenerator& randomGenerator)
 {
-  const string analysisDir = parentDir + "/analysis/";
   string classif = parentDir;
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
 
-  //new data
+  //open data info
+  const string analysisDir = parentDir + "/analysis/";
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   DataSet globalAnalysis( analysisDir + "nuclei.csv" );
 
   Vector<string> nucleiNames ;
+  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
+
+  //unifying datasets
+  int numCurrentNucleus;
+
+  for ( int j = 0; j < nucleiNames.getSize(); ++j )
+    if ( nucleiNames[j] == filename )
+      numCurrentNucleus = j;
+
+//  EVAL (numCurrentNucleus);
 
   const int numPoints = datasetNucleus.size()[0];
-
   const int numPatterns = 99;
 
   SpatialModelEvaluator<float,float> modelEvaluator;
@@ -160,8 +169,9 @@ void evaluator(
       case 4: newVariable = "SpatialModelMaximalRepulsion3D_" + function + "-SDI";
     }
 
-    globalAnalysis.setValues<float>( newVariable, -1 );
-
+    //globalAnalysis.setValues<float>( newVariable, -1 );
+    float sdi;
+    int row;
 
     modelEvaluator.setDescriptor( *spatialDescriptor );
 
@@ -178,38 +188,39 @@ void evaluator(
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
 
-    float sdi = modelEvaluator.eval( vertices, &saveTest );
+    try {
+      sdi = modelEvaluator.eval( vertices, &saveTest );
 
-//    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
-//    EVAL( output[0] );
-//    EVAL( output[1] );
+  //    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
+  //    EVAL( output[0] );
+  //    EVAL( output[1] );
 
 
-   // saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
-  //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
-    const int row = dataSet.size()[0];
+     // saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
+    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
+      row = dataSet.size()[0];
 
-    dataSet.setValue( "nucleus", row, filename );
-    dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
-    dataSet.setValue( "descriptor", row, function );//spatial descriptor
-    dataSet.setValue( "index", row, sdi );
-    //dataSet.setValue( "index", row, output[0] );
-    //dataSet.setValue( "signedMaxDiff", row, output[1] );
+      dataSet.setValue( "nucleus", row, filename );
+      dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
+      dataSet.setValue( "descriptor", row, function );//spatial descriptor
+      dataSet.setValue( "index", row, sdi );
+      //dataSet.setValue( "index", row, output[0] );
+      //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-    //unifying datasets
-    int numCurrentNucleus = 0;
+      globalAnalysis.setValue( newVariable, numCurrentNucleus, sdi );
+    }
+    catch( Exception() ) {
+      const int row = dataSet.size()[0];
 
-    EVAL(filename);
-    for ( int j = 0; j < nucleiNames.getSize(); ++j )
-      if ( nucleiNames[j] == filename )
-      {
-        EVAL( nucleiNames[j] )
-        numCurrentNucleus = j;
-      }
+      dataSet.setValue( "nucleus", row, filename );
+      dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
+      dataSet.setValue( "descriptor", row, function );//spatial descriptor
+      dataSet.setValue( "index", row, sqrt(-1) );
+      //dataSet.setValue( "index", row, output[0] );
+      //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-    EVAL (numCurrentNucleus);
-
-    globalAnalysis.setValue<float>( newVariable, numCurrentNucleus, sdi );
+      globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sqrt(-1) );
+    }
 
 
   }
@@ -240,8 +251,6 @@ void evaluator(
 
     EVAL(numCurrentNucleus);
 
-    string na = "NA";
-    EVAL(sdis.size());
 
     string newVariable;
     switch ( constraints )
@@ -253,39 +262,29 @@ void evaluator(
       case 4: newVariable = "SpatialModelMaximalRepulsion3D_";
     }
 
-//    const Vector<string> variables;
-//    //variables = globalAnalysis.variableNames();
-//    int pos = variables.find( newVariable + "F-SDI" );
-    globalAnalysis.setValues<float>( newVariable, -1 );
-    globalAnalysis.setValues<float>( newVariable, -1 );
-    globalAnalysis.setValues<float>( newVariable, -1 );
-    globalAnalysis.setValues<float>( newVariable, -1 );
-    globalAnalysis.setValues<float>( newVariable, -1 );
-
-
     //unifying datasets
     for ( int jj = 0; jj < sdis.size(); ++jj )
     {
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
-        globalAnalysis.setValue<string>( newVariable + "F-SDI", numCurrentNucleus, na );
+        globalAnalysis.setValue( newVariable + "F-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue<float>( newVariable + "F-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "F-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
-        globalAnalysis.setValue<string>( newVariable + "G-SDI", numCurrentNucleus, na );
+        globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue<float>( newVariable + "G-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
-        globalAnalysis.setValue<string>( newVariable + "H-SDI", numCurrentNucleus, na );
+        globalAnalysis.setValue( newVariable + "H-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue<float>( newVariable + "H-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "H-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
-        globalAnalysis.setValue<string>( newVariable + "B-SDI", numCurrentNucleus, na );
+        globalAnalysis.setValue( newVariable + "B-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue<float>( newVariable + "B-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "B-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
-        globalAnalysis.setValue<string>( "C-SDI", numCurrentNucleus, na );
+        globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue<float>( newVariable + "C-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sdis[jj] );
     }
 
     dataSet.setValue( "nucleus", row, filename );
@@ -322,7 +321,7 @@ void evaluator(
 
   }
 
-  globalAnalysis.save( analysisDir + "/" + "nuclei_complete.csv", true );
+  globalAnalysis.save( analysisDir + "/" + "nuclei.csv", true );
 
 
 }
@@ -338,8 +337,9 @@ void evaluator_completeSpatialRandomness(
 {
   PRINT("spatialModelEvaluator_completeSpatialRandomness");
 
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
+  //open data info
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+
   SpatialModelCompleteRandomness3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
@@ -361,25 +361,11 @@ void evaluator_sizeConstrained(
 {
   PRINT("spatialModelEvaluator_sizeConstrained");
 
+  //open data info
   const string analysisDir = parentDir + "/analysis/";
-
-  //new data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
-  //old data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
-
-  //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
-  //old data
-  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
-
-  //new data
   const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-  //old data
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
   EVAL(eqRadii);
 
   SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
@@ -404,12 +390,12 @@ void evaluator_distanceConstrained(
 {
   PRINT("spatialModelEvaluator_distanceConstrained");
 
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  //open data info
   const string analysisDir = parentDir + "/analysis/";
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+  EVAL(distancesToBorder);
 
   SpatialModelBorderDistance3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
@@ -433,26 +419,14 @@ void evaluator_sizeAndDistanceConstrained(
 {
   PRINT("spatialModelEvaluator_sizeAndDistanceConstrained");
 
-  //randomGenerator.init(11);
+  //open data info
   const string analysisDir = parentDir + "/analysis/";
-
-  //new data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  //old data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
-
-  //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //old data
-  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
-
-  //new data
   const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-  //old data
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
-  EVAL(eqRadii);
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+  EVAL(eqRadii);
+  EVAL(distancesToBorder);
 
   SpatialModelHardcoreBorderDistance3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
@@ -474,24 +448,11 @@ void evaluator_MaximalRepulsionConstrained(
 {
   PRINT("spatialModelEvaluator_MaximalRepulsionConstrained");
 
+  //open data info
   const string analysisDir = parentDir + "/analysis/";
-
-  //new data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  //old data
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
-
-  //new data
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //old data
-  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
-
-  //new data
-  Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
-  //eqRadii.operator /=(sqrt(3.));
-  //old data
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "chromocenterRadius" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
   EVAL(eqRadii);
 
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
