@@ -57,17 +57,23 @@ void evaluator(
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
   Vertices<float> vertices;
-  EVAL( ccsInfo.size()[0] );
-  Vector<string> tempFileNames, nucleiNames;
-  tempFileNames = globalAnalysis.getValues<string>( ccsInfo.variableNames()[0] );
+  Vector<string> tempFileNames;
 
-  Vector<int> posCCSlist;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+  Vector<int> posCCSlist, indCCSlist;
+  indCCSlist.setSize( 1 );
+
   for ( int j = 0; j < tempFileNames.getSize(); ++j )
     if ( tempFileNames[j] == filename )
     {
-      posCCSlist.setSize( posCCSlist.getSize() + 1 );
-      posCCSlist[posCCSlist.getSize() - 1] = j;
+      EVAL(j);
+
+      indCCSlist[0] = j;
+      posCCSlist.append( indCCSlist );
     }
+  EVAL( posCCSlist.getSize() );
+  EVAL (posCCSlist);
 
   for ( int j = posCCSlist[0]; j < posCCSlist[posCCSlist.getSize()-1]; ++j )
   {
@@ -78,7 +84,7 @@ void evaluator(
     EVAL(vertices[j]);
   }
 
-  //Vector<string> nucleiNames ;
+  Vector<string> nucleiNames ;
   nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
   //unifying datasets
