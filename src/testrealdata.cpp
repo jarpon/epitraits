@@ -48,10 +48,9 @@ void evaluator(
 {
   string classif = parentDir;
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
-
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   DataSet globalAnalysis( analysisDir + "nuclei.csv" );
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
@@ -67,21 +66,21 @@ void evaluator(
   for ( int j = 0; j < tempFileNames.getSize(); ++j )
     if ( tempFileNames[j] == filename )
     {
-      EVAL(j);
+//      EVAL(j);
 
       indCCSlist[0] = j;
       posCCSlist.append( indCCSlist );
     }
-  EVAL( posCCSlist.getSize() );
-  EVAL (posCCSlist);
+//  EVAL( posCCSlist.getSize() );
+//  EVAL (posCCSlist);
 
   for ( int j = posCCSlist[0]; j < posCCSlist[posCCSlist.getSize()-1]; ++j )
   {
-    EVAL(j);
+//    EVAL(j);
     vertices[j][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
     vertices[j][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
     vertices[j][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
-    EVAL(vertices[j]);
+//    EVAL(vertices[j]);
   }
 
   Vector<string> nucleiNames ;
