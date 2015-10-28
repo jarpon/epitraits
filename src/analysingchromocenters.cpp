@@ -164,8 +164,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
     centroid = centroids[numCC];
 
-    min[numCC] = FLT_MIN;
-    max[numCC] = FLT_MAX;
+    min[numCC] = FLT_MAX;
+    max[numCC] = FLT_MIN;
 
     for (int j = 0; j < numCompartments; ++j)
     {
