@@ -747,6 +747,7 @@ int main(int argc, char* argv[])
       }
       catch(Exception exception)
       {
+        EVAL(exception.getWhat());
         ostringstream oss;
         oss << constraints;
         errorDataSet.setValue("id",numErrors,numErrors+1);

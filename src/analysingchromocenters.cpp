@@ -164,8 +164,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
     centroid = centroids[numCC];
 
-    min[numCC] = 100;
-    max[numCC] = 0;
+    min[numCC] = FLT_MIN;
+    max[numCC] = FLT_MAX;
 
     for (int j = 0; j < numCompartments; ++j)
     {
@@ -283,6 +283,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 //    individualChromocentersDataset.setValue ( "minDistanceToCC", numCC, min[numCC] );
 //    individualChromocentersDataset.setValue ( "maxDistanceToCC", numCC, max[numCC] );
 //  }
+  nucleiDataset.setValue ( "minDistanceToCC", numNucleus, chromocentersDataset.getValues<float>("minDistanceToCC").min() );
+  nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, chromocentersDataset.getValues<float>("minDistanceToCC").max() );
 
   totalNumCCs += regionAnalysisCCs.numRegions();
 

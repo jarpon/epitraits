@@ -6,16 +6,12 @@
 #include <spatialdescriptorfunctionb.h>
 #include <spatialdescriptorfunctionc.h>
 #include <spatialmodelmaximalrepulsion3d.h>
-//#include "spatialdescriptorborder.h"
-//#include "spatialdescriptorcentroid.h"
-//#include "maximalrepulsion.h"
 #include "maxrepulsionwithdistances.h"
 #include <spatialmodelcompleterandomness3d.h>
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
 #include <spatialmodel.h>
-//#include "trimeshspatialmodel.h"
 #include <trimesh.h>
 #include <voxelmatrix.h>
 #include <fileinfo.h>
@@ -55,32 +51,33 @@ void evaluator(
   DataSet globalAnalysis( analysisDir + "nuclei.csv" );
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
-  Vertices<float> vertices;
   Vector<string> tempFileNames;
-
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
 
-  Vector<int> posCCSlist, indCCSlist;
-  indCCSlist.setSize( 1 );
+  int lastPos, numCCS = 0;
 
   for ( int j = 0; j < tempFileNames.getSize(); ++j )
     if ( tempFileNames[j] == filename )
     {
-//      EVAL(j);
-
-      indCCSlist[0] = j;
-      posCCSlist.append( indCCSlist );
+      lastPos = j;
+      ++ numCCS;
     }
-//  EVAL( posCCSlist.getSize() );
-//  EVAL (posCCSlist);
 
-  for ( int j = posCCSlist[0]; j < posCCSlist[posCCSlist.getSize()-1]; ++j )
+  if ( numCCS == 0 )
   {
-//    EVAL(j);
-    vertices[j][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
-    vertices[j][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
-    vertices[j][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
-//    EVAL(vertices[j]);
+    EVAL("Nucleus not found");
+    return;
+  }
+
+
+  Vertices<float> vertices( 3, numCCS, 0, 0 );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+  {
+    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
+    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
+    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+    EVAL(vertices[k]);
   }
 
   Vector<string> nucleiNames ;
@@ -93,7 +90,7 @@ void evaluator(
     if ( nucleiNames[j] == filename )
       numCurrentNucleus = j;
 
-//  EVAL (numCurrentNucleus);
+  EVAL (numCurrentNucleus);
 
   //const int numPoints = vertices.getNumVertices();
   const int numPatterns = 99;
@@ -105,7 +102,6 @@ void evaluator(
 
   SpatialDescriptor<float>* spatialDescriptor;
 
-  DataSet saveTest;
 
   //setting function parameters
   if ( function == "all" )
@@ -213,19 +209,9 @@ void evaluator(
 
     modelEvaluator.setDescriptor( *spatialDescriptor );
 
-//    Vertices<float> vertices ( 3, numPoints, 0, 0 );
-//    for ( int i = 0; i < numPoints; ++i )
-//    {
-//      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-//      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-//      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-//      EVAL(vertices[i]);
-//    }
-
-
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
-
+    DataSet saveTest;
     try {
       sdi = modelEvaluator.eval( vertices, &saveTest );
 
@@ -247,19 +233,19 @@ void evaluator(
 
       globalAnalysis.setValue( newVariable, numCurrentNucleus, sdi );
     }
-    catch( Exception() ) {
+    catch( Exception exception ) {
+      EVAL( exception.getWhat() );
+      EVAL( exception.getWhere() );
+
       const int row = dataSet.size()[0];
 
       dataSet.setValue( "nucleus", row, filename );
       dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
       dataSet.setValue( "descriptor", row, function );//spatial descriptor
       dataSet.setValue( "index", row, sqrt(-1) );
-      //dataSet.setValue( "index", row, output[0] );
-      //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-      globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sqrt(-1) );
+
     }
-
 
   }
   else
@@ -278,17 +264,15 @@ void evaluator(
     vector<int> ranks;
 //    vector<float> maxDiff;
 
+    try {
 //    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
     modelEvaluator.eval( vertices, sdis, ranks);
 
-    int numCurrentNucleus;
-
-    for ( int j = 0; j < nucleiNames.getSize(); ++j )
-      if ( nucleiNames[j] == filename )
-        numCurrentNucleus = j;
-
-    EVAL(numCurrentNucleus);
-
+    EVAL( sdis[0] );
+    EVAL( sdis[1] );
+    EVAL( sdis[2] );
+    EVAL( sdis[3] );
+    EVAL( sdis[4] );
 
     string newVariable;
     switch ( constraints )
@@ -338,28 +322,24 @@ void evaluator(
     dataSet.setValue( "C-SDI", row, sdis[4] );
 //    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
 
-    saveTest.setValue( "nucleus", 1, filename );
-    saveTest.setValue( "class", 1, classif );//classification: mutant, tissue, etc.
-    saveTest.setValue( "F-SDI", 1, sdis[0] );
-//    saveTest.setValue( "F-maxDiff", 1, maxDiff[0] );
-    saveTest.setValue( "G-SDI", 1, sdis[1] );
-//    saveTest.setValue( "G-maxDiff", 1, maxDiff[1] );
-    saveTest.setValue( "H-SDI", 1, sdis[2] );
-//    saveTest.setValue( "H-maxDiff", 1, maxDiff[2] );
-    saveTest.setValue( "B-SDI", 1, sdis[3] );
-//    saveTest.setValue( "B-maxDiff", 1, maxDiff[3] );
-    saveTest.setValue( "C-SDI", 1, sdis[4] );
-//    saveTest.setValue( "C-maxDiff", 1, maxDiff[4] );
+    }
+    catch( Exception exception ) {
+      EVAL( exception.getWhat() );
+      EVAL( exception.getWhere() );
+      const int row = dataSet.size()[0];
 
-    ostringstream iss; //we suppose as much 99 labels
-    iss << constraints;
+      dataSet.setValue( "nucleus", row, filename );
+      dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
+      dataSet.setValue( "descriptor", row, function );//spatial descriptor
+      dataSet.setValue( "index", row, sqrt(-1) );
+      //dataSet.setValue( "index", row, output[0] );
+      //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-    saveTest.save( analysisDir + iss.str() + "/" + filename + "_all.csv", true );
-    globalAnalysis.save( analysisDir + "/" + "nuclei_complete.csv", true );
+    }
 
   }
 
-  globalAnalysis.save( analysisDir + "/" + "nuclei.csv", true );
+  globalAnalysis.save( analysisDir + "/" + "nuclei_complete2.csv", true );
 
 
 }
@@ -496,7 +476,7 @@ void evaluator_MaximalRepulsionConstrained(
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  //triMeshSpatialModel.setNumMonteCarloCycles( 10 );
+  triMeshSpatialModel.setNumMonteCarloCycles( 2000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
 
