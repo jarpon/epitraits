@@ -383,7 +383,8 @@ void evaluator_sizeConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
   EVAL(eqRadii);
 
   SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
@@ -441,7 +442,8 @@ void evaluator_sizeAndDistanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+//  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
   EVAL(eqRadii);
   EVAL(distancesToBorder);
@@ -470,7 +472,8 @@ void evaluator_MaximalRepulsionConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+//  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
+  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
   EVAL(eqRadii);
 
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;

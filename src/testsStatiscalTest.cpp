@@ -8,8 +8,8 @@
 #include <spatialdescriptorfunctionc.h>
 #include "spatialmodelboundaryinteraction.h"
 #include <spatialmodelcompleterandomness.h>
-//#include "spatialmodelevaluator2.h"
-#include <spatialmodelevaluator.h>
+#include "spatialmodelevaluator2.h"
+//#include <spatialmodelevaluator.h>
 //#include "spatialdescriptorborder2D.h"
 
 
@@ -56,7 +56,7 @@ vector<int> initNumObjectsS2()
 {
   vector<int> numObjectsS2;
   numObjectsS2.push_back( 10 );
-  for (int s = 10; s <= 100; s += 10)
+  for (int s = 20; s <= 1000; s += 10)
     numObjectsS2.push_back( s );
   return numObjectsS2;
 }
@@ -168,26 +168,28 @@ void testPattern(
   DataSet& gDataSet)
 {
   ENTER( "void testPattern(...)" );
-//  SpatialDescriptorFunctionF<CoordType> functionF;
-//  SpatialDescriptorFunctionG<CoordType> functionG;
-//  SpatialDescriptorFunctionH<CoordType> functionH;
-//  SpatialDescriptorDistanceToBorder2D<CoordType>* functionB;
-//  functionB = new SpatialDescriptorDistanceToBorder2D<CoordType>();
   SpatialDescriptorFunctionF<CoordType> functionF;
   SpatialDescriptorFunctionG<CoordType> functionG;
   SpatialDescriptorFunctionH<CoordType> functionH;
-//  SpatialDescriptorDistanceToBorder2D<float>* functionB;
-//  functionB->setBoundary( boundary );
-//  SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
+  SpatialDescriptorFunctionB<CoordType>* functionB;
+  SpatialDescriptorFunctionC<CoordType>* functionC;
+  functionF.setEvaluationPositions( csrModel.drawSample(1000) );
+//  functionB = new SpatialDescriptorFunctionB<float>();
+//  functionB->setCurve( boundary );
+  functionC = new SpatialDescriptorFunctionC<float>();
+  functionC->setCenter( boundary.cog() );
+
+
   SpatialModelEvaluator<CoordType,PixelType> spatialModelEvaluator;
   spatialModelEvaluator.setModel( csrModel );
   spatialModelEvaluator.setNumMonteCarloSamples( 99 );
   spatialModelEvaluator.addDescriptor( functionF );
   spatialModelEvaluator.addDescriptor( functionG );
   spatialModelEvaluator.addDescriptor( functionH );
-  //spatialModelEvaluator.addDescriptor( functionB );
+//  spatialModelEvaluator.addDescriptor( *functionB );
+  spatialModelEvaluator.addDescriptor( *functionC );
   spatialModelEvaluator.setPrecision( 1.0 );
-  functionF.setEvaluationPositions( csrModel.drawSample(1000) );
+
 
 	EVAL("spatialmodel 1");
   const int r = gDataSet.numRows();
@@ -196,16 +198,17 @@ void testPattern(
   vector<float> maxDiff;
 
   //spatialModelEvaluator.eval( pattern1, pValues, ranks );
-  //spatialModelEvaluator.evalSDIandMaxDiff( pattern1, pValues, ranks, maxDiff);
+  spatialModelEvaluator.evalSDIandMaxDiff( pattern1, pValues, ranks, maxDiff);
   gDataSet.setValue( "F1-SDI", r, pValues[0] );
   gDataSet.setValue( "F1-maxDiff", r, maxDiff[0] );
   gDataSet.setValue( "G1-SDI", r, pValues[1] );
   gDataSet.setValue( "G1-maxDiff", r, maxDiff[1] );
   gDataSet.setValue( "H1-SDI", r, pValues[2] );
   gDataSet.setValue( "H1-maxDiff", r, maxDiff[2] );
-  //gDataSet.setValue( "B1-SDI", r, pValues[3] );
-
-
+//  gDataSet.setValue( "B1-SDI", r, pValues[3] );
+//  gDataSet.setValue( "B1-maxDiff", r, maxDiff[3] );
+  gDataSet.setValue( "C1-SDI", r, pValues[3] );
+  gDataSet.setValue( "C1-maxDiff", r, maxDiff[3] );
 
   	EVAL("ok");
  // SpatialDescriptorFunctionF<CoordType> functionF2;
@@ -219,9 +222,10 @@ void testPattern(
   spatialModelEvaluator2.addDescriptor( functionF );
   spatialModelEvaluator2.addDescriptor( functionG );
   spatialModelEvaluator2.addDescriptor( functionH );
-  //spatialModelEvaluator2.addDescriptor( functionB );
+//  spatialModelEvaluator2.addDescriptor( *functionB );
+  spatialModelEvaluator2.addDescriptor( *functionC );
   spatialModelEvaluator2.setPrecision( 1.0 );
-  functionF.setEvaluationPositions( csrModel.drawSample(1000) );
+
 
 	EVAL("spatialmodel 2");
 
@@ -229,14 +233,17 @@ void testPattern(
   vector<int> ranks2;
   vector<float> maxDiff2;
   //spatialModelEvaluator2.eval( pattern2, pValues2, ranks2 );
-  //spatialModelEvaluator2.evalSDIandMaxDiff( pattern2, pValues2, ranks2, maxDiff2 );
+  spatialModelEvaluator2.evalSDIandMaxDiff( pattern2, pValues2, ranks2, maxDiff2 );
   gDataSet.setValue( "F2-SDI", r, pValues2[0] );
   gDataSet.setValue( "F2-maxDiff", r, maxDiff2[0] );
   gDataSet.setValue( "G2-SDI", r, pValues2[1] );
   gDataSet.setValue( "G2-maxDiff", r, maxDiff2[1] );
   gDataSet.setValue( "H2-SDI", r, pValues2[2] );
   gDataSet.setValue( "H2-maxDiff", r, maxDiff2[2] );
-
+//  gDataSet.setValue( "B1-SDI", r, pValues2[3] );  //function B in 2D seems does not work
+//  gDataSet.setValue( "B1-maxDiff", r, maxDiff2[3] );
+  gDataSet.setValue( "C1-SDI", r, pValues2[3] );
+  gDataSet.setValue( "C1-maxDiff", r, maxDiff2[3] );
 
   	EVAL("ok");
 

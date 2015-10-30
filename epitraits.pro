@@ -73,7 +73,10 @@ SOURCES += \
     src/spatialdescriptorfunctionm.cpp \
     src/regionanalysis2d.cpp \
     src/regionanalysis3d.cpp \
-    src/trimeshspatialmodel2.cpp
+    src/trimeshspatialmodel2.cpp \
+    src/spatialmodelevaluator2.cpp \
+    src/cdftools2.cpp \
+    src/comparedistributions.cpp
 
 HEADERS += \
    # src/trimeshspatialmodel.h \
@@ -95,5 +98,7 @@ HEADERS += \
     src/spatialdescriptorfunctionm.h \
     src/regionanalysis2d.h \
     src/regionanalysis3d.h \
-    src/trimeshspatialmodel2.h
+    src/trimeshspatialmodel2.h \
+    src/spatialmodelevaluator2.h \
+    src/cdftools2.h
 

@@ -65,6 +65,7 @@ extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
 extern VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>&);
 extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
+extern void test2Distributions(const string&, const string&, const string& = 0);
 
 //extern void analyzeSample(const string&, const int&, int&, DataSet&, DataSet&);
 int main(int argc, char* argv[])
@@ -600,7 +601,7 @@ int main(int argc, char* argv[])
   /*! Evaluates spatial descriptors
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-nucleoli") ) &&
+            ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
             ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
@@ -623,6 +624,7 @@ int main(int argc, char* argv[])
     if ( argv[2] == std::string("6") )       test = "2compartments";
     else if ( argv[2] == std::string("7") )  test = "data";
     else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
+    else if ( argv[2] == std::string("7-2distributions") )  test = "2distributions";
 
     if ( argv[3] == std::string("2") )       function = "G";
     else if ( argv[3] == std::string("3") )  function = "H";
@@ -725,6 +727,12 @@ int main(int argc, char* argv[])
             oss << constraints;
             dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
           }
+          else if ( test == "2distributions" )
+          {
+
+            test2Distributions( filename, filename );
+
+          }
           else
           {
             ProgramError error;
@@ -785,8 +793,7 @@ int main(int argc, char* argv[])
       filename = argv[i];
 
       // only vm files are processed
-      if(filename.substr(filename.find_last_of(".") + 1) == "vm")
-      {
+
         EVAL(filename);
         FileInfo fileInfo (filename);
 
@@ -816,15 +823,16 @@ int main(int argc, char* argv[])
         EVAL(filename);
         EVAL(parentDir);
 
-	testsStatisticalTests();
+        test2Distributions( filepath, filename, filename );
+
+        //testsStatisticalTests();
         //doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
 
         //doIt( filename, parentDir, randomGenerator);
 
-      }
-      else cout << "Error" << endl;
+
     }
     LEAVE();
 

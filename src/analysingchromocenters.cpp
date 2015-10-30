@@ -53,7 +53,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 {
   string originalName = filename.substr( 0,filename.find_last_of("-")  );
 
-  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + originalName + ".vm" );
+  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/segmented_nuclei/" + filename + ".vm" );
+  //  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + originalName + ".vm" );
   VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
 
   // for segmented masks with values higher than 1, we need them with 0/1 values
@@ -119,8 +120,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     regionAnalysis2D.setLabelMatrix( ccs2DMask );
     //regionAnalysis2D.setValueMatrix( getMaximumIntensity( originalVoxelMatrix ) );
     regionAnalysis2D.run();
-
-    ccsEqRadius[i] = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )[0]/sqrt(3.);//SPF correction -> max area correction -> eq radius
+    ccsEqRadius[i] = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )[0];// max area correction -> eq radius
+//    ccsEqRadius[i] = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )[0]/sqrt(3.);//SPF correction -> max area correction -> eq radius
     EVAL(ccsEqRadius[i]);
   }
 
@@ -197,7 +198,9 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     thresholding.setBackground( 0.0 );
     thresholding.levelSetMask( currentLabeledVM, numCC+1 );
     triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
-    triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
+    VoxelMatrix<float> ccsMask( parentDir + "/segmented_chromocenters/" + filename + ".vm" );
+    triMesh.scale( ccsMask.getVoxelCalibration().getVoxelSize() );
+//    triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
     nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
     float distanceToBorder = centroid.distance( vertexTriMesh );
     float ccVolume_tm = fabs(triMesh.volume());
