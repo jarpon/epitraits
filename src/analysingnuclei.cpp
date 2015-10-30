@@ -51,7 +51,7 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
   nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA)[0] );//surface area of the nucleus
   nucleiDataset.setValue ( "surfaceArea_tm", numNucleus, abs(triMesh.area() ) );//nucleus volume got from the trimesh
-  //nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] * regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0]  );//sum of intensities of the nucleus volume
+  //old:nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] * regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0]  );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SUM_VALUE)[0] );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] );//compute the integrated density taking into account the real size of the nucleus
 

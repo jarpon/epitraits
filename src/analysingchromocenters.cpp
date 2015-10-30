@@ -113,8 +113,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   {
     PixelMatrix<float> ccs2DMask;
     ccs2DMask = regionAnalysisCCs.getLabel2DProjection( regionAnalysisCCs.getRegions()[i].getLabel() );
-    EVAL(regionAnalysisCCs.getRegions()[i].getLabel());
-    ccs2DMask.saveAsImage( parentDir + "/analysis/" + originalName + ".tif", true );
+//    EVAL(regionAnalysisCCs.getRegions()[i].getLabel());
+//    ccs2DMask.saveAsImage( parentDir + "/analysis/" + originalName + ".tif", true );
 
     regionAnalysis2D.setLabelMatrix( ccs2DMask );
     //regionAnalysis2D.setValueMatrix( getMaximumIntensity( originalVoxelMatrix ) );
@@ -138,7 +138,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
   nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
   nucleiDataset.setValue ( "ccsNumber", numNucleus, regionAnalysisCCs.numRegions() );//number of ccs obtained in the nucleus
-  nucleiDataset.setValue ( "ccsVolume", numNucleus, ccsVolume.sum() );//total ccs volume
+  nucleiDataset.setValue ( "avgeCCVolume", numNucleus, ccsVolume.mean() );
+  nucleiDataset.setValue ( "ccsTotalVolume", numNucleus, ccsVolume.sum() );//total ccs volume
   nucleiDataset.setValue ( "volRHF", numNucleus, ccsVolume.sum()/nucleusVolume );//relative volume of ccs regarding the complete nucleus
   nucleiDataset.setValue ( "ccsIntensity", numNucleus, ccsIntensity.sum() );//total absolute intensity of ccs
   nucleiDataset.setValue ( "ccsIntegratedDensity", numNucleus, ccsIntegratedDensity.sum() );//integrated density of ccs taking into account real volume
@@ -197,7 +198,6 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     thresholding.levelSetMask( currentLabeledVM, numCC+1 );
     triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
     triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
-
     nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
     float distanceToBorder = centroid.distance( vertexTriMesh );
     float ccVolume_tm = fabs(triMesh.volume());
