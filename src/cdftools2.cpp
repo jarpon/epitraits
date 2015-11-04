@@ -366,7 +366,7 @@ Matrix<T> CDFTools<T>::percentiles(
 }
 
 /*! Calcule les écarts entre les deux fonctions de répartition
- * empiriques \c x1 et \c x2.
+ * empiriques \c cdf1 et \c cdf2.
  *
  * Les deux vecteurs donnent les points où des sauts ont lieu
  * dans les fonctions de répartition.
@@ -375,8 +375,8 @@ Matrix<T> CDFTools<T>::percentiles(
  *
  * Trois écarts sont calculés:
  * - l'écart maximum, qu'il soit positif ou négatif
- * - l'écart maximum positif (càd max des Fx1 - Fx2)
- * - l'écart maximum négatif (càd min des Fx1 - Fx2)
+ * - l'écart maximum positif (càd max des Fcdf1 - Fcdf2)
+ * - l'écart maximum négatif (càd min des Fcdf1 - Fcdf2)
  *
  * Chacun de ces écarts est retourné dans la seconde composante
  * du vecteur correspondant parmi \c maxDiff, \c maxDiffAbove et
@@ -386,13 +386,13 @@ Matrix<T> CDFTools<T>::percentiles(
 ****************************************************************/
 template<typename T>
 void CDFTools<T>::differences(
-  const Vector<T>& x1,
-  const Vector<T>& x2,
+  const Vector<T>& cdf1,
+  const Vector<T>& cdf2,
   Vector<T>& maxDiff,
   Vector<T>& maxDiffAbove,
   Vector<T>& maxDiffBelow) const
 {
-  if ( x1.isIncreasing() == false || x2.isIncreasing() == false )
+  if ( cdf1.isIncreasing() == false || cdf2.isIncreasing() == false )
   {
     UsageError usageError;
     usageError.setWhere( "void CDFTools<T>::differences(...) const" );
@@ -400,8 +400,8 @@ void CDFTools<T>::differences(
     throw usageError;
   }
 
-  const int n = x1.getSize();
-  const int m = x2.getSize();
+  const int n = cdf1.getSize();
+  const int m = cdf2.getSize();
   int i = 0, j = 0, iprev, jprev;
   T diff;
 
@@ -414,15 +414,15 @@ void CDFTools<T>::differences(
     iprev = i;
     jprev = j;
 
-    if ( x1[i] <= x2[j] )
+    if ( cdf1[i] <= cdf2[j] )
     {
-      while ( i < n-1 && x1[i+1] == x1[i] ) i++;
+      while ( i < n-1 && cdf1[i+1] == cdf1[i] ) i++;
       i++;
     }
 
-    if ( x2[j] <= x1[iprev] )
+    if ( cdf2[j] <= cdf1[iprev] )
     {
-      while ( j < m-1 && x2[j+1] == x2[j] ) j++;
+      while ( j < m-1 && cdf2[j+1] == cdf2[j] ) j++;
       j++;
     }
 
@@ -430,13 +430,13 @@ void CDFTools<T>::differences(
 
     if ( diff > 0.0 && diff > maxDiffAbove[1] )
     {
-      maxDiffAbove[0] = 0.5 * (x1[iprev]+x2[jprev]);
+      maxDiffAbove[0] = 0.5 * (cdf1[iprev]+cdf2[jprev]);
       maxDiffAbove[1] = diff;
     }
 
     if ( diff < 0.0 && diff < maxDiffBelow[1] )
     {
-      maxDiffBelow[0] = 0.5 * (x1[iprev]+x2[jprev]);
+      maxDiffBelow[0] = 0.5 * (cdf1[iprev]+cdf2[jprev]);
       maxDiffBelow[1] = diff;
     }
   }
@@ -446,15 +446,15 @@ void CDFTools<T>::differences(
 
 template<typename T>
 void CDFTools<T>::differences(
+  const Vector<T>& cdf1,
   const Vector<T>& x1,
-  const Vector<T>& y1,
+  const Vector<T>& cdf2,
   const Vector<T>& x2,
-  const Vector<T>& y2,
   Vector<T>& maxDiff,
   Vector<T>& maxDiffAbove,
   Vector<T>& maxDiffBelow) const
 {
-  if ( x1.isIncreasing() == false || x2.isIncreasing() == false )
+  if ( cdf1.isIncreasing() == false || cdf2.isIncreasing() == false )
   {
     UsageError usageError;
     usageError.setWhere( "void CDFTools<T>::differences(...) const" );
@@ -462,8 +462,8 @@ void CDFTools<T>::differences(
     throw usageError;
   }
 
-  const int n = x1.getSize();
-  const int m = x2.getSize();
+  const int n = cdf1.getSize();
+  const int m = cdf2.getSize();
   int i = 0, j = 0, iprev, jprev;
   T diff, v1 = 0, v2 = 0;
 
@@ -476,31 +476,31 @@ void CDFTools<T>::differences(
     iprev = i;
     jprev = j;
 
-    if ( x1[i] < x2[j] )
+    if ( cdf1[i] < cdf2[j] )
     {
-      v1 = y1[i++];
+      v1 = x1[i++];
     }
-    else if ( x2[j] < x1[i] )
+    else if ( cdf2[j] < cdf1[i] )
     {
-      v2 = y2[j++];
+      v2 = x2[j++];
     }
     else // les deux positions sont identiques
     {
-      v1 = y1[i++];
-      v2 = y2[j++];
+      v1 = x1[i++];
+      v2 = x2[j++];
     }
 
     diff = v1 - v2;
 
     if ( diff > 0.0 && diff > maxDiffAbove[1] )
     {
-      maxDiffAbove[0] = 0.5 * (x1[iprev]+x2[jprev]);
+      maxDiffAbove[0] = 0.5 * (cdf1[iprev]+cdf2[jprev]);
       maxDiffAbove[1] = diff;
     }
 
     if ( diff < 0.0 && diff < maxDiffBelow[1] )
     {
-      maxDiffBelow[0] = 0.5 * (x1[iprev]+x2[jprev]);
+      maxDiffBelow[0] = 0.5 * (cdf1[iprev]+cdf2[jprev]);
       maxDiffBelow[1] = diff;
     }
   }
@@ -511,70 +511,67 @@ void CDFTools<T>::differences(
 
 template<typename T>
 Vector<T> CDFTools<T>::areasDifference(
-  const Vector<T>& x1,
   const Vector<T>& y1,
-  const Vector<T>& x2,
-  const Vector<T>& y2) const
+  const Vector<T>& x1,
+  const Vector<T>& y2,
+  const Vector<T>& x2) const
 {
-  if ( x1.isIncreasing() == false || x2.isIncreasing() == false )
+  if ( y1.isIncreasing() == false || y2.isIncreasing() == false )
   {
     UsageError usageError;
     usageError.setWhere( "void CDFTools<T>::areasDifference(...) const" );
-    usageError.setWhat( "Non-increasing number sequence passed as cdf" );
+    usageError.setWhat( "The cdf passed is not an increasing number sequence" );
     throw usageError;
   }
 
-  Vector<T> y1copy, y2copy, areasDifference;
+  if ( x1.getSize() != y1.getSize() || x2.getSize() != y2.getSize() )
+  {
+    UsageError usageError;
+    usageError.setWhere( "void CDFTools<T>::areasDifference(...) const" );
+    usageError.setWhat( "The sizes of at least one cdf passed and its repartition function do not match to each other" );
+    usageError.setWhat( "Use Vector<T> CDFTools<T>::cdf(const Vector<T>&) if needed..." );
+    throw usageError;
+  }
 
-  //   |   __/
-  //   |  /   -->x[0]
-  //   | /
-  //   |/____ -->y[0]
+  Vector<T> areasDifference;
+
+  //   |   __|
+  //   |   |   -->y[0] -- y axis
+  //   |  _|
+  //   |_|____ -->x[0]   -- x axis
   //
-  // Vector y needs to be initialized in 0 ( coordinates axis )
-  y1copy.setSize( 1 );
-  y1copy.setZeros();
-  y2copy.setSize( 1 );
-  y2copy.setZeros();
 
-  y1copy.append( y1 );
-  y2copy.append( y2 );
+//  EVAL(y1);
+//  EVAL(x1);
+//  EVAL(y2);
+//  EVAL(x2);
 
   T area1, area2;
   area1 = 0;
   area2 = 0;
 
-  for ( int i = 0; i < x1.getSize(); ++i )
-  {
-    EVAL(area1);
-    area1 += ( y1copy[i]-y1copy[i-1] ) * x1[i] / 2;
-  }
-  for ( int i = 1; i < x1.getSize(); ++i )
-  {
-    EVAL(area1);
-    area1 += ( y1copy[i]-y1copy[i-1] ) * x1[i-1];
-  }
-
-  for ( int i = 0; i < x2.getSize(); ++i )
-    area2 += ( y2copy[i]-y2copy[i-1] ) * x2[i] / 2;
-  for ( int i = 1; i < x2.getSize(); ++i )
-    area2 += ( y2copy[i]-y2copy[i-1] ) * x2[i-1];
-
-  areasDifference.setSize( 4 );
+  for ( int i = 1; i < y1.getSize(); ++i )
+    area1 += ( x1[i]-x1[i-1] ) * y1[i-1];
 
   EVAL(area1);
+
+  for ( int i = 1; i < y2.getSize(); ++i )
+    area2 += ( x2[i]-x2[i-1] ) * y2[i-1];
+
   EVAL(area2);
 
+  // output with 4 indexes
+  areasDifference.setSize( 4 );
 
   // 1) Difference of areas
   areasDifference[0] = abs( area1 - area2 );
   // 2) Difference of areas ^ 2
   areasDifference[1] = abs( pow( area1, 2.) - pow( area2, 2.) );
   // 3) Coefficient between areas
-  if ( area1 > area2 ) areasDifference[2] = area1 / area2;
+  if ( area1 < area2 ) areasDifference[2] = area1 / area2;
   else areasDifference[2] = area2 / area1;
   // 4) Coefficient between areas ^ 2
-  if ( area1 > area2 ) areasDifference[3] = pow( area1, 2.) / pow( area2, 2.);
+  if ( area1 < area2 ) areasDifference[3] = pow( area1, 2.) / pow( area2, 2.);
   else areasDifference[3] = pow( area2, 2.) / pow( area1, 2.);
 
   return areasDifference;
@@ -582,12 +579,12 @@ Vector<T> CDFTools<T>::areasDifference(
 
 
 template<typename T>
-void CDFTools<T>::differences(const Vector<T>& x1, const Vector<T>& x2, Vector<T>& maxDiff) const
+void CDFTools<T>::differences(const Vector<T>& cdf1, const Vector<T>& cdf2, Vector<T>& maxDiff) const
 {
   Vector<T> maxDiffAbove;
   Vector<T> maxDiffBelow;
 
-  differences( x1, x2, maxDiff, maxDiffAbove, maxDiffBelow );
+  differences( cdf1, cdf2, maxDiff, maxDiffAbove, maxDiffBelow );
 }
 
 /*! Positionne une fonction de répartition parmi un ensemble de fonctions

@@ -113,6 +113,7 @@ void evaluator(
     tempTriMeshSpatialModel.setTriMesh( nucleusTriMesh );
     tempTriMeshSpatialModel.initialize();
     Vertices<float> evaluationPositions = tempTriMeshSpatialModel.drawSample( 10000 );
+    //evaluationPositions.save( parentDir + "/" + filename + "_Fpattern-" + ".vx", true); //to check uniformity of the F patterns
 
     SpatialDescriptorFunctionF<float>* spatialDescriptorFunctionF;
     spatialDescriptorFunctionF = new SpatialDescriptorFunctionF<float>();

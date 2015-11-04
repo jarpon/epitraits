@@ -823,9 +823,9 @@ int main(int argc, char* argv[])
         EVAL(filename);
         EVAL(parentDir);
 
-        test2Distributions( filepath, filename, filename );
+        //test2Distributions( filepath, filename, filename );
 
-        //testsStatisticalTests();
+        testsStatisticalTests();
         //doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );

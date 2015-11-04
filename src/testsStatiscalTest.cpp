@@ -197,18 +197,25 @@ void testPattern(
   vector<int> ranks;
   vector<float> maxDiff;
 
+//  //spatialModelEvaluator.eval( pattern1, pValues, ranks );
+//  spatialModelEvaluator.evalSDIandMaxDiff( pattern1, pValues, ranks, maxDiff);
+//  gDataSet.setValue( "F1-SDI", r, pValues[0] );
+//  gDataSet.setValue( "F1-maxDiff", r, maxDiff[0] );
+//  gDataSet.setValue( "G1-SDI", r, pValues[1] );
+//  gDataSet.setValue( "G1-maxDiff", r, maxDiff[1] );
+//  gDataSet.setValue( "H1-SDI", r, pValues[2] );
+//  gDataSet.setValue( "H1-maxDiff", r, maxDiff[2] );
+////  gDataSet.setValue( "B1-SDI", r, pValues[3] );
+////  gDataSet.setValue( "B1-maxDiff", r, maxDiff[3] );
+//  gDataSet.setValue( "C1-SDI", r, pValues[3] );
+//  gDataSet.setValue( "C1-maxDiff", r, maxDiff[3] );
+
   //spatialModelEvaluator.eval( pattern1, pValues, ranks );
-  spatialModelEvaluator.evalSDIandMaxDiff( pattern1, pValues, ranks, maxDiff);
+  spatialModelEvaluator.evalArea( pattern1, pValues);
   gDataSet.setValue( "F1-SDI", r, pValues[0] );
-  gDataSet.setValue( "F1-maxDiff", r, maxDiff[0] );
   gDataSet.setValue( "G1-SDI", r, pValues[1] );
-  gDataSet.setValue( "G1-maxDiff", r, maxDiff[1] );
   gDataSet.setValue( "H1-SDI", r, pValues[2] );
-  gDataSet.setValue( "H1-maxDiff", r, maxDiff[2] );
-//  gDataSet.setValue( "B1-SDI", r, pValues[3] );
-//  gDataSet.setValue( "B1-maxDiff", r, maxDiff[3] );
   gDataSet.setValue( "C1-SDI", r, pValues[3] );
-  gDataSet.setValue( "C1-maxDiff", r, maxDiff[3] );
 
   	EVAL("ok");
  // SpatialDescriptorFunctionF<CoordType> functionF2;
@@ -232,18 +239,25 @@ void testPattern(
   vector<float> pValues2;
   vector<int> ranks2;
   vector<float> maxDiff2;
+//  //spatialModelEvaluator2.eval( pattern2, pValues2, ranks2 );
+//  spatialModelEvaluator2.evalSDIandMaxDiff( pattern2, pValues2, ranks2, maxDiff2 );
+//  gDataSet.setValue( "F2-SDI", r, pValues2[0] );
+//  gDataSet.setValue( "F2-maxDiff", r, maxDiff2[0] );
+//  gDataSet.setValue( "G2-SDI", r, pValues2[1] );
+//  gDataSet.setValue( "G2-maxDiff", r, maxDiff2[1] );
+//  gDataSet.setValue( "H2-SDI", r, pValues2[2] );
+//  gDataSet.setValue( "H2-maxDiff", r, maxDiff2[2] );
+////  gDataSet.setValue( "B1-SDI", r, pValues2[3] );  //function B in 2D seems does not work
+////  gDataSet.setValue( "B1-maxDiff", r, maxDiff2[3] );
+//  gDataSet.setValue( "C2-SDI", r, pValues2[3] );
+//  gDataSet.setValue( "C2-maxDiff", r, maxDiff2[3] );
+
   //spatialModelEvaluator2.eval( pattern2, pValues2, ranks2 );
-  spatialModelEvaluator2.evalSDIandMaxDiff( pattern2, pValues2, ranks2, maxDiff2 );
+  spatialModelEvaluator2.evalArea( pattern2, pValues2 );
   gDataSet.setValue( "F2-SDI", r, pValues2[0] );
-  gDataSet.setValue( "F2-maxDiff", r, maxDiff2[0] );
   gDataSet.setValue( "G2-SDI", r, pValues2[1] );
-  gDataSet.setValue( "G2-maxDiff", r, maxDiff2[1] );
   gDataSet.setValue( "H2-SDI", r, pValues2[2] );
-  gDataSet.setValue( "H2-maxDiff", r, maxDiff2[2] );
-//  gDataSet.setValue( "B1-SDI", r, pValues2[3] );  //function B in 2D seems does not work
-//  gDataSet.setValue( "B1-maxDiff", r, maxDiff2[3] );
-  gDataSet.setValue( "C1-SDI", r, pValues2[3] );
-  gDataSet.setValue( "C1-maxDiff", r, maxDiff2[3] );
+  gDataSet.setValue( "C2-SDI", r, pValues2[3] );
 
   	EVAL("ok");
 

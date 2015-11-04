@@ -22,75 +22,55 @@ void test2Distributions(const string&nameFile1, const string& descriptorName, co
 //  const DataSet file1Dataset( "/home/jarpon/data/projects/testStatisticalTests/newOne_15july/toTest.csv" );
 //  const DataSet file1Dataset( "/home/jarpon/data/projects/testStatisticalTests/newOne_15july/toTest40.csv" );
 
-  Vector<float> descriptorSDI1 = file1Dataset.getValues<float>( "F1-SDI" );
-  Vector<float> descriptorSDI2 = file1Dataset.getValues<float>( "F2-SDI" );
 
-  descriptorSDI1.sort();
-  descriptorSDI2.sort();
+
+  Vector<float> x1 = file1Dataset.getValues<float>( "F1-SDI" );
+  Vector<float> x2 = file1Dataset.getValues<float>( "F2-SDI" );
+
+  x1.sort();
+  x2.sort();
 
   Vector<float> y1, y2;
-//  y1.setSize( ecdf1.getSize() );
-//  y2.setSize( ecdf2.getSize() );
 
   CDFTools<float> cdfTools;
 
-  y1 = cdfTools.cdf( descriptorSDI1 );
-  y2 = cdfTools.cdf( descriptorSDI2 );
+  y1 = cdfTools.cdf( x1 );
+  y2 = cdfTools.cdf( x2 );
 
   Vector<float> differenceBetweenCurves;
-  Vector<float> ecdf1;
-  ecdf1 = cdfTools.cdf( descriptorSDI1, y1 );
-  Vector<float> ecdf2;
-  ecdf2 = cdfTools.cdf( descriptorSDI2, y2 );
-  EVAL(ecdf1);
-  EVAL(ecdf2);
-  EVAL(y1);
-  EVAL(y2);
 
-  differenceBetweenCurves = cdfTools.areasDifference( descriptorSDI1, descriptorSDI2, y1, y2 );
-
+  differenceBetweenCurves = cdfTools.areasDifference( y1, x1, y2, x2 );
   EVAL(differenceBetweenCurves);
 
   //repetition
-  Vector<float> descriptorSDI11 = file1Dataset.getValues<float>( "G1-SDI" );
-  Vector<float> descriptorSDI22 = file1Dataset.getValues<float>( "G2-SDI" );
+  Vector<float> x1G = file1Dataset.getValues<float>( "G1-SDI" );
+  Vector<float> x2G = file1Dataset.getValues<float>( "G2-SDI" );
 
-  descriptorSDI11.sort();
-  descriptorSDI22.sort();
+  x1G.sort();
+  x2G.sort();
 
   y1.setZeros();
   y2.setZeros();
-  y1 = cdfTools.cdf( descriptorSDI11 );
-  y2 = cdfTools.cdf( descriptorSDI22 );
+  y1 = cdfTools.cdf( x1G );
+  y2 = cdfTools.cdf( x2G );
 
-  ecdf1.setZeros();
-  ecdf2.setZeros();
-  ecdf1 = cdfTools.cdf( descriptorSDI11, y1 );
-  ecdf2 = cdfTools.cdf( descriptorSDI22, y2 );
-  EVAL(ecdf2);
-
-  differenceBetweenCurves = cdfTools.areasDifference( descriptorSDI11, descriptorSDI22, y1, y2 );
+  differenceBetweenCurves = cdfTools.areasDifference( y1, x1G, y2, x2G );
 
   EVAL(differenceBetweenCurves);
 
 
-  Vector<float> descriptorSDI1H = file1Dataset.getValues<float>( "H1-SDI" );
-  Vector<float> descriptorSDI2H = file1Dataset.getValues<float>( "H2-SDI" );
+  Vector<float> x1H = file1Dataset.getValues<float>( "H1-SDI" );
+  Vector<float> x2H = file1Dataset.getValues<float>( "H2-SDI" );
 
-  descriptorSDI1H.sort();
-  descriptorSDI2H.sort();
+  x1H.sort();
+  x2H.sort();
 
   y1.setZeros();
   y2.setZeros();
-  y1 = cdfTools.cdf( descriptorSDI1H );
-  y2 = cdfTools.cdf( descriptorSDI2H );
-  ecdf1.setZeros();
-  ecdf2.setZeros();
-  ecdf1 = cdfTools.cdf( descriptorSDI1H, y1 );
-  ecdf2 = cdfTools.cdf( descriptorSDI2H, y2 );
-  EVAL(ecdf2);
+  y1 = cdfTools.cdf( x1H );
+  y2 = cdfTools.cdf( x2H );
 
-  differenceBetweenCurves = cdfTools.areasDifference( descriptorSDI1H, descriptorSDI2H, y1, y2 );
+  differenceBetweenCurves = cdfTools.areasDifference( y1, x1H, y2, x2H );
 
   EVAL(differenceBetweenCurves);
 }
