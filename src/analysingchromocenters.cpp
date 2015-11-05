@@ -12,39 +12,39 @@
 #define TRACE
 #include <trace.h>
 
-PixelMatrix<float> getMaximumIntensity(const VoxelMatrix<float>& ccsMask)
-{
-  const int size1 = ccsMask.getSize1();
-  const int size2 = ccsMask.getSize2();
-  const int size3 = ccsMask.getSize3();
+//PixelMatrix<float> getMaximumIntensity(const VoxelMatrix<float>& ccsMask)
+//{
+//  const int size1 = ccsMask.getSize1();
+//  const int size2 = ccsMask.getSize2();
+//  const int size3 = ccsMask.getSize3();
 
-  PixelMatrix<float> maxIntensity( size1, size2 );
-  maxIntensity.setZeros();
+//  PixelMatrix<float> maxIntensity( size1, size2 );
+//  maxIntensity.setZeros();
 
-  for ( int k = 0; k < size3; ++k )
-  {
-    for (int i = 0; i < size1; ++i )
-    {
-      for ( int j = 0; j < size2; ++j )
-      {
-        if ( maxIntensity(i,j) < ccsMask(i,j,k) )
-          maxIntensity(i,j) = ccsMask(i,j,k);
-      }
-    }
-  }
+//  for ( int k = 0; k < size3; ++k )
+//  {
+//    for (int i = 0; i < size1; ++i )
+//    {
+//      for ( int j = 0; j < size2; ++j )
+//      {
+//        if ( maxIntensity(i,j) < ccsMask(i,j,k) )
+//          maxIntensity(i,j) = ccsMask(i,j,k);
+//      }
+//    }
+//  }
 
-  EVAL(ccsMask.getVoxelCalibration().getVoxelHeight());
-  EVAL(ccsMask.getVoxelCalibration().getVoxelWidth());
-  PixelCalibration  pixelCalibration;
-  pixelCalibration.setPixelHeight( ccsMask.getVoxelCalibration().getVoxelHeight() );
-  pixelCalibration.setPixelWidth( ccsMask.getVoxelCalibration().getVoxelWidth() );
-  pixelCalibration.setLengthUnit( ccsMask.getVoxelCalibration().getLengthUnit() );
+//  EVAL(ccsMask.getVoxelCalibration().getVoxelHeight());
+//  EVAL(ccsMask.getVoxelCalibration().getVoxelWidth());
+//  PixelCalibration  pixelCalibration;
+//  pixelCalibration.setPixelHeight( ccsMask.getVoxelCalibration().getVoxelHeight() );
+//  pixelCalibration.setPixelWidth( ccsMask.getVoxelCalibration().getVoxelWidth() );
+//  pixelCalibration.setLengthUnit( ccsMask.getVoxelCalibration().getLengthUnit() );
 
-  maxIntensity.setPixelCalibration( pixelCalibration );
-  EVAL(maxIntensity.getPixelCalibration().getPixelHeight());
-  EVAL(maxIntensity.getPixelCalibration().getPixelWidth());
-  return maxIntensity;
-}
+//  maxIntensity.setPixelCalibration( pixelCalibration );
+//  EVAL(maxIntensity.getPixelCalibration().getPixelHeight());
+//  EVAL(maxIntensity.getPixelCalibration().getPixelWidth());
+//  return maxIntensity;
+//}
 
 
 void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, const string& parentDir,
@@ -53,8 +53,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 {
   string originalName = filename.substr( 0,filename.find_last_of("-")  );
 
-  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/segmented_nuclei/" + filename + ".vm" );
-  //  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + originalName + ".vm" );
+  //VoxelMatrix<float> originalVoxelMatrix( parentDir + "/segmented_nuclei/" + filename + ".vm" );
+  VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + originalName + ".vm" );
   VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
 
   // for segmented masks with values higher than 1, we need them with 0/1 values
@@ -102,6 +102,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
 
   Vertices<float> centroids = regionAnalysisCCs.regionCentroids();
+  //Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME );
   Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME )/pow(3.,1./2.);//SPF correction
   //Vector<float> ccsEqRadius = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
   Vector<float> ccsEqRadius;
@@ -198,14 +199,10 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     thresholding.setBackground( 0.0 );
     thresholding.levelSetMask( currentLabeledVM, numCC+1 );
     triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
-    VoxelMatrix<float> ccsMask( parentDir + "/segmented_chromocenters/" + filename + ".vm" );
-    triMesh.scale( ccsMask.getVoxelCalibration().getVoxelSize() );
-//    triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
+    triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
     nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
     float distanceToBorder = centroid.distance( vertexTriMesh );
     float ccVolume_tm = fabs(triMesh.volume());
-    //float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
-
     float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> max area correction -> eq radius
 
     chromocentersDataset.setValue ( "equivalentRadius_vm", numCC+totalNumCCs, ccsEqRadius[numCC] );
@@ -248,44 +245,6 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   }
 
-//  for (int i = 0; i < numCompartments; ++i)
-//  {
-//    temp1 = centroids[i];
-
-//    min[i] = 100;
-//    max[i] = 0;
-
-//    for (int j = 0; j < numCompartments; ++j)
-//    {
-//      if ( i != j )
-//      {
-//        {
-//          temp2 = centroids[j];
-//          tempDistance = temp1.distance(temp2);
-//        }
-//        EVAL("here");
-
-//        if ( tempDistance < min[i] )
-//          min[i] = tempDistance;
-//        EVAL("here");
-
-//        if ( tempDistance > max[i] )
-//          max[i] = tempDistance;
-
-//      }
-//    }
-//  }
-
-//  EVAL("here");
-
-//  for (int numCC = 0; numCC < numCompartments; numCC++ )
-//  {
-//    chromocentersDataset.setValue ( "minDistanceToCC", numCC+totalNumCCs, min[numCC] );
-//    chromocentersDataset.setValue ( "maxDistanceToCC", numCC+totalNumCCs, max[numCC] );
-
-//    individualChromocentersDataset.setValue ( "minDistanceToCC", numCC, min[numCC] );
-//    individualChromocentersDataset.setValue ( "maxDistanceToCC", numCC, max[numCC] );
-//  }
   nucleiDataset.setValue ( "minDistanceToCC", numNucleus, chromocentersDataset.getValues<float>("minDistanceToCC").min() );
   nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, chromocentersDataset.getValues<float>("minDistanceToCC").max() );
 

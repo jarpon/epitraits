@@ -504,6 +504,12 @@ int main(int argc, char* argv[])
 
       }
       else cout << "Error opening the image, it must be a VoxelMatrix image " << endl;
+
+      if ( argv[2] == std::string("4") )
+      {
+        nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
+        chromocentersDataset.save(analysisDir + "ccs.csv", true );
+      }
     }
 
     if ( argv[2] == std::string("2") )
