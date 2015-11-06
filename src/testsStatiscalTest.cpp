@@ -56,7 +56,7 @@ vector<int> initNumObjectsS2()
 {
   vector<int> numObjectsS2;
   numObjectsS2.push_back( 10 );
-  for (int s = 20; s <= 1000; s += 10)
+  for (int s = 20; s <= 200; s += 10)
     numObjectsS2.push_back( s );
   return numObjectsS2;
 }
@@ -211,11 +211,20 @@ void testPattern(
 //  gDataSet.setValue( "C1-maxDiff", r, maxDiff[3] );
 
   //spatialModelEvaluator.eval( pattern1, pValues, ranks );
-  spatialModelEvaluator.evalArea( pattern1, pValues);
+  Matrix<float> allpValues(4,2);
+  spatialModelEvaluator.evalArea( pattern1, pValues, allpValues);
   gDataSet.setValue( "F1-SDI", r, pValues[0] );
+  gDataSet.setValue( "F1-maArea", r, allpValues[0][0] );
+  gDataSet.setValue( "F1-obArea", r, allpValues[0][1] );
   gDataSet.setValue( "G1-SDI", r, pValues[1] );
+  gDataSet.setValue( "G1-maArea", r, allpValues[1][0] );
+  gDataSet.setValue( "G1-obArea", r, allpValues[1][1] );
   gDataSet.setValue( "H1-SDI", r, pValues[2] );
+  gDataSet.setValue( "H1-maArea", r, allpValues[2][0] );
+  gDataSet.setValue( "H1-obArea", r, allpValues[2][1] );
   gDataSet.setValue( "C1-SDI", r, pValues[3] );
+  gDataSet.setValue( "C1-maArea", r, allpValues[3][0] );
+  gDataSet.setValue( "C1-obArea", r, allpValues[3][1] );
 
   	EVAL("ok");
  // SpatialDescriptorFunctionF<CoordType> functionF2;
@@ -251,13 +260,27 @@ void testPattern(
 ////  gDataSet.setValue( "B1-maxDiff", r, maxDiff2[3] );
 //  gDataSet.setValue( "C2-SDI", r, pValues2[3] );
 //  gDataSet.setValue( "C2-maxDiff", r, maxDiff2[3] );
+  Matrix<float> allpValues2(4,2);
 
   //spatialModelEvaluator2.eval( pattern2, pValues2, ranks2 );
-  spatialModelEvaluator2.evalArea( pattern2, pValues2 );
+  spatialModelEvaluator2.evalArea( pattern2, pValues2, allpValues2 );
+  EVAL(allpValues2.getSize());
+  EVAL(allpValues2[0][0]);
+  EVAL(allpValues2[0][1]);
+  EVAL(allpValues2[3][0]);
+  EVAL(allpValues2[3][1]);
   gDataSet.setValue( "F2-SDI", r, pValues2[0] );
+  gDataSet.setValue( "F2-maArea", r, allpValues2[0][0] );
+  gDataSet.setValue( "F2-obArea", r, allpValues2[0][1] );
   gDataSet.setValue( "G2-SDI", r, pValues2[1] );
+  gDataSet.setValue( "G2-maArea", r, allpValues2[1][0] );
+  gDataSet.setValue( "G2-obArea", r, allpValues2[1][1] );
   gDataSet.setValue( "H2-SDI", r, pValues2[2] );
+  gDataSet.setValue( "H2-maArea", r, allpValues2[2][0] );
+  gDataSet.setValue( "H2-obArea", r, allpValues2[2][1] );
   gDataSet.setValue( "C2-SDI", r, pValues2[3] );
+  gDataSet.setValue( "C2-maArea", r, allpValues2[3][0] );
+  gDataSet.setValue( "C2-obArea", r, allpValues2[3][1] );
 
   	EVAL("ok");
 
@@ -406,15 +429,15 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
   RandomGenerator randomGenerator;
   spatialModel1.setBoundary( boundary );
   spatialModel1.setRandomGenerator( randomGenerator );
-  spatialModel1.setMargin( 0.2 );
-  //spatialModel1.setMargin( 0.4 );
+  //spatialModel1.setMargin( 0.2 );
+  spatialModel1.setMargin( 0.4 );
   spatialModel1.setMarginProb( marginProb );
   spatialModel1.initialize();
 
   SpatialModelBoundaryInteraction<float> spatialModel2;
   spatialModel2.setBoundary( boundary );
   spatialModel2.setRandomGenerator( randomGenerator );
-  //  spatialModel2.setMargin( 0.1 );
+  //spatialModel2.setMargin( 0.2 );
   spatialModel2.setMargin( 0.4 );
   spatialModel2.setMarginProb( marginProb );
   spatialModel2.initialize();

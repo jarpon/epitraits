@@ -271,6 +271,7 @@ void SpatialModelEvaluator<CoordType,PixelType>::evalArea(
   const ShapeSet<CoordType>& monteCarloSamples1,
   const ShapeSet<CoordType>& monteCarloSamples2,
   float& pValue,
+  Vector<CoordType>& values,
   DataSet* dataSet)
 {
   Vector<CoordType> x, y, yAverage;
@@ -290,12 +291,24 @@ void SpatialModelEvaluator<CoordType,PixelType>::evalArea(
   xEvals.setSequence( _precision );
   yAverage = cdfTools.average( x1, xEvals );
 
-  // [0] is the difference between areas (could be more than 1)
-  // [1] is the difference between areas^2
-  // [2] is the coefficient between areas
-  // [3] is the coefficient between areas^2
-  pValue = cdfTools.areasDifference( cdfTools.cdf(x), x, yAverage, xEvals )[2];
+  // [0] area1
+  // [1] area2
+  // [2] is the difference between areas (could be more than 1)
+  // [3] is the difference between areas^2
+  // [4] is the coefficient between areas
+  // [5] is the coefficient between areas^2
+  Vector<CoordType> allValues;
+  allValues = cdfTools.areasDifference( cdfTools.cdf(x), x, yAverage, xEvals );
 
+  pValue = allValues[4];
+
+  if ( values.getSize() != 0 )
+  {
+    values[0] = allValues[0];
+    values[1] = allValues[1];
+  }
+  EVAL(values[0]);
+  EVAL(values[1]);
   if ( dataSet != 0 )
   {
     Vector<float> percents( 2 );
@@ -326,6 +339,7 @@ template<class CoordType,class PixelType>
 void SpatialModelEvaluator<CoordType,PixelType>::evalArea(
   const Vertices<CoordType>& vertices,
   vector<float>& pValues,
+  Matrix<CoordType>& values,
   DataSet* dataSet)
 {
   const int numVertices = vertices.getSize();
@@ -333,12 +347,18 @@ void SpatialModelEvaluator<CoordType,PixelType>::evalArea(
   ShapeSet<CoordType> monteCarloSamples2;
 
   pValues.resize( _descriptors.size() );
+  if ( ( values.getSize1() != _descriptors.size() ) || ( values.getSize1() != 2 ) )
+    values.setSize( _descriptors.size(), 2 );
 
   monteCarloSamples1 = _model->drawSamples( _numMonteCarloSamples, numVertices );
   monteCarloSamples2 = _model->drawSamples( _numMonteCarloSamples, numVertices );
   EVAL(_descriptors.size());
   for (size_t i = 0; i < _descriptors.size(); ++i)
-    evalArea( vertices, *_descriptors[i], monteCarloSamples1, monteCarloSamples2, pValues[i], i==0?dataSet:0 );
+  {
+    //evalArea( vertices, *_descriptors[i], monteCarloSamples1, monteCarloSamples2, pValues[i], tempValues[i], i==0?dataSet:0 );
+    evalArea( vertices, *_descriptors[i], monteCarloSamples1, monteCarloSamples2, pValues[i], values[i], i==0?dataSet:0 );
+    //values.setRow( i, tempValues[i] );
+  }
 
   monteCarloSamples1.clear();
   monteCarloSamples2.clear();

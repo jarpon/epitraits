@@ -24,7 +24,7 @@ class SpatialModelEvaluator
     Vector<float> evalSDIandMaxDiff(const Vertices<CoordType>&,DataSet* = 0);
     void eval(const Vertices<CoordType>&,vector<float>&,vector<int>&,DataSet* =0);
     void evalSDIandMaxDiff(const Vertices<CoordType>&,vector<float>&,vector<int>&,vector<float>&,DataSet* =0);
-    void evalArea(const Vertices<CoordType>&,vector<float>&,DataSet* =0);
+    void evalArea(const Vertices<CoordType>&,vector<float>&,Matrix<CoordType>&, DataSet* =0);
 
   private:
 
@@ -47,7 +47,7 @@ class SpatialModelEvaluator
       SpatialDescriptor<CoordType>&,
       const ShapeSet<CoordType>&,
       const ShapeSet<CoordType>&,
-      float&,DataSet* =0);
+      float&, Vector<CoordType>&, DataSet* =0);
 
     SpatialModel<CoordType,PixelType>* _model;
     vector<SpatialDescriptor<CoordType>*> _descriptors;

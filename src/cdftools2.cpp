@@ -561,18 +561,20 @@ Vector<T> CDFTools<T>::areasDifference(
   EVAL(area2);
 
   // output with 4 indexes
-  areasDifference.setSize( 4 );
+  areasDifference.setSize( 6 );
+  areasDifference[0] = area1;
+  areasDifference[1] = area2;
 
   // 1) Difference of areas
-  areasDifference[0] = abs( area1 - area2 );
+  areasDifference[2] = abs( area1 - area2 );
   // 2) Difference of areas ^ 2
-  areasDifference[1] = abs( pow( area1, 2.) - pow( area2, 2.) );
+  areasDifference[3] = abs( pow( area1, 2.) - pow( area2, 2.) );
   // 3) Coefficient between areas
   if ( area1 < area2 ) areasDifference[2] = area1 / area2;
-  else areasDifference[2] = area2 / area1;
+  else areasDifference[4] = area2 / area1;
   // 4) Coefficient between areas ^ 2
   if ( area1 < area2 ) areasDifference[3] = pow( area1, 2.) / pow( area2, 2.);
-  else areasDifference[3] = pow( area2, 2.) / pow( area1, 2.);
+  else areasDifference[5] = pow( area2, 2.) / pow( area1, 2.);
 
   return areasDifference;
 }
