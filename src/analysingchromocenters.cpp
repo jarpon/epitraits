@@ -12,41 +12,6 @@
 #define TRACE
 #include <trace.h>
 
-//PixelMatrix<float> getMaximumIntensity(const VoxelMatrix<float>& ccsMask)
-//{
-//  const int size1 = ccsMask.getSize1();
-//  const int size2 = ccsMask.getSize2();
-//  const int size3 = ccsMask.getSize3();
-
-//  PixelMatrix<float> maxIntensity( size1, size2 );
-//  maxIntensity.setZeros();
-
-//  for ( int k = 0; k < size3; ++k )
-//  {
-//    for (int i = 0; i < size1; ++i )
-//    {
-//      for ( int j = 0; j < size2; ++j )
-//      {
-//        if ( maxIntensity(i,j) < ccsMask(i,j,k) )
-//          maxIntensity(i,j) = ccsMask(i,j,k);
-//      }
-//    }
-//  }
-
-//  EVAL(ccsMask.getVoxelCalibration().getVoxelHeight());
-//  EVAL(ccsMask.getVoxelCalibration().getVoxelWidth());
-//  PixelCalibration  pixelCalibration;
-//  pixelCalibration.setPixelHeight( ccsMask.getVoxelCalibration().getVoxelHeight() );
-//  pixelCalibration.setPixelWidth( ccsMask.getVoxelCalibration().getVoxelWidth() );
-//  pixelCalibration.setLengthUnit( ccsMask.getVoxelCalibration().getLengthUnit() );
-
-//  maxIntensity.setPixelCalibration( pixelCalibration );
-//  EVAL(maxIntensity.getPixelCalibration().getPixelHeight());
-//  EVAL(maxIntensity.getPixelCalibration().getPixelWidth());
-//  return maxIntensity;
-//}
-
-
 void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, const string& parentDir,
                            const int& numNucleus, int& totalNumCCs,
                            DataSet& nucleiDataset, DataSet& chromocentersDataset, DataSet& individualChromocentersDataset)
@@ -78,9 +43,6 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   regionAnalysisCCs.setLabelMatrix( ccsMask );
   regionAnalysisCCs.setValueMatrix( originalVoxelMatrix );
   regionAnalysisCCs.run();
-  EVAL (regionAnalysisCCs.numRegions() );
-  EVAL(regionAnalysisCCs.getRegion(1).getLabel());
-
 
   int num = regionAnalysisCCs.condenseRegionLabels();
   regionAnalysisCCs.run();
@@ -103,7 +65,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   Vertices<float> centroids = regionAnalysisCCs.regionCentroids();
   //Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME );
-  Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME )/pow(3.,1./2.);//SPF correction
+  Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME )/pow(3.,1./3.);//SPF correction
   //Vector<float> ccsEqRadius = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
   Vector<float> ccsEqRadius;
   ccsEqRadius.setSize( regionAnalysisCCs.numRegions() );
@@ -167,23 +129,31 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
     centroid = centroids[numCC];
 
-    min[numCC] = FLT_MAX;
-    max[numCC] = FLT_MIN;
-
-    for (int j = 0; j < numCompartments; ++j)
+    if ( numCompartments == 1 )
     {
-      if ( numCC != j )
+      min[numCC] = sqrt(-1);
+      max[numCC] = sqrt(-1);
+    }
+    else
+    {
+      min[numCC] = FLT_MAX;
+      max[numCC] = FLT_MIN;
+
+      for (int j = 0; j < numCompartments; ++j)
       {
+        if ( numCC != j )
         {
-          temp2 = centroids[j];
-          tempDistance = centroid.distance(temp2);
+          {
+            temp2 = centroids[j];
+            tempDistance = centroid.distance(temp2);
+          }
+
+          if ( tempDistance < min[numCC] )
+            min[numCC] = tempDistance;
+
+          if ( tempDistance > max[numCC] )
+            max[numCC] = tempDistance;
         }
-
-        if ( tempDistance < min[numCC] )
-          min[numCC] = tempDistance;
-
-        if ( tempDistance > max[numCC] )
-          max[numCC] = tempDistance;
       }
     }
 
@@ -206,7 +176,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> max area correction -> eq radius
 
     chromocentersDataset.setValue ( "equivalentRadius_vm", numCC+totalNumCCs, ccsEqRadius[numCC] );
-    chromocentersDataset.setValue ( "equivalentRadius_tm", numCC+totalNumCCs, eqRadius_tm );
+    chromocentersDataset.setValue ( "equivalentRadius_tm", numCC+totalNumCCs, eqRadius_tm/pow(3.,1./3.) );
     chromocentersDataset.setValue ( "ccVolume_vm", numCC+totalNumCCs, ccsVolume[numCC] );
     chromocentersDataset.setValue ( "ccVolume_tm", numCC+totalNumCCs, ccVolume_tm );
     chromocentersDataset.setValue ( "distanceToTheBorder", numCC+totalNumCCs, distanceToBorder );
@@ -245,8 +215,9 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   }
 
-  nucleiDataset.setValue ( "minDistanceToCC", numNucleus, chromocentersDataset.getValues<float>("minDistanceToCC").min() );
-  nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, chromocentersDataset.getValues<float>("minDistanceToCC").max() );
+  nucleiDataset.setValue ( "minDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").min() );
+  nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").max() );
+  nucleiDataset.setValue ( "avgeDistanceToTheBorder", numNucleus, individualChromocentersDataset.getValues<float>("distanceToTheBorder").mean() );
 
   totalNumCCs += regionAnalysisCCs.numRegions();
 

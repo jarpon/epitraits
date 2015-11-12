@@ -471,14 +471,7 @@ PixelMatrix<T> RegionAnalysis3D<T>::getLabel2DProjection( const T label) const
         if ( regionMatrix(i,j,k) == label )
           labelProjection(i,j) = 1;
 
-//  if ( region[label].getSize() > 0 )
-//  {
-//    const Vertices<int>& vertices = *region[label]._vertices;
-//    for (int v = 0; v < vertices.getSize(); ++v)
-//        labelProjection(vertices[v]) = 1.0;
-//  }
-
-  PixelCalibration  pixelCalibration;
+  PixelCalibration pixelCalibration;
   pixelCalibration.setPixelHeight( regionMatrix.getVoxelCalibration().getVoxelHeight() );
   pixelCalibration.setPixelWidth( regionMatrix.getVoxelCalibration().getVoxelWidth() );
   pixelCalibration.setLengthUnit( regionMatrix.getVoxelCalibration().getLengthUnit() );
