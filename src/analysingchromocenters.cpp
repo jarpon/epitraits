@@ -52,7 +52,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   float nucleusVolume = fabs(nucleusTriMesh.volume());
 
   //float nucleusVolume = regionAnalysis.computeRegionFeature( REGION_FEATURE_VOLUME )[0];
-  float nucleusIntensity = regionAnalysis.computeRegionFeature( REGION_FEATURE_INTEGRATED_INTENSITY )[0] * nucleusVolume;
+  float nucleusIntensity = regionAnalysis.computeRegionFeature( REGION_FEATURE_SUM_VALUE )[0];
 
   EVAL(nucleusVolume);
 
@@ -65,7 +65,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   Vertices<float> centroids = regionAnalysisCCs.regionCentroids();
   //Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME );
-  Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME )/pow(3.,1./3.);//SPF correction
+  Vector<float> ccsVolume = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_VOLUME );// /pow(3.,1./3.);//SPF correction
   //Vector<float> ccsEqRadius = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )/pow(3.,1./6.);//SPF correction -> sqrt(3) volume correction -> eq radius
   Vector<float> ccsEqRadius;
   ccsEqRadius.setSize( regionAnalysisCCs.numRegions() );
@@ -85,7 +85,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     regionAnalysis2D.run();
     ccsEqRadius[i] = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )[0];// max area correction -> eq radius
 //    ccsEqRadius[i] = regionAnalysis2D.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS )[0]/sqrt(3.);//SPF correction -> max area correction -> eq radius
-    EVAL(ccsEqRadius[i]);
+    //EVAL(ccsEqRadius[i]);
   }
 
   Vector<float> ccsSurfaceArea = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_SURFACE_AREA )/pow(3.,1./4.);//SPF correction
@@ -96,22 +96,10 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   Vector<float> ccsSphericity = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_COMPACTNESS );
   Vector<float> ccsIntensity = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_SUM_VALUE );
   Vector<float> ccsIntegratedDensity = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_INTEGRATED_INTENSITY );
-  EVAL(ccsIntegratedDensity.sum()*ccsVolume.sum())
-      EVAL(ccsIntegratedDensity.sum())
-
-  nucleiDataset.setValue ( "name", numNucleus, filename );//filename
-  nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
-  nucleiDataset.setValue ( "ccsNumber", numNucleus, regionAnalysisCCs.numRegions() );//number of ccs obtained in the nucleus
-  nucleiDataset.setValue ( "avgeCCVolume", numNucleus, ccsVolume.mean() );
-  nucleiDataset.setValue ( "ccsTotalVolume", numNucleus, ccsVolume.sum() );//total ccs volume
-  nucleiDataset.setValue ( "volRHF", numNucleus, ccsVolume.sum()/nucleusVolume );//relative volume of ccs regarding the complete nucleus
-  nucleiDataset.setValue ( "ccsIntensity", numNucleus, ccsIntensity.sum() );//total absolute intensity of ccs
-  nucleiDataset.setValue ( "ccsIntegratedDensity", numNucleus, ccsIntegratedDensity.sum() );//integrated density of ccs taking into account real volume
-  nucleiDataset.setValue ( "intRHF", numNucleus, ( ccsIntensity.sum() ) / nucleusIntensity );//RHF: rate of heterochromatin (int.Density of ccs/ int.Density of nuclei)
-
 
   int numCompartments = regionAnalysisCCs.numRegions();
 
+  Vector<float> ccsVolume_corrected (numCompartments);
   float tempDistance;
   Vector<float> temp1, temp2;
   Vector<float> min, max;
@@ -175,9 +163,12 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     float ccVolume_tm = fabs(triMesh.volume());
     float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> max area correction -> eq radius
 
+    ccsVolume_corrected[numCC] = 4 * M_PI * pow(ccsEqRadius[numCC], 3.) / 3;
+
     chromocentersDataset.setValue ( "equivalentRadius_vm", numCC+totalNumCCs, ccsEqRadius[numCC] );
     chromocentersDataset.setValue ( "equivalentRadius_tm", numCC+totalNumCCs, eqRadius_tm/pow(3.,1./3.) );
     chromocentersDataset.setValue ( "ccVolume_vm", numCC+totalNumCCs, ccsVolume[numCC] );
+    chromocentersDataset.setValue ( "ccVolume_corrected", numCC+totalNumCCs, ccsVolume_corrected[numCC]);
     chromocentersDataset.setValue ( "ccVolume_tm", numCC+totalNumCCs, ccVolume_tm );
     chromocentersDataset.setValue ( "distanceToTheBorder", numCC+totalNumCCs, distanceToBorder );
     chromocentersDataset.setValue ( "ccRelativeVolume", numCC+totalNumCCs, ccVolume_tm/nucleusVolume );
@@ -198,9 +189,10 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     individualChromocentersDataset.setValue ( "centroidCoordY", numCC, centroid[Y] );
     individualChromocentersDataset.setValue ( "centroidCoordZ", numCC, centroid[Z] );
     individualChromocentersDataset.setValue ( "equivalentRadius_vm", numCC, ccsEqRadius[numCC] );
-    individualChromocentersDataset.setValue ( "equivalentRadius_tm", numCC, eqRadius_tm );
+    individualChromocentersDataset.setValue ( "equivalentRadius_tm", numCC, eqRadius_tm/pow(3.,1./3.) );
     individualChromocentersDataset.setValue ( "distanceToTheBorder", numCC, distanceToBorder );
     individualChromocentersDataset.setValue ( "ccVolume_vm", numCC, ccsVolume[numCC] );
+    individualChromocentersDataset.setValue ( "ccVolume_corrected", numCC, ccsVolume_corrected[numCC]);
     individualChromocentersDataset.setValue ( "ccVolume_tm", numCC, ccVolume_tm );
     individualChromocentersDataset.setValue ( "ccRelativeVolume", numCC, ccsVolume[numCC]/ccsVolume.sum() );
     individualChromocentersDataset.setValue ( "flatness", numCC, ccsFlatness[numCC] );
@@ -215,6 +207,16 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   }
 
+  nucleiDataset.setValue ( "name", numNucleus, filename );//filename
+  nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
+  nucleiDataset.setValue ( "ccsNumber", numNucleus, regionAnalysisCCs.numRegions() );//number of ccs obtained in the nucleus
+  nucleiDataset.setValue ( "avgeCCVolume", numNucleus, ccsVolume.mean() );
+  nucleiDataset.setValue ( "ccsTotalVolume", numNucleus, ccsVolume.sum() );//total ccs volume
+  nucleiDataset.setValue ( "volRHF", numNucleus, ccsVolume.sum()/nucleusVolume );//relative volume of ccs regarding the complete nucleus
+  nucleiDataset.setValue ( "volRHF_corrected", numNucleus, ccsVolume_corrected.sum()/nucleusVolume );//relative volume of ccs regarding the complete nucleus
+  nucleiDataset.setValue ( "ccsIntensity", numNucleus, ccsIntensity.sum() );//total absolute intensity of ccs
+  nucleiDataset.setValue ( "ccsIntegratedDensity", numNucleus, ccsIntegratedDensity.sum() );//integrated density of ccs taking into account real volume
+  nucleiDataset.setValue ( "intRHF", numNucleus, ( ccsIntensity.sum() ) / nucleusIntensity );//RHF: rate of heterochromatin (int.Density of ccs/ int.Density of nuclei)
   nucleiDataset.setValue ( "minDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").min() );
   nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").max() );
   nucleiDataset.setValue ( "avgeDistanceToTheBorder", numNucleus, individualChromocentersDataset.getValues<float>("distanceToTheBorder").mean() );
