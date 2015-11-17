@@ -108,6 +108,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   EVAL ( num );
 
+  int problems = 0;
+
 /**///chromocenters individual information
   for (int numCC = 0; numCC < numCompartments; numCC++ )
   {
@@ -205,6 +207,10 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     individualChromocentersDataset.setValue ( "minDistanceToCC", numCC, min[numCC] );
     individualChromocentersDataset.setValue ( "maxDistanceToCC", numCC, max[numCC] );
 
+    //counting problems: here when eqRadius is larger than the distanceToTheBorder
+    if ( eqRadius_tm > distanceToBorder )
+      ++problems;
+
   }
 
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
@@ -220,6 +226,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   nucleiDataset.setValue ( "minDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").min() );
   nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").max() );
   nucleiDataset.setValue ( "avgeDistanceToTheBorder", numNucleus, individualChromocentersDataset.getValues<float>("distanceToTheBorder").mean() );
+  nucleiDataset.setValue ( "problems", numNucleus, problems );
 
   totalNumCCs += regionAnalysisCCs.numRegions();
 
