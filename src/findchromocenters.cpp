@@ -54,8 +54,8 @@ VoxelMatrix <float> findCCs(const VoxelMatrix<float>& originalVoxelMatrix, Voxel
   featureValues.sort();
   Vector <unsigned int> histogram = featureValues.histogram( featureValues.min(), 1, floor(featureValues.max())+1 );
 
-//  float threshold = otsuThresholding.computeThreshold( histogram );
-  float threshold = otsuThresholding.computeThreshold( histogram * 0.8 );
+  float threshold = otsuThresholding.computeThreshold( histogram );
+  //float threshold = otsuThresholding.computeThreshold( histogram * 0.8 );
 
   EVAL(featureValues);
   EVAL(histogram);
