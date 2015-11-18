@@ -407,11 +407,22 @@ void evaluator_sizeConstrained(
     return;
   }
 
-  Vector<float> eqRadii( numCCS );
+  Vector<float> eqRadiiTemp( numCCS );
+  Vector<float> distancesToBorder( numCCS );
   int k = 0;
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-    eqRadii[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
+  {
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+  }
 
+
+  for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+    if ( eqRadiiTemp[i] > distancesToBorder[i] )
+      eqRadiiTemp[i] = distancesToBorder[i];
+
+  const Vector<float> eqRadii = eqRadiiTemp;
   EVAL(eqRadii);
 
   SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
@@ -498,7 +509,8 @@ void evaluator_sizeAndDistanceConstrained(
   int k = 0;
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
   {
-    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
     distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   }
 
@@ -534,10 +546,50 @@ void evaluator_MaximalRepulsionConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+ // const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
+ // const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
+//  EVAL(eqRadii);
+
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+  int lastPos, numCCS = 0;
+
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
+
+  if ( numCCS == 0 )
+  {
+    EVAL("Nucleus not found");
+    return;
+  }
+
+  Vector<float> eqRadiiTemp( numCCS );
+  Vector<float> distancesToBorder( numCCS );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+  {
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+  }
+
+
+  for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+    if ( eqRadiiTemp[i] > distancesToBorder[i] )
+      eqRadiiTemp[i] = distancesToBorder[i];
+
+  const Vector<float> eqRadii = eqRadiiTemp;
   EVAL(eqRadii);
+  EVAL(distancesToBorder);
+
 
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );

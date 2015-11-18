@@ -88,6 +88,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     //EVAL(ccsEqRadius[i]);
   }
 
+  Vector<float> eqRealRadii = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_EQUIVALENT_RADIUS );
   Vector<float> ccsSurfaceArea = regionAnalysisCCs.computeRegionFeature( REGION_FEATURE_SURFACE_AREA )/pow(3.,1./4.);//SPF correction
   //Vector<float> ccsRelativeVolume = ccsVolume.operator *( ccsVolume.sum() );
   //Vector<float> ccsRelativeVolume = ccsVolumeR); //relative volume of cc within the nucleus
@@ -167,8 +168,10 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
     ccsVolume_corrected[numCC] = 4 * M_PI * pow(ccsEqRadius[numCC], 3.) / 3;
 
-    chromocentersDataset.setValue ( "equivalentRadius_vm", numCC+totalNumCCs, ccsEqRadius[numCC] );
+    chromocentersDataset.setValue ( "equivalentRadius", numCC+totalNumCCs, eqRealRadii[numCC] );
+    chromocentersDataset.setValue ( "equivalentRadius_ZprojCorrection", numCC+totalNumCCs, ccsEqRadius[numCC] );
     chromocentersDataset.setValue ( "equivalentRadius_tm", numCC+totalNumCCs, eqRadius_tm/pow(3.,1./3.) );
+    chromocentersDataset.setValue ( "equivalentRadius_PSFVolCorrection", numCC+totalNumCCs, eqRealRadii[numCC]/pow(3.,1./3.) );
     chromocentersDataset.setValue ( "ccVolume_vm", numCC+totalNumCCs, ccsVolume[numCC] );
     chromocentersDataset.setValue ( "ccVolume_corrected", numCC+totalNumCCs, ccsVolume_corrected[numCC]);
     chromocentersDataset.setValue ( "ccVolume_tm", numCC+totalNumCCs, ccVolume_tm );
@@ -190,8 +193,10 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     individualChromocentersDataset.setValue ( "centroidCoordX", numCC, centroid[X] );
     individualChromocentersDataset.setValue ( "centroidCoordY", numCC, centroid[Y] );
     individualChromocentersDataset.setValue ( "centroidCoordZ", numCC, centroid[Z] );
-    individualChromocentersDataset.setValue ( "equivalentRadius_vm", numCC, ccsEqRadius[numCC] );
+    individualChromocentersDataset.setValue ( "equivalentRadius", numCC, eqRealRadii[numCC] );
+    individualChromocentersDataset.setValue ( "equivalentRadius_ZprojCorrection", numCC, ccsEqRadius[numCC] );
     individualChromocentersDataset.setValue ( "equivalentRadius_tm", numCC, eqRadius_tm/pow(3.,1./3.) );
+    individualChromocentersDataset.setValue ( "equivalentRadius_PSFVolCorrection", numCC, eqRealRadii[numCC]/pow(3.,1./3.) );
     individualChromocentersDataset.setValue ( "distanceToTheBorder", numCC, distanceToBorder );
     individualChromocentersDataset.setValue ( "ccVolume_vm", numCC, ccsVolume[numCC] );
     individualChromocentersDataset.setValue ( "ccVolume_corrected", numCC, ccsVolume_corrected[numCC]);
@@ -208,7 +213,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     individualChromocentersDataset.setValue ( "maxDistanceToCC", numCC, max[numCC] );
 
     //counting problems: here when eqRadius is larger than the distanceToTheBorder
-    if ( eqRadius_tm > distanceToBorder )
+    if ( ccsEqRadius[numCC] > distanceToBorder )
       ++problems;
 
   }
