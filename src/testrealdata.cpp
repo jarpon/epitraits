@@ -412,8 +412,8 @@ void evaluator_sizeConstrained(
   int k = 0;
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
   {
-//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
-    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
     distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   }
 
@@ -509,8 +509,8 @@ void evaluator_sizeAndDistanceConstrained(
   int k = 0;
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
   {
-//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
-    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
     distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   }
 
@@ -576,8 +576,8 @@ void evaluator_MaximalRepulsionConstrained(
   int k = 0;
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
   {
-//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_tm", j );
-    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
     distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   }
 
