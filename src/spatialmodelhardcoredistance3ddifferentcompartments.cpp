@@ -24,33 +24,51 @@ SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::SpatialModelHard
 /*! Sets the hardcore distances.
 ****************************************************************/
 template<class CoordType>
-void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::setHardcoreDistances(const Vector<CoordType>& hardcoreDistances)
+void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::setHardcoreDistances(const Vector<CoordType>& hardcoreDistancesDistribution1, const Vector<CoordType>& hardcoreDistancesDistribution2)
 {
-  _hardcoreDistances = hardcoreDistances;
+  _hardcoreDistancesDistribution1 = hardcoreDistancesDistribution1;
+  _hardcoreDistancesDistribution2 = hardcoreDistancesDistribution2;
+  _hardcoreDistances = hardcoreDistancesDistribution1;
+  _hardcoreDistances.append( hardcoreDistancesDistribution2 );
 }
 
-/*! Returns the hardcore distances.
+/*! Returns the hardcore distances of objects kind 1.
 ****************************************************************/
 template<class CoordType>
-const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistances() const
+const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistancesDistribution1() const
 {
-  return _hardcoreDistances;
+  return _hardcoreDistancesDistribution1;
+}
+
+/*! Returns the hardcore distances of objects kind 2.
+****************************************************************/
+template<class CoordType>
+const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistancesDistribution2() const
+{
+  return _hardcoreDistancesDistribution2;
 }
 
 /*! Generates a sample of points respecting the distance constraints.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int numVertices)
+Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int numVerticesDist1, const int numVerticesDist2)
 {
   ENTER( "Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
 
-  if ( numVertices != _hardcoreDistances.getSize() )
+  if ( ( numVerticesDist1 != _hardcoreDistancesDistribution1.getSize() ) || ( numVerticesDist2 != _hardcoreDistancesDistribution2.getSize() ) )
   {
     ProgramError programError;
     programError.setWhere( "void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
-    programError.setWhat( "The number of objects differs from the number of hardcore distances" );
+    programError.setWhat( "At least one of the number of objects differs from their number of hardcore distances" );
     throw programError;
   }
+
+  //new part corresponding to 2 compartments
+  const int numVertices = numVerticesDist1 + numVerticesDist2;
+  _classBelongings.setSize( numVertices );
+  _classBelongings.setOnes();
+  for ( int i = numVerticesDist1; i < numVertices; ++i )
+    _classBelongings[i] = 2;
 
   const int numPermutations = numVertices; // this is arbitrary but works...
   const int maxAttempts = 200;
@@ -104,6 +122,7 @@ void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDist
   const int n = distances.getSize();
   int i1, i2, i;
   CoordType tmp;
+  int o1, o2, tmp2;
 
   for (i = 0; i < n; ++i)
   {
@@ -112,6 +131,12 @@ void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDist
     tmp = distances[i1];
     distances[i1] = distances[i2];
     distances[i2] = tmp;
+
+    //save correspondence to the distribution kind
+    //at the end we want to split the proper objects in the two correct distributions
+    tmp2 = _classBelongings[i1];
+    _classBelongings[i1] = _classBelongings[i2];
+    _classBelongings[i2] = tmp2;
   }
 }
 
