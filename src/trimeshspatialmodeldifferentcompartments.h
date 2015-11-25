@@ -7,11 +7,13 @@
 #include <vertices.h>
 #include <spatialmodel.h>
 #include <trimeshquery.h>
+//#include <trimeshspatialmodel.h>
 
 //using namespace std;
 
 template<class CoordType>
 class TriMeshSpatialModelDifferentCompartments : public SpatialModel<CoordType,float>
+//class TriMeshSpatialModelDifferentCompartments : public TriMeshSpatialModel<float>
 {
   public:
 

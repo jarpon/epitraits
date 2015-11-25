@@ -29,7 +29,6 @@ LIBS = \
 SOURCES += \
     src/main.cpp \
     src/applylabelling.cpp \
-   # src/trimeshspatialmodel.cpp \
     src/spatialmodel.cpp \
     src/spatialdescriptorborder.cpp \
     src/looptest.cpp \
@@ -38,7 +37,6 @@ SOURCES += \
     src/analysingnuclei.cpp \
     src/fixingdata.cpp \
     src/isolatingnuclei.cpp \
- #   src/maximalrepulsion.cpp \
     src/findgenes.cpp \
     src/findchromocenters.cpp \
     src/findnuclei.cpp \
@@ -49,7 +47,6 @@ SOURCES += \
     src/findchromocenters16bits.cpp \
     src/findmorenuclei.cpp \
     src/findnucleoli.cpp \
-  #  src/maxrepulsionwithdistances.cpp \
     src/findnucleicascade.cpp \
     src/analysingnucleoli.cpp \
     src/spatialanalysisnucleoli.cpp \
@@ -62,9 +59,6 @@ SOURCES += \
     src/testsStatiscalTest.cpp \
     src/spatialdescriptorborder2D.cpp \
     src/spatialmodeleval.cpp \
-  #  src/cdftools2.cpp \
- #   src/spatialmodelevaluator2.cpp \
- #   src/trimeshspatialmodel2.cpp \
     src/unifyingobjects.cpp \
     src/spatialdescriptorfunctionhh.cpp \
     src/spatialdescriptorfunctiongg.cpp \
@@ -78,16 +72,12 @@ SOURCES += \
     src/comparedistributions.cpp \
     src/trimeshspatialmodeldifferentcompartments.cpp \
     src/spatialmodelcompleterandomness3ddifferentcompartments.cpp \
-    src/trimeshspatialmodel2.cpp \
     src/spatialmodelhardcoredistance3ddifferentcompartments.cpp \
     src/spatialmodelhardcoreborderdistance3ddifferentcompartments.cpp \
     src/spatialmodelborderdistance3ddifferentcompartments.cpp
 
 HEADERS += \
-   # src/trimeshspatialmodel.h \
     src/spatialdescriptorborder.h \
-#    src/maximalrepulsion.h \
- #   src/maxrepulsionwithdistances.h \
     src/spatialdescriptorcentroid.h \
     src/spatialmodelboundaryinteraction.h \
     src/thresholding.h \
@@ -95,9 +85,6 @@ HEADERS += \
     src/otsuthresholding.h \
     src/voxelmatrix.h \
     src/spatialdescriptorborder2D.h \
- #   src/cdftools2.h \
-  #  src/spatialmodelevaluator2.h \
-  #  src/trimeshspatialmodel2.h \
     src/spatialdescriptorfunctionhh.h \
     src/spatialdescriptorfunctiongg.h \
     src/spatialdescriptorfunctionm.h \
@@ -106,8 +93,8 @@ HEADERS += \
     src/spatialmodelevaluator2.h \
     src/cdftools2.h \
     src/trimeshspatialmodeldifferentcompartments.h \
-    src/spatialmodelhardcoredistance3ddifferentcompartments.h \
     src/spatialmodelcompleterandomness3ddifferentcompartments.h \
     src/spatialmodelhardcoreborderdistance3ddifferentcompartments.h \
-    src/spatialmodelborderdistance3ddifferentcompartments.h
+    src/spatialmodelborderdistance3ddifferentcompartments.h \
+    src/spatialmodelhardcoredistance3ddifferentcompartments.h
 

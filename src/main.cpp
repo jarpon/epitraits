@@ -53,8 +53,8 @@ extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string
 //                          DataSet&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
-//extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
-//                          DataSet&, RandomGenerator&);
+extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
+                          DataSet&, RandomGenerator&);
 //extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
 //                          DataSet&, RandomGenerator&);
 extern void uniformTest(const string&, const string&, DataSet&);
@@ -117,16 +117,17 @@ int main(int argc, char* argv[])
     cout << "               '2' to use G-function" << endl;
     cout << "               '3' to use H-function" << endl;
     cout << "               '4' to use B-function" << endl;
-    cout << "               '4' to use C-function" << endl;
+    cout << "               '5' to use C-function" << endl;
     cout << "                  '0' to not use de complete random model" << endl;
     cout << "                  '1' to use hardcore distances to constrain the model" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
     cout << "                  '3' to use the hardcore and the boundary constraints" << endl;
-    cout << "                  '3' to use maximal repulsion model" << endl;
+    cout << "                  '4' to use maximal repulsion model" << endl;
     cout << "                                                         " << endl;
     cout << "          to study real data:" << endl;
-    cout << "           '7' (to study chromocenters organization) and after choose descriptor" << endl;
-    cout << "           '7-nucleoli' (to study nucleoli organization)  and after choose descriptor" << endl;
+    cout << "           '7' (to study chromocenters organization) and after choose descriptor and model" << endl;
+    cout << "           '7-2' (to study two kinds of organization) and after choose descriptor and model" << endl;
+    cout << "           '7-nucleoli' (to study nucleoli organization) and after choose descriptor and model" << endl;
     cout << "               '1' to use function F" << endl;
     cout << "               '2' to use function G" << endl;
     cout << "               '3' to use function H" << endl;
@@ -607,7 +608,7 @@ int main(int argc, char* argv[])
   /*! Evaluates spatial descriptors
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
+            ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
             ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
@@ -630,12 +631,11 @@ int main(int argc, char* argv[])
     if ( argv[2] == std::string("6") )       test = "2compartments";
     else if ( argv[2] == std::string("7") )  test = "data";
     else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
-    else if ( argv[2] == std::string("7-2distributions") )  test = "2distributions";
+    else if ( argv[2] == std::string("7-2") )  test = "2distributions";
 
     if ( argv[3] == std::string("2") )       function = "G";
     else if ( argv[3] == std::string("3") )  function = "H";
     else if ( argv[3] == std::string("4") )  function = "B";
-    //else if ( argv[3] == std::string("5") )  function = "FMod";
     else if ( argv[3] == std::string("5") )  function = "C";
     else if ( argv[3] == std::string("all") )  function = "all";
     else //if ( argv[3] == std::string("1") )
@@ -703,7 +703,7 @@ int main(int argc, char* argv[])
 //          }
           if  ( test == "2compartments" )
           {
-//            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
             ostringstream oss;
             oss << constraints;
             dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );

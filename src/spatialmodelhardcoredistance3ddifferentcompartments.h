@@ -4,11 +4,11 @@
 #include "trimeshspatialmodeldifferentcompartments.h"
 
 template<class CoordType>
-class SpatialModelHardcoreDistance3DDifferentCompartments : public virtual TriMeshSpatialModelDifferentCompartments<CoordType>
+class SMHardcoreDistance3DDifferentCompartments : public virtual TriMeshSpatialModelDifferentCompartments<CoordType>
 {
   public:
 
-    SpatialModelHardcoreDistance3DDifferentCompartments();
+    SMHardcoreDistance3DDifferentCompartments();
 
     void setHardcoreDistances(const Vector<CoordType>&, const Vector<CoordType>&);
     const Vector<CoordType>& getHardcoreDistancesDistribution1() const;

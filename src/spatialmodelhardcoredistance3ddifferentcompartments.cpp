@@ -1,5 +1,5 @@
 /*!
- * \class  SpatialModelHardcoreDistance3DDifferentCompartments
+ * \class  SMHardcoreDistance3DDifferentCompartments
  * \author Javier Arpón (ja), INRA
  * \author Philippe Andrey (pa), INRA
  * \date   XXXX.XX.XX - creation (ja)
@@ -7,24 +7,24 @@
  * \brief  3D hardcore point process
 ****************************************************************/
 
-#include "spatialmodelhardcoredistance3ddifferentcompartments.h"
+#include "spatialmodelhardcoredistance3ddifferentcompartments2.h"
 
 #include <programerror.h>
 
-//#define TRACE
+#define TRACE
 #include <trace.h>
 
 /*! Constructor.
 ****************************************************************/
 template<class CoordType>
-SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::SpatialModelHardcoreDistance3DDifferentCompartments() : TriMeshSpatialModelDifferentCompartments<CoordType>()
+SMHardcoreDistance3DDifferentCompartments<CoordType>::SMHardcoreDistance3DDifferentCompartments() : TriMeshSpatialModelDifferentCompartments<CoordType>()
 {
 }
 
 /*! Sets the hardcore distances.
 ****************************************************************/
 template<class CoordType>
-void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::setHardcoreDistances(const Vector<CoordType>& hardcoreDistancesDistribution1, const Vector<CoordType>& hardcoreDistancesDistribution2)
+void SMHardcoreDistance3DDifferentCompartments<CoordType>::setHardcoreDistances(const Vector<CoordType>& hardcoreDistancesDistribution1, const Vector<CoordType>& hardcoreDistancesDistribution2)
 {
   _hardcoreDistancesDistribution1 = hardcoreDistancesDistribution1;
   _hardcoreDistancesDistribution2 = hardcoreDistancesDistribution2;
@@ -35,7 +35,7 @@ void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::setHardcore
 /*! Returns the hardcore distances of objects kind 1.
 ****************************************************************/
 template<class CoordType>
-const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistancesDistribution1() const
+const Vector<CoordType>& SMHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistancesDistribution1() const
 {
   return _hardcoreDistancesDistribution1;
 }
@@ -43,7 +43,7 @@ const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<Coo
 /*! Returns the hardcore distances of objects kind 2.
 ****************************************************************/
 template<class CoordType>
-const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistancesDistribution2() const
+const Vector<CoordType>& SMHardcoreDistance3DDifferentCompartments<CoordType>::getHardcoreDistancesDistribution2() const
 {
   return _hardcoreDistancesDistribution2;
 }
@@ -51,24 +51,47 @@ const Vector<CoordType>& SpatialModelHardcoreDistance3DDifferentCompartments<Coo
 /*! Generates a sample of points respecting the distance constraints.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int numVerticesDist1, const int numVerticesDist2)
+Vertices<CoordType> SMHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int numVerticesDist1, const int numVerticesDist2)
 {
-  ENTER( "Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
+  ENTER( "Vertices<CoordType> SMHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
 
   if ( ( numVerticesDist1 != _hardcoreDistancesDistribution1.getSize() ) || ( numVerticesDist2 != _hardcoreDistancesDistribution2.getSize() ) )
   {
     ProgramError programError;
-    programError.setWhere( "void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
+    programError.setWhere( "void SMHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
     programError.setWhat( "At least one of the number of objects differs from their number of hardcore distances" );
     throw programError;
   }
 
   //new part corresponding to 2 compartments
   const int numVertices = numVerticesDist1 + numVerticesDist2;
+  //class 1 and 2
+//  _classBelongings.setSize( numVertices );
+//  _classBelongings.setOnes();
+//  for ( int i = numVerticesDist1; i < numVertices; ++i )
+//    _classBelongings[i] = 2;
+
+  //keep order of classes 1 and 2
   _classBelongings.setSize( numVertices );
-  _classBelongings.setOnes();
-  for ( int i = numVerticesDist1; i < numVertices; ++i )
-    _classBelongings[i] = 2;
+  for ( int i = 0; i < numVerticesDist1; ++i )
+    _classBelongings[i] = i;
+  for ( int j = numVerticesDist1; j < numVertices; ++j )
+    _classBelongings[j] = j;
+  EVAL(_classBelongings);
+
+//  Vertices<int> _classCoordinates( 2, numVertices, 0, 0 );
+  Matrix<int> _classCoordinates( numVertices, 2 );
+
+  for ( int i = 0; i < numVerticesDist1; ++i )
+  {
+    _classCoordinates[i][0] = 1;
+    _classCoordinates[i][1] = i;
+  }
+  for ( int j = numVerticesDist1; j < numVertices; ++j )
+  {
+    _classCoordinates[j][0] = 2;
+    _classCoordinates[j][1] = j;
+  }
 
   const int numPermutations = numVertices; // this is arbitrary but works...
   const int maxAttempts = 200;
@@ -106,7 +129,7 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
   if ( !success )
   {
     Exception exception;
-    exception.setWhere( "void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
+    exception.setWhere( "void SMHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
     exception.setWhat( "Too many unsuccessful attemps to generate a vertex" );
     throw exception;
   }
@@ -117,12 +140,13 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
 }
 
 template<class CoordType>
-void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDistances(Vector<CoordType>& distances)
+void SMHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDistances(Vector<CoordType>& distances)
 {
   const int n = distances.getSize();
   int i1, i2, i;
   CoordType tmp;
   int o1, o2, tmp2;
+
 
   for (i = 0; i < n; ++i)
   {
@@ -137,6 +161,8 @@ void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDist
     tmp2 = _classBelongings[i1];
     _classBelongings[i1] = _classBelongings[i2];
     _classBelongings[i2] = tmp2;
+
+
   }
 }
 
@@ -144,7 +170,7 @@ void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDist
  * already present \c vertices.
 ****************************************************************/
 template<class CoordType>
-bool SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::validInterObjectDistances(
+bool SMHardcoreDistance3DDifferentCompartments<CoordType>::validInterObjectDistances(
   const Vector<CoordType>& vertex,
   const Vertices<CoordType>& vertices,
   const Vector<CoordType>& minimumDistances)
@@ -161,7 +187,7 @@ bool SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::validInterO
 /*! Returns \c true if \c vertex is farther from the border than the specified distance.
 ****************************************************************/
 template<class CoordType>
-bool SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::validObjectToBorderDistance(
+bool SMHardcoreDistance3DDifferentCompartments<CoordType>::validObjectToBorderDistance(
   const Vector<CoordType>& vertex,
   const CoordType& minimumDistance)
 {
@@ -169,6 +195,6 @@ bool SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::validObject
   return this->getTriMeshQuery().closestPoint(vertex,triMeshVertex) >= minimumDistance;
 }
 
-template class SpatialModelHardcoreDistance3DDifferentCompartments<float>;
-template class SpatialModelHardcoreDistance3DDifferentCompartments<double>;
-template class SpatialModelHardcoreDistance3DDifferentCompartments<long double>;
+template class SMHardcoreDistance3DDifferentCompartments<float>;
+template class SMHardcoreDistance3DDifferentCompartments<double>;
+template class SMHardcoreDistance3DDifferentCompartments<long double>;

@@ -10,7 +10,8 @@
 #include <spatialmodelcompleterandomness3d.h>
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
-#include <spatialmodelhardcoredistance3d.h>
+//#include <spatialmodelhardcoredistance3d.h>
+#include "spatialmodelhardcoredistance3ddifferentcompartments.h"
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
