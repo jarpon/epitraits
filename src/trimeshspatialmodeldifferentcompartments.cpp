@@ -1,5 +1,3 @@
-#if 0
-
 #include "trimeshspatialmodeldifferentcompartments.h"
 #include "maximalrepulsion.h"
 
@@ -24,29 +22,11 @@ using namespace std;
 
 
 
-///*! Sets the random number generator to use for generating vertices.
-//****************************************************************/
-//template<class CoordType>
-//void TriMeshSpatialModelDifferentCompartments<CoordType>::setRandomGenerator( RandomGenerator& randomGenerator )
-//{
-//  _randomGenerator = &randomGenerator;
-//}
-
 /*! Initializes all the parameters.
 ****************************************************************/
 template<class CoordType>
 TriMeshSpatialModelDifferentCompartments<CoordType>::TriMeshSpatialModelDifferentCompartments()
 {
-  _triMesh = 0;
-  _numDistributions = 0;
-  _numCompartments = 0;
-//  _volumeRadius = 0;
-//  _volumeRadiusRange.setZeros(2);
-  _hardcoreDistances.setZeros(1);
- // _hardcoreDistancesRange.setZeros(2);
-  _distanceToBorder.setZeros(1);
- // _distanceToBorderRange.setZeros(2);
-  _allDistributionDistancesToTheBorder.setSize( 0 );
 }
 
 /*! Destroys it.
@@ -56,50 +36,35 @@ TriMeshSpatialModelDifferentCompartments<CoordType>::~TriMeshSpatialModelDiffere
 {
 }
 
-/*! Sets the number of compartments to generate
-****************************************************************/
-template<class CoordType>
-void TriMeshSpatialModelDifferentCompartments<CoordType>::setNumberOfCompartments(const int numCompartments)
-{
-  _numCompartments = numCompartments;
-}
-
 /*! Sets the triMesh to work with.
 ****************************************************************/
 template<class CoordType>
 void TriMeshSpatialModelDifferentCompartments<CoordType>::setTriMesh(const TriMesh<CoordType>& triMesh)
 {
-  //_triMesh = &triMesh;
   _triMeshQuery.setTriMesh( triMesh );
-  //_triMesh.computeNormals(); // see in the future if this is needed or need to be changed
 }
+
+template<class CoordType>
+const TriMesh<CoordType>& TriMeshSpatialModelDifferentCompartments<CoordType>::getTriMesh() const
+{
+  return _triMeshQuery.getTriMesh();
+}
+
+template<class CoordType>
+const TriMeshQuery<CoordType>& TriMeshSpatialModelDifferentCompartments<CoordType>::getTriMeshQuery() const
+{
+  return _triMeshQuery;
+}
+
 
 /*! Initializes the class.
 ****************************************************************/
 template<class CoordType>
 void TriMeshSpatialModelDifferentCompartments<CoordType>::initialize()
 {
-  //computes the bounding box of the triMesh and saves it
-  const BoundingBox<CoordType> boundingBox = _triMeshQuery.getTriMesh().boundingBox();
-  //boundingBox.vertices().save( _outputDir + "Nucleus-BB", true );
+  _boundingBox = _triMeshQuery.getTriMesh().boundingBox();
 
-  //_triMeshQuery.setTriMesh( _triMesh );
-
-  xMinBB = boundingBox.min(0);
-  xMaxBB = boundingBox.max(0);
-  yMinBB = boundingBox.min(1);
-  yMaxBB = boundingBox.max(1);
-  zMinBB = boundingBox.min(2);
-  zMaxBB = boundingBox.max(2);
-
-  //shows limits of the boundingBox
-  EVAL(xMinBB);
-  EVAL(xMaxBB);
-  EVAL(yMinBB);
-  EVAL(yMaxBB);
-  EVAL(zMinBB);
-  EVAL(zMaxBB);
-
+#if 0
   //shows the maximum distance to the border that can be used
   float maxDistance = ( boundingBox.max(0) - boundingBox.min(0) )/2;
   for ( int i = 1; i < 3; ++i)
@@ -107,7 +72,36 @@ void TriMeshSpatialModelDifferentCompartments<CoordType>::initialize()
     if ( ( boundingBox.max(i) - boundingBox.min(i) )/2 < maxDistance )
       maxDistance = ( boundingBox.max(i) - boundingBox.min(i) )/2;
   }
-  EVAL(maxDistance)
+  EVAL(maxDistance);
+#endif
+}
+
+/*! Generates a random vertex into the trimesh.
+****************************************************************/
+template<class CoordType>
+void TriMeshSpatialModelDifferentCompartments<CoordType>::drawPosition(Vector<CoordType>& position)
+{
+  RandomGenerator& randomGenerator = this->getRandomGenerator();
+  const Vector<CoordType> v1 = _boundingBox.getVertex1();
+  const Vector<CoordType> v2 = _boundingBox.getVertex2();
+
+  do
+  {
+    position[X] = randomGenerator.uniformLF( v1[X], v2[X] );
+    position[Y] = randomGenerator.uniformLF( v1[Y], v2[Y] );
+    position[Z] = randomGenerator.uniformLF( v1[Z], v2[Z] );
+  } while ( _triMeshQuery.contains(position) == false );
+}
+
+
+#if 0
+
+/*! Sets the number of compartments to generate
+****************************************************************/
+template<class CoordType>
+void TriMeshSpatialModelDifferentCompartments<CoordType>::setNumberOfCompartments(const int numCompartments)
+{
+  _numCompartments = numCompartments;
 }
 
 /*! Sets a unique hardcore distance for all compartments.
@@ -934,9 +928,10 @@ bool TriMeshSpatialModelDifferentCompartments<CoordType>::checkInterObjectDistan
 //#endif
 //}
 
-
-//template class TriMeshSpatialModelDifferentCompartments<double>;
-template class TriMeshSpatialModelDifferentCompartments<float>;
-//template class TriMeshSpatialModelDifferentCompartments<int>;
-
 #endif
+
+
+template class TriMeshSpatialModelDifferentCompartments<double>;
+template class TriMeshSpatialModelDifferentCompartments<float>;
+template class TriMeshSpatialModelDifferentCompartments<long double>;
+
