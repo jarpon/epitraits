@@ -1,10 +1,8 @@
 /*!
  * \class  SpatialModelHardcoreDistance3DDifferentCompartments
  * \author Javier Arpón (ja), INRA
- * \author Philippe Andrey (pa), INRA
- * \date   XXXX.XX.XX - creation (ja)
- * \date   2015.10.12 - integration (pa)
- * \brief  3D hardcore point process
+ * \date   2015.11.26 - creation (ja)
+ * \brief  3D hardcore point process of two kind
 ****************************************************************/
 
 #include "spatialmodelhardcoredistance3ddifferentcompartments.h"
@@ -73,7 +71,10 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
 {
   ENTER( "Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
 
-  if ( ( numVerticesDist1 != _hardcoreDistancesDistribution1.getSize() ) || ( numVerticesDist2 != _hardcoreDistancesDistribution2.getSize() ) )
+  _numVerticesDist1 = numVerticesDist1;
+  _numVerticesDist2 = numVerticesDist2;
+
+  if ( ( _numVerticesDist1 != _hardcoreDistancesDistribution1.getSize() ) || ( _numVerticesDist2 != _hardcoreDistancesDistribution2.getSize() ) )
   {
     ProgramError programError;
     programError.setWhere( "void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
@@ -140,51 +141,53 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
     }
   }
 
+  if ( !success )
+  {
+    Exception exception;
+    exception.setWhere( "void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
+    exception.setWhat( "Too many unsuccessful attemps to generate a vertex" );
+    throw exception;
+  }
+
+  LEAVE();
+
+  return sortVertices( vertices, hardcoreDistancesTemp );
+}
+
+/*! Generates a sample of points respecting the distance constraints.
+****************************************************************/
+template<class CoordType>
+Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::sortVertices( const Vertices<CoordType>& vertices, const Vector<CoordType>& randomOrder )
+{
+  Vector<CoordType> tempOrder = randomOrder;
+  const int numVertices = vertices.getNumVertices();
   int j = 0;
   Vertices<CoordType> tempVerticesDist1 ( 3, 0 );
   Vertices<CoordType> tempVerticesDist2 ( 3, 0 );
-//  _verticesDist1.setSize( numVerticesDist1 );
-//  _verticesDist2.setSize( numVerticesDist2 );
 
   for ( int i = 0; i < numVertices; ++i )
   {
     EVAL(vertices[i]);
   }
 
-  EVAL(numVertices);
-//  for ( int i = 0; i < numVertices; ++i )
-//  {
-//    j = hardcoreDistancesTemp.find( _hardcoreDistances[i] );
-//    EVAL(_hardcoreDistances[i]);
-//    EVAL(j);
-//    EVAL(vertices[j]);
-//    EVAL(_classCoordinates[j][0]);
-////    if ( _classCoordinates[j][0] == 1 )
-//    if ( _classCoordinates[j][1] < numVerticesDist1 )
-//      tempVerticesDist1.append( vertices[j] );
-//    else
-//      tempVerticesDist2.append( vertices[j] );
-//  }
-
   for ( int i = 0; i < numVertices; ++i )
   {
-    j = hardcoreDistancesTemp.find( _hardcoreDistances[i] );
+    j = tempOrder.find( _hardcoreDistances[i] );
     EVAL(_hardcoreDistances[i]);
     EVAL(j);
     EVAL(vertices[j]);
     EVAL(_classCoordinates[j][0]);
-//    if ( _classCoordinates[j][0] == 1 )
-    if ( _classCoordinates[j][1] < numVerticesDist1 )
+    if ( _classCoordinates[j][1] < _numVerticesDist1 )
       tempVerticesDist1.append( vertices[j] );
     else
       tempVerticesDist2.append( vertices[j] );
 
-    hardcoreDistancesTemp[j] = sqrt(-1);
+    tempOrder[j] = sqrt(-1);
   }
 
-  _verticesDist1.setSize( numVerticesDist1 );
+  _verticesDist1.setSize( _numVerticesDist1 );
   _verticesDist1 = tempVerticesDist1;
-  _verticesDist2.setSize( numVerticesDist2 );
+  _verticesDist2.setSize( _numVerticesDist2 );
   _verticesDist2 = tempVerticesDist2;
 
   Vertices<CoordType> sortedVertices;
@@ -196,17 +199,6 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
     EVAL(sortedVertices[i]);
   }
 
-  if ( !success )
-  {
-    Exception exception;
-    exception.setWhere( "void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
-    exception.setWhat( "Too many unsuccessful attemps to generate a vertex" );
-    throw exception;
-  }
-
-  LEAVE();
-
-  //return vertices;
   return sortedVertices;
 }
 

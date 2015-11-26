@@ -17,14 +17,23 @@ class SpatialModelBorderDistance3DDifferentCompartments : public virtual TriMesh
     //Vertices<CoordType> drawSample(const int);
     Vertices<CoordType> drawSample(const int, const int);
 
+    const Vertices<CoordType>& getVerticesDistribution1() const;
+    const Vertices<CoordType>& getVerticesDistribution2() const;
 
   protected:
 
+    Vertices<CoordType> sortVertices(const Vertices<CoordType>&, const Vector<CoordType>&);
+    void shuffleObjects(Vector<CoordType>&);
     void drawPositionFromBorder(Vector<CoordType>&, const CoordType);
 
   private:
 
     Vector<CoordType> _distancesToBorderDistribution1, _distancesToBorderDistribution2, _distancesToBorder, _classBelongings;
+    int _numVerticesDist1, _numVerticesDist2;
+
+    Matrix<int> _classCoordinates;
+    Vertices<CoordType> _verticesDist1;
+    Vertices<CoordType> _verticesDist2;
 };
 
 #endif // SPATIALMODELBORDERDISTANCE3DDIFFERENTCOMPARTMENTS_H

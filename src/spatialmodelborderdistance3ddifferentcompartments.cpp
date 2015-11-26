@@ -1,10 +1,8 @@
 /*!
- * \class  SpatialModelBorderDistance3DDifferentCompartments
+ * \class  SpatialModelHardcoreDistance3DDifferentCompartments
  * \author Javier Arpón (ja), INRA
- * \author Philippe Andrey (pa), INRA
- * \date   XXXX.XX.XX - creation (ja)
- * \date   2015.10.12 - integration (pa)
- * \brief  3D point process with distance-to-border constraint
+ * \date   2015.11.26 - creation (ja)
+ * \brief  3D point process of two classes with distance-to-border constraint
 ****************************************************************/
 
 #include "spatialmodelborderdistance3ddifferentcompartments.h"
@@ -12,6 +10,9 @@
 #include <programerror.h>
 
 #include <cmath>
+
+//#define TRACE
+#include <trace.h>
 
 /*! Constructor.
 ****************************************************************/
@@ -47,15 +48,36 @@ const Vector<CoordType>& SpatialModelBorderDistance3DDifferentCompartments<Coord
   return _distancesToBorderDistribution2;
 }
 
+/*! Returns the vertices of objects kind 1.
+****************************************************************/
+template<class CoordType>
+const Vertices<CoordType>& SpatialModelBorderDistance3DDifferentCompartments<CoordType>::getVerticesDistribution1() const
+{
+  return _verticesDist1;
+}
+
+/*! Returns the vertices of objects kind 2.
+****************************************************************/
+template<class CoordType>
+const Vertices<CoordType>& SpatialModelBorderDistance3DDifferentCompartments<CoordType>::getVerticesDistribution2() const
+{
+  return _verticesDist2;
+}
+
 /*! Generates vertices into the trimesh with a fixed distance to the border.
 ****************************************************************/
 template<class CoordType>
 Vertices<CoordType> SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int numVerticesDist1, const int numVerticesDist2)
 {
+  ENTER("Vertices<CoordType> SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawSample(...)");
+
   //new part corresponding to 2 compartments
+  _numVerticesDist1 = numVerticesDist1;
+  _numVerticesDist2 = numVerticesDist2;
+
   const int numVertices = numVerticesDist1 + numVerticesDist2;
 
-  if ( ( numVerticesDist1 != _distancesToBorderDistribution1.getSize() ) || ( numVerticesDist2 != _distancesToBorderDistribution2.getSize() ) )
+  if ( ( _numVerticesDist1 != _distancesToBorderDistribution1.getSize() ) || ( _numVerticesDist2 != _distancesToBorderDistribution2.getSize() ) )
   {
     ProgramError programError;
     programError.setWhere( "void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );
@@ -63,10 +85,67 @@ Vertices<CoordType> SpatialModelBorderDistance3DDifferentCompartments<CoordType>
     throw programError;
   }
 
+  Vector<CoordType> borderDistancesTemp;
+  borderDistancesTemp = _distancesToBorder;
+
+  shuffleObjects( borderDistancesTemp );
+
   Vertices<CoordType> vertices( 3, numVertices );
   for (int v = 0; v < numVertices; ++v)
-    drawPositionFromBorder( vertices[v] , _distancesToBorder[v] );
-  return vertices;
+    drawPositionFromBorder( vertices[v] , borderDistancesTemp[v] );
+
+
+  LEAVE();
+
+  return sortVertices( vertices, borderDistancesTemp );
+}
+
+/*! Generates a sample of points respecting the distance constraints.
+****************************************************************/
+template<class CoordType>
+Vertices<CoordType> SpatialModelBorderDistance3DDifferentCompartments<CoordType>::sortVertices( const Vertices<CoordType>& vertices, const Vector<CoordType>& randomOrder )
+{
+  Vector<CoordType> tempOrder = randomOrder;
+  const int numVertices = vertices.getNumVertices();
+  int j = 0;
+  Vertices<CoordType> tempVerticesDist1 ( 3, 0 );
+  Vertices<CoordType> tempVerticesDist2 ( 3, 0 );
+
+  for ( int i = 0; i < numVertices; ++i )
+  {
+    EVAL(vertices[i]);
+  }
+
+  for ( int i = 0; i < numVertices; ++i )
+  {
+    j = tempOrder.find( _distancesToBorder[i] );
+    EVAL(_hardcoreDistances[i]);
+    EVAL(j);
+    EVAL(vertices[j]);
+    EVAL(_classCoordinates[j][0]);
+    if ( _classCoordinates[j][1] < _numVerticesDist1 )
+      tempVerticesDist1.append( vertices[j] );
+    else
+      tempVerticesDist2.append( vertices[j] );
+
+    tempOrder[j] = sqrt(-1);
+  }
+
+  _verticesDist1.setSize( _numVerticesDist1 );
+  _verticesDist1 = tempVerticesDist1;
+  _verticesDist2.setSize( _numVerticesDist2 );
+  _verticesDist2 = tempVerticesDist2;
+
+  Vertices<CoordType> sortedVertices;
+  sortedVertices = _verticesDist1;
+  sortedVertices.append( _verticesDist2 );
+
+  for ( int i = 0; i < numVertices; ++i )
+  {
+    EVAL(sortedVertices[i]);
+  }
+
+  return sortedVertices;
 }
 
 /*! Generates a random vertex into the trimesh taking into account a distance to the border.
@@ -108,6 +187,32 @@ void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawPositionF
     exception.setWhere( "void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawPositionFromBorder(...)" );
     exception.setWhat( "Too many unsuccessful attemps to generate a vertex" );
     throw exception;
+  }
+}
+
+template<class CoordType>
+void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::shuffleObjects(Vector<CoordType>& distances)
+{
+  const int n = distances.getSize();
+  int i1, i2, i;
+  CoordType tmp;
+  Vector<int> tmpClass( 2 );
+
+
+  for (i = 0; i < n; ++i)
+  {
+    i1 = this->getRandomGenerator().uniformL( n );
+    i2 = this->getRandomGenerator().uniformL( n );
+    tmp = distances[i1];
+    distances[i1] = distances[i2];
+    distances[i2] = tmp;
+
+    //save correspondence to the distribution kind
+    //at the end we want to split the proper objects in the two correct distributions
+    tmpClass = _classCoordinates.getRow( i1 );
+    _classCoordinates.setRow( i1, _classCoordinates.getRow( i2 ) );
+    _classCoordinates.setRow( i2, tmpClass );
+
   }
 }
 
