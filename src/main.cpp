@@ -701,7 +701,7 @@ int main(int argc, char* argv[])
 ////            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
 ////            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
 //          }
-          if  ( test == "2compartments" )
+          if  ( test == "2distributions" )
           {
             twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
             ostringstream oss;

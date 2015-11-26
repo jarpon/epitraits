@@ -1,22 +1,21 @@
+/*!
+ * \class  TriMeshSpatialModel
+ * \author Javier Arpón (ja), INRA
+ * \author Philippe Andrey (pa), INRA
+ * \date   XXXX.XX.XX - creation (ja)
+ * \date   2015.10.12 - integration (pa)
+ * \brief  Base class for 3D point processes
+****************************************************************/
+
 #include "trimeshspatialmodeldifferentcompartments.h"
-#include "maximalrepulsion.h"
-
-#include <randomgenerator.h>
-#include <boundingbox.h>
-#include <trimesh.h>
-#include <alinevector.h>
-#include <cmath>
-
-#include <trimeshquery.h>
 
 #include <programerror.h>
-#include <dataset.h>
 
-#define TRACE
+#include <cmath>
+
+//#define TRACE
 #include <trace.h>
 #include <sstream>
-
-#include <stopwatch.h>
 
 using namespace std;
 

@@ -74,7 +74,8 @@ SOURCES += \
     src/spatialmodelcompleterandomness3ddifferentcompartments.cpp \
     src/spatialmodelhardcoredistance3ddifferentcompartments.cpp \
     src/spatialmodelhardcoreborderdistance3ddifferentcompartments.cpp \
-    src/spatialmodelborderdistance3ddifferentcompartments.cpp
+    src/spatialmodelborderdistance3ddifferentcompartments.cpp \
+    src/spatialmodel2.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
@@ -96,5 +97,6 @@ HEADERS += \
     src/spatialmodelcompleterandomness3ddifferentcompartments.h \
     src/spatialmodelhardcoreborderdistance3ddifferentcompartments.h \
     src/spatialmodelborderdistance3ddifferentcompartments.h \
-    src/spatialmodelhardcoredistance3ddifferentcompartments.h
+    src/spatialmodelhardcoredistance3ddifferentcompartments.h \
+    src/spatialmodel2.h
 

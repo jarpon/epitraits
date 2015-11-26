@@ -10,10 +10,13 @@ class SpatialModelBorderDistance3DDifferentCompartments : public virtual TriMesh
 
     SpatialModelBorderDistance3DDifferentCompartments();
 
-    void setDistancesToBorder(const Vector<CoordType>&);
-    const Vector<CoordType>& getDistancesToBorder() const;
+    void setDistancesToBorder(const Vector<CoordType>&, const Vector<CoordType>&);
+    const Vector<CoordType>& getDistancesToBorderDistribution1() const;
+    const Vector<CoordType>& getDistancesToBorderDistribution2() const;
 
-    Vertices<CoordType> drawSample(const int);
+    //Vertices<CoordType> drawSample(const int);
+    Vertices<CoordType> drawSample(const int, const int);
+
 
   protected:
 
@@ -21,7 +24,7 @@ class SpatialModelBorderDistance3DDifferentCompartments : public virtual TriMesh
 
   private:
 
-    Vector<CoordType> _distancesToBorder;
+    Vector<CoordType> _distancesToBorderDistribution1, _distancesToBorderDistribution2, _distancesToBorder, _classBelongings;
 };
 
 #endif // SPATIALMODELBORDERDISTANCE3DDIFFERENTCOMPARTMENTS_H

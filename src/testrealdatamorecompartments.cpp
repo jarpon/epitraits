@@ -1,4 +1,6 @@
 #include "spatialmodelhardcoredistance3ddifferentcompartments.h"
+#include "spatialmodelborderdistance3ddifferentcompartments.h"
+#include "spatialmodelhardcoreborderdistance3ddifferentcompartments.h"
 
 #include <dataset.h>
 #include <fileinfo.h>
@@ -29,58 +31,58 @@ void evalDiffCompartments(
   const string& function, const int& constraints,
   DataSet& dataSet, RandomGenerator& randomGenerator)
 {
-//  string classif = parentDir;
-//  classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
-//  //open data info
-//  const string analysisDir = parentDir + "/analysis/";
-////  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-////  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
-//  DataSet globalAnalysis( analysisDir + "nuclei.csv" );
-//  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  string classif = parentDir;
+  classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
+  //open data info
+  const string analysisDir = parentDir + "/analysis/";
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
+  DataSet globalAnalysis( analysisDir + "nuclei.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
-//  Vector<string> tempFileNames;
-//  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
 
-//  int lastPos, numCCS = 0;
+  int lastPos, numCCS = 0;
 
-//  for ( int j = 0; j < tempFileNames.getSize(); ++j )
-//    if ( tempFileNames[j] == filename )
-//    {
-//      lastPos = j;
-//      ++ numCCS;
-//    }
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
 
-//  if ( numCCS == 0 )
-//  {
-//    EVAL("Nucleus not found");
-//    return;
-//  }
+  if ( numCCS == 0 )
+  {
+    EVAL("Nucleus not found");
+    return;
+  }
 
 
-//  Vertices<float> vertices( 3, numCCS, 0, 0 );
-//  int k = 0;
-//  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-//  {
-//    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
-//    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
-//    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
-//    EVAL(vertices[k]);
-//  }
+  Vertices<float> vertices( 3, numCCS, 0, 0 );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+  {
+    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
+    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
+    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+    EVAL(vertices[k]);
+  }
 
-//  Vector<string> nucleiNames ;
-//  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
+  Vector<string> nucleiNames ;
+  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
-//  //unifying datasets
-//  int numCurrentNucleus;
+  //unifying datasets
+  int numCurrentNucleus;
 
-//  for ( int j = 0; j < nucleiNames.getSize(); ++j )
-//    if ( nucleiNames[j] == filename )
-//      numCurrentNucleus = j;
+  for ( int j = 0; j < nucleiNames.getSize(); ++j )
+    if ( nucleiNames[j] == filename )
+      numCurrentNucleus = j;
 
-//  EVAL (numCurrentNucleus);
+  EVAL (numCurrentNucleus);
 
-//  //const int numPoints = vertices.getNumVertices();
-//  const int numPatterns = 99;
+  //const int numPoints = vertices.getNumVertices();
+  const int numPatterns = 99;
 
 //  SpatialModelEvaluator<float,float> modelEvaluator;
 //  modelEvaluator.setModel( triMeshSpatialModelDifferentCompartments );
@@ -370,9 +372,6 @@ void evalDiffCompartments_sizeConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
@@ -412,18 +411,26 @@ void evalDiffCompartments_sizeConstrained(
   const Vector<float> eqRadii = eqRadiiTemp;
   EVAL(eqRadii);
 
-  SMHardcoreDistance3DDifferentCompartments<float> tMeshSpatialModel;
-  tMeshSpatialModel.setRandomGenerator( randomGenerator );
-  tMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  tMeshSpatialModel.setHardcoreDistances( eqRadii, eqRadii );
-  tMeshSpatialModel.initialize();
+  SpatialModelHardcoreDistance3DDifferentCompartments<float> triMeshSpatialModelDifferentCompartments;
+  triMeshSpatialModelDifferentCompartments.setRandomGenerator( randomGenerator );
+  triMeshSpatialModelDifferentCompartments.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModelDifferentCompartments.setHardcoreDistances( eqRadii, eqRadii );
+  triMeshSpatialModelDifferentCompartments.initialize();
+  triMeshSpatialModelDifferentCompartments.drawSample( numCCS, numCCS );
 
-  evalDiffCompartments(
-    nucleusTriMesh,
-    tMeshSpatialModel,
-    filename, parentDir,
-    function, constraints,
-    dataSet, randomGenerator );
+  Vertices<float> dist1, dist2;
+  dist1 = triMeshSpatialModelDifferentCompartments.getVerticesDistribution1();
+  dist2 = triMeshSpatialModelDifferentCompartments.getVerticesDistribution2();
+
+  dist1.save( "/home/jarpon/Desktop/dist1.vx", true );
+  dist2.save( "/home/jarpon/Desktop/dist2.vx", true );
+
+//  evalDiffCompartments(
+//    nucleusTriMesh,
+//    triMeshSpatialModelDifferentCompartments,
+//    filename, parentDir,
+//    function, constraints,
+//    dataSet, randomGenerator );
 }
 
 void evalDiffCompartments_distanceConstrained(
@@ -432,20 +439,20 @@ void evalDiffCompartments_distanceConstrained(
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
 {
-//  PRINT("spatialModelevalDiffCompartments_distanceConstrained");
+  PRINT("spatialModelevalDiffCompartments_distanceConstrained");
 
-//  //open data info
-//  const string analysisDir = parentDir + "/analysis/";
-//  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-//  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
-//  EVAL(distancesToBorder);
+  //open data info
+  const string analysisDir = parentDir + "/analysis/";
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+  EVAL(distancesToBorder);
 
-//  SpatialModelBorderDistance3D<float> triMeshSpatialModelDifferentCompartments;
-//  triMeshSpatialModelDifferentCompartments.setRandomGenerator( randomGenerator );
-//  triMeshSpatialModelDifferentCompartments.setTriMesh( nucleusTriMesh );
-//  triMeshSpatialModelDifferentCompartments.setDistancesToBorder( distancesToBorder );
-//  triMeshSpatialModelDifferentCompartments.initialize();
+//  SpatialModelBorderDistance3DDifferentCompartments<float>* triMeshSpatialModelDifferentCompartments;
+//  triMeshSpatialModelDifferentCompartments->setRandomGenerator( randomGenerator );
+//  triMeshSpatialModelDifferentCompartments->setTriMesh( nucleusTriMesh );
+//  triMeshSpatialModelDifferentCompartments->setDistancesToBorder( distancesToBorder, distancesToBorder );
+//  triMeshSpatialModelDifferentCompartments->initialize();
 
 //  evalDiffCompartments(
 //    nucleusTriMesh,
@@ -461,64 +468,61 @@ void evalDiffCompartments_sizeAndDistanceConstrained(
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
 {
-//  PRINT("spatialModelevalDiffCompartments_sizeAndDistanceConstrained");
+  PRINT("spatialModelevalDiffCompartments_sizeAndDistanceConstrained");
 
-//  //open data info
-//  const string analysisDir = parentDir + "/analysis/";
-//  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-//  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-//  //Vector<float> eqRadiiTemp = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-////  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
-//  //const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+  //open data info
+  const string analysisDir = parentDir + "/analysis/";
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-//  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
-//  Vector<string> tempFileNames;
-//  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
 
-//  int lastPos, numCCS = 0;
+  int lastPos, numCCS = 0;
 
-//  for ( int j = 0; j < tempFileNames.getSize(); ++j )
-//    if ( tempFileNames[j] == filename )
-//    {
-//      lastPos = j;
-//      ++ numCCS;
-//    }
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
 
-//  if ( numCCS == 0 )
-//  {
-//    EVAL("Nucleus not found");
-//    return;
-//  }
+  if ( numCCS == 0 )
+  {
+    EVAL("Nucleus not found");
+    return;
+  }
 
-//  Vector<float> eqRadiiTemp( numCCS );
-//  Vector<float> distancesToBorder( numCCS );
-//  int k = 0;
-//  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-//  {
-//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
-////    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
-//    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
-//  }
+  Vector<float> eqRadiiTemp( numCCS );
+  Vector<float> distancesToBorder( numCCS );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+  {
+    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+  }
 
 
-//  for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
-//    if ( eqRadiiTemp[i] > distancesToBorder[i] )
-//      eqRadiiTemp[i] = distancesToBorder[i];
+  for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+    if ( eqRadiiTemp[i] > distancesToBorder[i] )
+      eqRadiiTemp[i] = distancesToBorder[i];
 
-//  const Vector<float> eqRadii = eqRadiiTemp;
-//  EVAL(eqRadii);
-//  EVAL(distancesToBorder);
+  const Vector<float> eqRadii = eqRadiiTemp;
+  EVAL(eqRadii);
+  EVAL(distancesToBorder);
 
-//  SpatialModelHardcoreBorderDistance3D<float> triMeshSpatialModelDifferentCompartments;
-//  triMeshSpatialModelDifferentCompartments.setRandomGenerator( randomGenerator );
-//  triMeshSpatialModelDifferentCompartments.setTriMesh( nucleusTriMesh );
-//  triMeshSpatialModelDifferentCompartments.setDistancesToBorder( distancesToBorder );
-//  triMeshSpatialModelDifferentCompartments.setHardcoreDistances( eqRadii );
-//  triMeshSpatialModelDifferentCompartments.initialize();
+//  SpatialModelHardcoreBorderDistance3DDifferentCompartments<float>* triMeshSpatialModelDifferentCompartments;
+//  triMeshSpatialModelDifferentCompartments->setRandomGenerator( randomGenerator );
+//  triMeshSpatialModelDifferentCompartments->setTriMesh( nucleusTriMesh );
+//  triMeshSpatialModelDifferentCompartments->setDistancesToBorder( distancesToBorder, distancesToBorder );
+//  triMeshSpatialModelDifferentCompartments->setHardcoreDistances( eqRadii, eqRadii );
+//  triMeshSpatialModelDifferentCompartments->initialize();
+//  triMeshSpatialModelDifferentCompartments->drawSample( distancesToBorder.getSize(), distancesToBorder.getSize() );
 
 //  evalDiffCompartments(
-//    nucleusTriMesh, triMeshSpatialModelDifferentCompartments, filename, parentDir,
+//    nucleusTriMesh, *triMeshSpatialModelDifferentCompartments, filename, parentDir,
 //    function, constraints, dataSet, randomGenerator );
 }
 
@@ -641,6 +645,7 @@ void twoCompartmentsEvaluator(
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
 {
+  ENTER("twoCompartmentsEvaluator(...)")
   switch( constraints )
   {
     case 0:
@@ -680,4 +685,5 @@ void twoCompartmentsEvaluator(
 //      dataSet, randomGenerator );
 //    break;
   }
+  LEAVE();
 }

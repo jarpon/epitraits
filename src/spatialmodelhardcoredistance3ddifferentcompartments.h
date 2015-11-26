@@ -2,19 +2,25 @@
 #define SPATIALMODELHARDCOREDISTANCE3DDIFFERENTCOMPARTMENTS_H
 
 #include "trimeshspatialmodeldifferentcompartments.h"
+//#include <trimeshspatialmodel.h>
+#include <alinematrix.h>
+#include <vertices.h>
 
 template<class CoordType>
-class SMHardcoreDistance3DDifferentCompartments : public virtual TriMeshSpatialModelDifferentCompartments<CoordType>
+class SpatialModelHardcoreDistance3DDifferentCompartments : public virtual TriMeshSpatialModelDifferentCompartments<CoordType>
 {
   public:
 
-    SMHardcoreDistance3DDifferentCompartments();
+    SpatialModelHardcoreDistance3DDifferentCompartments();
 
     void setHardcoreDistances(const Vector<CoordType>&, const Vector<CoordType>&);
     const Vector<CoordType>& getHardcoreDistancesDistribution1() const;
     const Vector<CoordType>& getHardcoreDistancesDistribution2() const;
 
     Vertices<CoordType> drawSample(const int, const int);
+
+    const Vertices<CoordType>& getVerticesDistribution1() const;
+    const Vertices<CoordType>& getVerticesDistribution2() const;
 
   protected:
 
@@ -25,6 +31,9 @@ class SMHardcoreDistance3DDifferentCompartments : public virtual TriMeshSpatialM
   private:
 
     Vector<CoordType> _hardcoreDistancesDistribution1, _hardcoreDistancesDistribution2, _hardcoreDistances, _classBelongings;
+    Matrix<int> _classCoordinates;
+    Vertices<CoordType> _verticesDist1;
+    Vertices<CoordType> _verticesDist2;
 };
 
 #endif // SPATIALMODELHARDCOREDISTANCE3DDIFFERENTCOMPARTMENTS_H

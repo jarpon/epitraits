@@ -5,15 +5,14 @@
 #include <trimesh.h>
 #include <randomgenerator.h>
 #include <vertices.h>
-#include <spatialmodel.h>
+#include "spatialmodel2.h"
 #include <trimeshquery.h>
 //#include <trimeshspatialmodel.h>
 
 //using namespace std;
 
 template<class CoordType>
-class TriMeshSpatialModelDifferentCompartments : public SpatialModel<CoordType,float>
-//class TriMeshSpatialModelDifferentCompartments : public TriMeshSpatialModel<float>
+class TriMeshSpatialModelDifferentCompartments : public SpatialModel2<CoordType,float>
 {
   public:
 

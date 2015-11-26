@@ -10,8 +10,7 @@
 #include <spatialmodelcompleterandomness3d.h>
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
-//#include <spatialmodelhardcoredistance3d.h>
-#include "spatialmodelhardcoredistance3ddifferentcompartments.h"
+#include <spatialmodelhardcoredistance3d.h>
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
@@ -384,9 +383,6 @@ void evaluator_sizeConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-  //const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
@@ -480,10 +476,6 @@ void evaluator_sizeAndDistanceConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  //Vector<float> eqRadiiTemp = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
-//  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
-  //const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
@@ -547,10 +539,6 @@ void evaluator_MaximalRepulsionConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
- // const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-//  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
- // const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
-//  EVAL(eqRadii);
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 

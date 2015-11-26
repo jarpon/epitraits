@@ -23,25 +23,39 @@ SpatialModelBorderDistance3DDifferentCompartments<CoordType>::SpatialModelBorder
 /*! Sets the distances between objects and border.
 ****************************************************************/
 template<class CoordType>
-void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::setDistancesToBorder(const Vector<CoordType>& distancesToBorder)
+void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::setDistancesToBorder(const Vector<CoordType>& distancesToBorderDistribution1, const Vector<CoordType>& distancesToBorderDistribution2)
 {
-  _distancesToBorder = distancesToBorder;
+  _distancesToBorderDistribution1 = distancesToBorderDistribution1;
+  _distancesToBorderDistribution2 = distancesToBorderDistribution2;
+  _distancesToBorder = distancesToBorderDistribution1;
+  _distancesToBorder.append( distancesToBorderDistribution2 );
 }
 
-/*! Returns the distances between objects and border.
+/*! Returns the distances between objects and border of objects class 1.
 ****************************************************************/
 template<class CoordType>
-const Vector<CoordType>& SpatialModelBorderDistance3DDifferentCompartments<CoordType>::getDistancesToBorder() const
+const Vector<CoordType>& SpatialModelBorderDistance3DDifferentCompartments<CoordType>::getDistancesToBorderDistribution1() const
 {
-  return _distancesToBorder;
+  return _distancesToBorderDistribution1;
+}
+
+/*! Returns the distances between objects and border of objects class 2.
+****************************************************************/
+template<class CoordType>
+const Vector<CoordType>& SpatialModelBorderDistance3DDifferentCompartments<CoordType>::getDistancesToBorderDistribution2() const
+{
+  return _distancesToBorderDistribution2;
 }
 
 /*! Generates vertices into the trimesh with a fixed distance to the border.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int numVertices)
+Vertices<CoordType> SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int numVerticesDist1, const int numVerticesDist2)
 {
-  if ( numVertices != _distancesToBorder.getSize() )
+  //new part corresponding to 2 compartments
+  const int numVertices = numVerticesDist1 + numVerticesDist2;
+
+  if ( ( numVerticesDist1 != _distancesToBorderDistribution1.getSize() ) || ( numVerticesDist2 != _distancesToBorderDistribution2.getSize() ) )
   {
     ProgramError programError;
     programError.setWhere( "void SpatialModelBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int)" );

@@ -24,7 +24,7 @@
 // * and fixed distances to the border.
 //****************************************************************/
 //template<class CoordType>
-//Vertices<CoordType> SpatialModelHardcoreBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int numVertices)
+//Vertices<CoordType> SpatialModelHardcoreBorderDistance3DDifferentCompartments<CoordType>::drawSample(const int numVertices, const int numVertices2)
 //{
 //  const Vector<CoordType>& hardcoreDistances = this->getHardcoreDistances();
 //  const Vector<CoordType>& distancesToBorder = this->getDistancesToBorder();
