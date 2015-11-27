@@ -48,7 +48,8 @@ void evaluator(
   const string analysisDir = parentDir + "/analysis/";
 //  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
-  DataSet globalAnalysis( analysisDir + "nuclei.csv" );
+  //DataSet globalAnalysis( analysisDir + "nuclei.csv" );
+  DataSet globalAnalysis( analysisDir + "nuclei_extended.csv" );
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
   Vector<string> tempFileNames;
@@ -263,11 +264,14 @@ void evaluator(
     const int row = dataSet.numRows();
     vector<float> sdis;
     vector<int> ranks;
+    DataSet saveTest;
+
 //    vector<float> maxDiff;
 
     try {
 //    modelEvaluator.evalSDIandMaxDiff( vertices, pValues, ranks, maxDiff);
-    modelEvaluator.eval( vertices, sdis, ranks);
+
+    modelEvaluator.eval( vertices, sdis, ranks, &saveTest );
 
     EVAL( sdis[0] );
     EVAL( sdis[1] );
@@ -322,6 +326,10 @@ void evaluator(
 //    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
     dataSet.setValue( "C-SDI", row, sdis[4] );
 //    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
+
+    ostringstream iss; //we have 4 constraints
+    iss << constraints;
+    saveTest.save( analysisDir + iss.str() + "/" + filename + ".csv", true );
 
     }
     catch( Exception exception ) {

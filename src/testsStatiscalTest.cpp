@@ -211,20 +211,45 @@ void testPattern(
 //  gDataSet.setValue( "C1-maxDiff", r, maxDiff[3] );
 
   //spatialModelEvaluator.eval( pattern1, pValues, ranks );
-  Matrix<float> allpValues(4,2);
-  spatialModelEvaluator.evalArea( pattern1, pValues, allpValues);
+//  Matrix<float> allpValues(4,2);
+//  spatialModelEvaluator.evalArea( pattern1, pValues, allpValues);
+//  gDataSet.setValue( "F1-SDI", r, pValues[0] );
+//  gDataSet.setValue( "F1-maArea", r, allpValues[0][0] );
+//  gDataSet.setValue( "F1-obArea", r, allpValues[0][1] );
+//  gDataSet.setValue( "G1-SDI", r, pValues[1] );
+//  gDataSet.setValue( "G1-maArea", r, allpValues[1][0] );
+//  gDataSet.setValue( "G1-obArea", r, allpValues[1][1] );
+//  gDataSet.setValue( "H1-SDI", r, pValues[2] );
+//  gDataSet.setValue( "H1-maArea", r, allpValues[2][0] );
+//  gDataSet.setValue( "H1-obArea", r, allpValues[2][1] );
+//  gDataSet.setValue( "C1-SDI", r, pValues[3] );
+//  gDataSet.setValue( "C1-maArea", r, allpValues[3][0] );
+//  gDataSet.setValue( "C1-obArea", r, allpValues[3][1] );
+
+  Matrix<float> allpValues(4,4);
+
+  spatialModelEvaluator.evalArea( pattern1, pValues, allpValues );
+
   gDataSet.setValue( "F1-SDI", r, pValues[0] );
-  gDataSet.setValue( "F1-maArea", r, allpValues[0][0] );
-  gDataSet.setValue( "F1-obArea", r, allpValues[0][1] );
+  gDataSet.setValue( "F1-obArea", r, allpValues[0][0] );
+  gDataSet.setValue( "F1-avgArea", r, allpValues[0][1] );
+  gDataSet.setValue( "F1-uppArea", r, allpValues[0][2] );
+  gDataSet.setValue( "F1-lowArea", r, allpValues[0][3] );
   gDataSet.setValue( "G1-SDI", r, pValues[1] );
-  gDataSet.setValue( "G1-maArea", r, allpValues[1][0] );
-  gDataSet.setValue( "G1-obArea", r, allpValues[1][1] );
+  gDataSet.setValue( "G1-obArea", r, allpValues[1][0] );
+  gDataSet.setValue( "G1-avgArea", r, allpValues[1][1] );
+  gDataSet.setValue( "G1-uppArea", r, allpValues[1][2] );
+  gDataSet.setValue( "G1-lowArea", r, allpValues[1][3] );
   gDataSet.setValue( "H1-SDI", r, pValues[2] );
-  gDataSet.setValue( "H1-maArea", r, allpValues[2][0] );
-  gDataSet.setValue( "H1-obArea", r, allpValues[2][1] );
+  gDataSet.setValue( "H1-obArea", r, allpValues[2][0] );
+  gDataSet.setValue( "H1-avgArea", r, allpValues[2][1] );
+  gDataSet.setValue( "H1-uppArea", r, allpValues[2][2] );
+  gDataSet.setValue( "H1-lowArea", r, allpValues[2][3] );
   gDataSet.setValue( "C1-SDI", r, pValues[3] );
-  gDataSet.setValue( "C1-maArea", r, allpValues[3][0] );
-  gDataSet.setValue( "C1-obArea", r, allpValues[3][1] );
+  gDataSet.setValue( "C1-obArea", r, allpValues[3][0] );
+  gDataSet.setValue( "C1-avgArea", r, allpValues[3][1] );
+  gDataSet.setValue( "C1-uppArea", r, allpValues[3][2] );
+  gDataSet.setValue( "C1-lowArea", r, allpValues[3][3] );
 
   	EVAL("ok");
  // SpatialDescriptorFunctionF<CoordType> functionF2;
@@ -260,9 +285,28 @@ void testPattern(
 ////  gDataSet.setValue( "B1-maxDiff", r, maxDiff2[3] );
 //  gDataSet.setValue( "C2-SDI", r, pValues2[3] );
 //  gDataSet.setValue( "C2-maxDiff", r, maxDiff2[3] );
-  Matrix<float> allpValues2(4,2);
+  Matrix<float> allpValues2(4,4);
 
   //spatialModelEvaluator2.eval( pattern2, pValues2, ranks2 );
+//  spatialModelEvaluator2.evalArea( pattern2, pValues2, allpValues2 );
+//  EVAL(allpValues2.getSize());
+//  EVAL(allpValues2[0][0]);
+//  EVAL(allpValues2[0][1]);
+//  EVAL(allpValues2[3][0]);
+//  EVAL(allpValues2[3][1]);
+//  gDataSet.setValue( "F2-SDI", r, pValues2[0] );
+//  gDataSet.setValue( "F2-maArea", r, allpValues2[0][0] );
+//  gDataSet.setValue( "F2-obArea", r, allpValues2[0][1] );
+//  gDataSet.setValue( "G2-SDI", r, pValues2[1] );
+//  gDataSet.setValue( "G2-maArea", r, allpValues2[1][0] );
+//  gDataSet.setValue( "G2-obArea", r, allpValues2[1][1] );
+//  gDataSet.setValue( "H2-SDI", r, pValues2[2] );
+//  gDataSet.setValue( "H2-maArea", r, allpValues2[2][0] );
+//  gDataSet.setValue( "H2-obArea", r, allpValues2[2][1] );
+//  gDataSet.setValue( "C2-SDI", r, pValues2[3] );
+//  gDataSet.setValue( "C2-maArea", r, allpValues2[3][0] );
+//  gDataSet.setValue( "C2-obArea", r, allpValues2[3][1] );
+
   spatialModelEvaluator2.evalArea( pattern2, pValues2, allpValues2 );
   EVAL(allpValues2.getSize());
   EVAL(allpValues2[0][0]);
@@ -270,18 +314,25 @@ void testPattern(
   EVAL(allpValues2[3][0]);
   EVAL(allpValues2[3][1]);
   gDataSet.setValue( "F2-SDI", r, pValues2[0] );
-  gDataSet.setValue( "F2-maArea", r, allpValues2[0][0] );
-  gDataSet.setValue( "F2-obArea", r, allpValues2[0][1] );
+  gDataSet.setValue( "F2-obArea", r, allpValues2[0][0] );
+  gDataSet.setValue( "F2-avgArea", r, allpValues2[0][1] );
+  gDataSet.setValue( "F2-uppArea", r, allpValues2[0][2] );
+  gDataSet.setValue( "F2-lowArea", r, allpValues2[0][3] );
   gDataSet.setValue( "G2-SDI", r, pValues2[1] );
-  gDataSet.setValue( "G2-maArea", r, allpValues2[1][0] );
-  gDataSet.setValue( "G2-obArea", r, allpValues2[1][1] );
+  gDataSet.setValue( "G2-obArea", r, allpValues2[1][0] );
+  gDataSet.setValue( "G2-avgArea", r, allpValues2[1][1] );
+  gDataSet.setValue( "G2-uppArea", r, allpValues2[1][2] );
+  gDataSet.setValue( "G2-lowArea", r, allpValues2[1][3] );
   gDataSet.setValue( "H2-SDI", r, pValues2[2] );
-  gDataSet.setValue( "H2-maArea", r, allpValues2[2][0] );
-  gDataSet.setValue( "H2-obArea", r, allpValues2[2][1] );
+  gDataSet.setValue( "H2-obArea", r, allpValues2[2][0] );
+  gDataSet.setValue( "H2-avgArea", r, allpValues2[2][1] );
+  gDataSet.setValue( "H2-uppArea", r, allpValues2[2][2] );
+  gDataSet.setValue( "H2-lowArea", r, allpValues2[2][3] );
   gDataSet.setValue( "C2-SDI", r, pValues2[3] );
-  gDataSet.setValue( "C2-maArea", r, allpValues2[3][0] );
-  gDataSet.setValue( "C2-obArea", r, allpValues2[3][1] );
-
+  gDataSet.setValue( "C2-obArea", r, allpValues2[3][0] );
+  gDataSet.setValue( "C2-avgArea", r, allpValues2[3][1] );
+  gDataSet.setValue( "C2-uppArea", r, allpValues2[3][2] );
+  gDataSet.setValue( "C2-lowArea", r, allpValues2[3][3] );
   	EVAL("ok");
 
   LEAVE();

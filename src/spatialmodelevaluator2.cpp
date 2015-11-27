@@ -297,18 +297,38 @@ void SpatialModelEvaluator<CoordType,PixelType>::evalArea(
   // [3] is the difference between areas^2
   // [4] is the coefficient between areas
   // [5] is the coefficient between areas^2
-  Vector<CoordType> allValues;
-  allValues = cdfTools.areasDifference( cdfTools.cdf(x), x, yAverage, xEvals );
+//  Vector<CoordType> allValues;
+//  allValues = cdfTools.areasDifference( cdfTools.cdf(x), x, yAverage, xEvals );
+//  pValue = allValues[4];
 
-  pValue = allValues[4];
+  Vector<CoordType> allValues;
+  allValues.setSize(4);
+  allValues[0] = cdfTools.getArea( cdfTools.cdf(x), x);
+  allValues[1] = cdfTools.getArea( yAverage, xEvals );
+
+
+  Vector<float> percents( 2 );
+  percents[0] = 2.5;
+  percents[1] = 97.5;
+  Matrix<CoordType> percentiles = cdfTools.percentiles( x2, xEvals, percents );
+
+  allValues[2] = cdfTools.getArea( percentiles[0], xEvals );
+  allValues[3] = cdfTools.getArea( percentiles[1], xEvals );
+
+  int rank = cdfTools.rank( x, x2, xEvals, yAverage );
+  pValue = 1.0 - static_cast<float>(rank) / (1.0+_numMonteCarloSamples); // OK, checked (pa)
 
   if ( values.getSize() != 0 )
   {
     values[0] = allValues[0];
     values[1] = allValues[1];
+    values[2] = allValues[2];
+    values[3] = allValues[3];
   }
   EVAL(values[0]);
   EVAL(values[1]);
+  EVAL(values[2]);
+  EVAL(values[3]);
   if ( dataSet != 0 )
   {
     Vector<float> percents( 2 );

@@ -508,6 +508,44 @@ void CDFTools<T>::differences(
   maxDiff = maxDiffAbove[1] >= fabs(maxDiffBelow[1])? maxDiffAbove: maxDiffBelow;
 }
 
+template<typename T>
+T CDFTools<T>::getArea(
+  const Vector<T>& y1,
+  const Vector<T>& x1) const
+{
+  if ( y1.isIncreasing() == false )
+  {
+    UsageError usageError;
+    usageError.setWhere( "void CDFTools<T>::areasDifference(...) const" );
+    usageError.setWhat( "The cdf passed is not an increasing number sequence" );
+    throw usageError;
+  }
+
+  if ( x1.getSize() != y1.getSize() )
+  {
+    UsageError usageError;
+    usageError.setWhere( "void CDFTools<T>::areasDifference(...) const" );
+    usageError.setWhat( "The sizes of at least one cdf passed and its repartition function do not match to each other" );
+    usageError.setWhat( "Use Vector<T> CDFTools<T>::cdf(const Vector<T>&) if needed..." );
+    throw usageError;
+  }
+
+  //   |   __|
+  //   |   |   -->y[0] -- y axis
+  //   |  _|
+  //   |_|____ -->x[0]   -- x axis
+  //
+
+  T area = 0;
+
+  for ( int i = 1; i < y1.getSize(); ++i )
+    area += ( x1[i]-x1[i-1] ) * y1[i-1];
+
+  EVAL(area);
+
+  return area;
+}
+
 
 template<typename T>
 Vector<T> CDFTools<T>::areasDifference(

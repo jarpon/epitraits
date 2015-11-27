@@ -48,6 +48,9 @@ class CDFTools
       const Vector<T>&,
       Vector<T>&) const;
 
+    T getArea(
+      const Vector<T>&,
+      const Vector<T>&) const;
     Vector<T> areasDifference(
       const Vector<T>&,
       const Vector<T>&,
