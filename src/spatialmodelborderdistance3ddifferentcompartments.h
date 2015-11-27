@@ -23,7 +23,7 @@ class SpatialModelBorderDistance3DDifferentCompartments : public virtual TriMesh
   protected:
 
     Vertices<CoordType> sortVertices(const Vertices<CoordType>&, const Vector<CoordType>&);
-    void shuffleObjects(Vector<CoordType>&);
+    void shuffleObjectsOrder(Vector<CoordType>&);
     void drawPositionFromBorder(Vector<CoordType>&, const CoordType);
 
   private:

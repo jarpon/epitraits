@@ -84,11 +84,6 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
 
   //new part corresponding to 2 compartments
   const int numVertices = numVerticesDist1 + numVerticesDist2;
-  //class 1 and 2
-//  _classBelongings.setSize( numVertices );
-//  _classBelongings.setOnes();
-//  for ( int i = numVerticesDist1; i < numVertices; ++i )
-//    _classBelongings[i] = 2;
 
   //keep order of classes 1 and 2
   _classCoordinates.setSize( numVertices, 2 );
@@ -117,7 +112,7 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
 
   for (int p = 0; p < numPermutations && !success; ++p)
   {
-    shuffleDistances( hardcoreDistancesTemp );
+    shuffleObjectsOrder( hardcoreDistancesTemp );
     vertices.setSize( 0 );
     success = true;
 
@@ -203,13 +198,12 @@ Vertices<CoordType> SpatialModelHardcoreDistance3DDifferentCompartments<CoordTyp
 }
 
 template<class CoordType>
-void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleDistances(Vector<CoordType>& distances)
+void SpatialModelHardcoreDistance3DDifferentCompartments<CoordType>::shuffleObjectsOrder(Vector<CoordType>& distances)
 {
   const int n = distances.getSize();
   int i1, i2, i;
   CoordType tmp;
   Vector<int> tmpClass( 2 );
-
 
   for (i = 0; i < n; ++i)
   {

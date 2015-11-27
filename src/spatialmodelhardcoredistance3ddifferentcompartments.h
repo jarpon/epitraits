@@ -25,7 +25,7 @@ class SpatialModelHardcoreDistance3DDifferentCompartments : public virtual TriMe
   protected:
 
     Vertices<CoordType> sortVertices(const Vertices<CoordType>&, const Vector<CoordType>&);
-    void shuffleDistances(Vector<CoordType>&);
+    void shuffleObjectsOrder(Vector<CoordType>&);
     bool validObjectToBorderDistance(const Vector<CoordType>&, const CoordType&);
     bool validInterObjectDistances(const Vector<CoordType>&, const Vertices<CoordType>&,const Vector<CoordType>&);
 

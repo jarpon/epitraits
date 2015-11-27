@@ -444,15 +444,47 @@ void evalDiffCompartments_distanceConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
+
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+  int lastPos, numCCS = 0;
+
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
+
+  if ( numCCS == 0 )
+  {
+    EVAL("Nucleus not found");
+    return;
+  }
+
+  Vector<float> distancesToBorder( numCCS );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   EVAL(distancesToBorder);
 
-//  SpatialModelBorderDistance3DDifferentCompartments<float>* triMeshSpatialModelDifferentCompartments;
-//  triMeshSpatialModelDifferentCompartments->setRandomGenerator( randomGenerator );
-//  triMeshSpatialModelDifferentCompartments->setTriMesh( nucleusTriMesh );
-//  triMeshSpatialModelDifferentCompartments->setDistancesToBorder( distancesToBorder, distancesToBorder );
-//  triMeshSpatialModelDifferentCompartments->initialize();
+
+  SpatialModelBorderDistance3DDifferentCompartments<float> triMeshSpatialModelDifferentCompartments;
+  triMeshSpatialModelDifferentCompartments.setRandomGenerator( randomGenerator );
+  triMeshSpatialModelDifferentCompartments.setTriMesh( nucleusTriMesh );
+  triMeshSpatialModelDifferentCompartments.setDistancesToBorder( distancesToBorder, distancesToBorder );
+  triMeshSpatialModelDifferentCompartments.initialize();
+  triMeshSpatialModelDifferentCompartments.drawSample( numCCS, numCCS );
+
+  Vertices<float> dist1, dist2;
+  dist1 = triMeshSpatialModelDifferentCompartments.getVerticesDistribution1();
+  dist2 = triMeshSpatialModelDifferentCompartments.getVerticesDistribution2();
+
+  dist1.save( "/home/jarpon/Desktop/dist1b.vx", true );
+  dist2.save( "/home/jarpon/Desktop/dist2b.vx", true );
 
 //  evalDiffCompartments(
 //    nucleusTriMesh,
