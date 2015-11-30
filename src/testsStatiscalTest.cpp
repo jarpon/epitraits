@@ -480,8 +480,8 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
   RandomGenerator randomGenerator;
   spatialModel1.setBoundary( boundary );
   spatialModel1.setRandomGenerator( randomGenerator );
-  //spatialModel1.setMargin( 0.2 );
-  spatialModel1.setMargin( 0.4 );
+  spatialModel1.setMargin( 0.2 );
+  //spatialModel1.setMargin( 0.4 );
   spatialModel1.setMarginProb( marginProb );
   spatialModel1.initialize();
 
