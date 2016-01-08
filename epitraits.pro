@@ -75,7 +75,8 @@ SOURCES += \
     src/spatialmodelhardcoredistance3ddifferentcompartments.cpp \
     src/spatialmodelhardcoreborderdistance3ddifferentcompartments.cpp \
     src/spatialmodelborderdistance3ddifferentcompartments.cpp \
-    src/spatialmodel2.cpp
+    src/spatialmodel2.cpp \
+    src/getnucleusprojection.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \

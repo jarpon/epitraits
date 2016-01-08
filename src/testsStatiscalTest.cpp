@@ -9,12 +9,16 @@
 #include "spatialmodelboundaryinteraction.h"
 #include <spatialmodelcompleterandomness.h>
 #include "spatialmodelevaluator2.h"
+#include <dataset.h>
 //#include <spatialmodelevaluator.h>
 //#include "spatialdescriptorborder2D.h"
 
+using namespace std;
 
 #include <cmath>
-
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #define CoordType float
 #define PixelType float
 
@@ -307,7 +311,9 @@ void testPattern(
 //  gDataSet.setValue( "C2-maArea", r, allpValues2[3][0] );
 //  gDataSet.setValue( "C2-obArea", r, allpValues2[3][1] );
 
-  spatialModelEvaluator2.evalArea( pattern2, pValues2, allpValues2 );
+//  spatialModelEvaluator2.evalArea( pattern2, pValues2, allpValues2 );
+  DataSet dataset;
+  spatialModelEvaluator2.evalArea( pattern2, pValues2, allpValues2, &dataset );
   EVAL(allpValues2.getSize());
   EVAL(allpValues2[0][0]);
   EVAL(allpValues2[0][1]);
@@ -334,6 +340,10 @@ void testPattern(
   gDataSet.setValue( "C2-uppArea", r, allpValues2[3][2] );
   gDataSet.setValue( "C2-lowArea", r, allpValues2[3][3] );
   	EVAL("ok");
+
+    ostringstream iss; //we have 4 constraints
+    iss <<  setfill('0') << setw(5) << r;
+  dataset.save( "/home/jarpon/data/projects/testStatisticalTests/allAreas_30nov_0.2/" + iss.str() + ".csv", true );
 
   LEAVE();
 }

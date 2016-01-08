@@ -19,6 +19,7 @@
 using namespace std;
 
 extern void testsStatisticalTests();
+extern PixelMatrix<float> getProjection(const VoxelMatrix<float>&);
 extern VoxelMatrix<float> findNucleus(const VoxelMatrix<float>&);
 //extern VoxelMatrix<float> findNucleusCascadeMethod(const VoxelMatrix<float>&,
 //                                                   const string&, const string&);
@@ -90,6 +91,7 @@ int main(int argc, char* argv[])
     cout << "                     , previous processed are assumed already done" << endl;
     cout << "                                                         " << endl;
     cout << "        segmentation and quantification              " << endl;
+    cout << "           '0' to get a Z-projection of the maximum intensity of the nucleus" << endl;
     cout << "           '1' to segment the nucleus" << endl;
     cout << "           '1+' to segment more than one nucleus per image" << endl;
     cout << "           '1c' to segment the nucleus with a cascade method" << endl;
@@ -238,7 +240,8 @@ int main(int argc, char* argv[])
   /*! Run a process from 1 to 4 on each image of the folder.
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("1") || argv[2] == std::string("1a") || argv[2] == std::string("1+") ||  argv[2] == std::string("1c")
+            ( argv[2] == std::string("0")
+              || argv[2] == std::string("1") || argv[2] == std::string("1a") || argv[2] == std::string("1+") ||  argv[2] == std::string("1c")
               || argv[2] == std::string("2")
               || argv[2] == std::string("3") || argv[2] == std::string("3_16b") || argv[2] == std::string("3m")
               || argv[2] == std::string("4") || argv[2] == std::string("4-interdistances") || argv[2] == std::string("4-unify")
@@ -305,7 +308,18 @@ int main(int argc, char* argv[])
         EVAL(filename);
         EVAL(originalVMDir);
 
-        if ( process == "1" )
+        if ( process == "0" )
+        {
+          ENTER("Nuclei maximum intensity Z-projection");
+          VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
+          PixelMatrix<float> nucleusProjection;
+          //nucleusProjection = originalVoxelMatrix.getZProjection();
+          nucleusProjection = getProjection(originalVoxelMatrix);
+          nucleusProjection.saveAsImage( parentDir + "/" + filename + ".vm", true );
+          LEAVE();
+        }
+
+        else if ( process == "1" )
         {
           ENTER("Nuclei segmentation");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
@@ -315,7 +329,7 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
-        if ( process == "1+" )
+        else if ( process == "1+" )
         {
           ENTER("Nuclei segmentation, looking for more than 1 nucleus");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
@@ -325,7 +339,7 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
-        if ( process == "1a" )
+        else if ( process == "1a" )
         {
           ENTER("Nuclei alternative segmentation");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
@@ -335,7 +349,7 @@ int main(int argc, char* argv[])
           LEAVE();
         }
 
-        if ( process == "1c" )
+        else if ( process == "1c" )
         {
           ENTER("Nuclei segmentation with cascade method");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );

@@ -594,7 +594,7 @@ void evaluator_MaximalRepulsionConstrained(
   triMeshSpatialModel.setNumMonteCarloCycles( 2000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
-  triMeshSpatialModel.initializeBeta( eqRadii.getSize() );
+  triMeshSpatialModel.initializeBeta( numCCS );
 
   evaluator(
     nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
