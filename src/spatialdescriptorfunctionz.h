@@ -1,7 +1,7 @@
 #ifndef SPATIALDESCRIPTORFUNCTIONZ_H
 #define SPATIALDESCRIPTORFUNCTIONZ_H
 
-#include "spatialdescriptor.h"
+#include <spatialdescriptor.h>
 
 template<class CoordType>
 class SpatialDescriptorFunctionZ : public SpatialDescriptor<CoordType>

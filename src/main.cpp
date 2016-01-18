@@ -120,6 +120,7 @@ int main(int argc, char* argv[])
     cout << "               '3' to use H-function" << endl;
     cout << "               '4' to use B-function" << endl;
     cout << "               '5' to use C-function" << endl;
+    cout << "               '6' to use Z-function" << endl;
     cout << "                  '0' to not use de complete random model" << endl;
     cout << "                  '1' to use hardcore distances to constrain the model" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
@@ -623,7 +624,7 @@ int main(int argc, char* argv[])
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
             ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
-            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") || argv[3] == std::string("all") ) &&
+            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ||  argv[3] == std::string("6") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
   {
@@ -651,6 +652,7 @@ int main(int argc, char* argv[])
     else if ( argv[3] == std::string("3") )  function = "H";
     else if ( argv[3] == std::string("4") )  function = "B";
     else if ( argv[3] == std::string("5") )  function = "C";
+    else if ( argv[3] == std::string("6") )  function = "Z";
     else if ( argv[3] == std::string("all") )  function = "all";
     else //if ( argv[3] == std::string("1") )
                                              function = "F";

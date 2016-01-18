@@ -12,6 +12,14 @@
 
 #include <cmath>
 
+#define TRACE
+#include <trace.h>
+
+template<class CoordType>
+SpatialDescriptorFunctionZ<CoordType>::SpatialDescriptorFunctionZ() : SpatialDescriptor<CoordType>()
+{
+}
+
 template<class CoordType>
 void SpatialDescriptorFunctionZ<CoordType>::eval(
   const Vertices<CoordType>& vertices,
@@ -22,7 +30,6 @@ void SpatialDescriptorFunctionZ<CoordType>::eval(
   int i, j, k = 0;
   Vector<CoordType> gFunction;
   CoordType threshold, temp;
-
   gFunction = vertices.squareNearestNeighborDistances();
   gFunction.apply( sqrt );
   threshold = gFunction.max();
@@ -34,7 +41,7 @@ void SpatialDescriptorFunctionZ<CoordType>::eval(
     for (j = i+1; j < numVertices; ++j)
     {
       temp = vertices[i].distance( vertices[j] );
-      if ( temp >= threshold )
+      if ( temp > threshold )
         x[k++] = temp;
     }
 

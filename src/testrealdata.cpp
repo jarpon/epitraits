@@ -5,6 +5,7 @@
 #include <spatialdescriptorfunctionh.h>
 #include <spatialdescriptorfunctionb.h>
 #include <spatialdescriptorfunctionc.h>
+#include "spatialdescriptorfunctionz.h"
 #include <spatialmodelmaximalrepulsion3d.h>
 #include "maxrepulsionwithdistances.h"
 #include <spatialmodelcompleterandomness3d.h>
@@ -139,6 +140,9 @@ void evaluator(
     spatialDescriptorFunctionC->setCenter( nucleusTriMesh.cog() );
     spatialDescriptor = spatialDescriptorFunctionC;
     modelEvaluator.addDescriptor( *spatialDescriptor );
+
+//    spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
+//    modelEvaluator.addDescriptor( *spatialDescriptor );
   }
   else if ( function == "G" )
   {
@@ -165,6 +169,14 @@ void evaluator(
     spatialDescriptorFunctionC = new SpatialDescriptorFunctionC<float>();
     spatialDescriptorFunctionC->setCenter( nucleusTriMesh.cog() );
     spatialDescriptor = spatialDescriptorFunctionC;
+  }
+  else if ( function == "Z" )
+  {
+    PRINT("Z");
+//    SpatialDescriptorFunctionZ<float>* spatialDescriptorFunctionZ;
+//    //spatialDescriptorFunctionZ = new SpatialDescriptorFunctionZ<float>();
+//    spatialDescriptor = spatialDescriptorFunctionZ;
+    spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
   }
   else //if ( function == "F" )
   {
@@ -216,6 +228,7 @@ void evaluator(
     DataSet saveTest;
     try {
       sdi = modelEvaluator.eval( vertices, &saveTest );
+      EVAL(sdi);
 
   //    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
   //    EVAL( output[0] );
