@@ -141,8 +141,8 @@ void evaluator(
     spatialDescriptor = spatialDescriptorFunctionC;
     modelEvaluator.addDescriptor( *spatialDescriptor );
 
-//    spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
-//    modelEvaluator.addDescriptor( *spatialDescriptor );
+    spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
+    modelEvaluator.addDescriptor( *spatialDescriptor );
   }
   else if ( function == "G" )
   {
@@ -173,9 +173,6 @@ void evaluator(
   else if ( function == "Z" )
   {
     PRINT("Z");
-//    SpatialDescriptorFunctionZ<float>* spatialDescriptorFunctionZ;
-//    //spatialDescriptorFunctionZ = new SpatialDescriptorFunctionZ<float>();
-//    spatialDescriptor = spatialDescriptorFunctionZ;
     spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
   }
   else //if ( function == "F" )
@@ -291,6 +288,7 @@ void evaluator(
     EVAL( sdis[2] );
     EVAL( sdis[3] );
     EVAL( sdis[4] );
+    EVAL( sdis[5] );
 
     string newVariable;
     switch ( constraints )
@@ -325,6 +323,10 @@ void evaluator(
         globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sqrt(-1) );
       else
         globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sdis[jj] );
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 5 ) )
+        globalAnalysis.setValue( newVariable + "Z-SDI", numCurrentNucleus, sqrt(-1) );
+      else
+        globalAnalysis.setValue( newVariable + "Z-SDI", numCurrentNucleus, sdis[jj] );
     }
 
     dataSet.setValue( "nucleus", row, filename );
@@ -339,6 +341,8 @@ void evaluator(
 //    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
     dataSet.setValue( "C-SDI", row, sdis[4] );
 //    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
+    dataSet.setValue( "Z-SDI", row, sdis[4] );
+//    dataSet.setValue( "Z-maxDiff", row, maxDiff[5] );
 
     ostringstream iss; //we have 4 constraints
     iss << constraints;

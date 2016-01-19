@@ -13,6 +13,8 @@
 #include <sstream>
 #include <programerror.h>
 #include <stopwatch.h>
+#include<stdio.h>
+#include <stdlib.h>
 
 #define TRACE
 #include <trace.h>
@@ -52,12 +54,14 @@ extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string
 //                          const string&, const string&, const int& );
 //extern void spatialModelEvaluator(const string&, const string&, const string&, const int,
 //                          DataSet&, RandomGenerator&);
+extern void generatePatterns(const string&, const string&,
+                             const int&, const int&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
 extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
-//extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
-//                          DataSet&, RandomGenerator&);
+extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
+                          DataSet&, RandomGenerator&);
 extern void uniformTest(const string&, const string&, DataSet&);
 extern VoxelMatrix<float> isolateNuclei(const VoxelMatrix<float>&,
                                         const string&, const string&);
@@ -113,21 +117,29 @@ int main(int argc, char* argv[])
     cout << "          '12' to analyze the nucleoli" << endl;
     cout << "                                                          " << endl;
     cout << "         spatial analysis (test and process real data)              " << endl;
-    cout << "         to test model methods themself:" << endl;
-    cout << "           '6' and after choose descriptor and constraints" << endl;
-    cout << "               '1' to use F-function" << endl;
-    cout << "               '2' to use G-function" << endl;
-    cout << "               '3' to use H-function" << endl;
-    cout << "               '4' to use B-function" << endl;
-    cout << "               '5' to use C-function" << endl;
-    cout << "               '6' to use Z-function" << endl;
-    cout << "                  '0' to not use de complete random model" << endl;
+    //cout << "         to test model methods themself:" << endl;
+    //cout << "           '6' and after choose descriptor and constraints" << endl;
+    cout << "           '6' to generate patterns according to the following spatial models" << endl;
+    cout << "               '#' introduce the number of Monte Carlo simulations to be generated" << endl;
+    cout << "                  '0' to use de complete random model" << endl;
     cout << "                  '1' to use hardcore distances to constrain the model" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
     cout << "                  '3' to use the hardcore and the boundary constraints" << endl;
     cout << "                  '4' to use maximal repulsion model" << endl;
     cout << "                                                         " << endl;
     cout << "          to study real data:" << endl;
+    cout << "               '1' to use F-function" << endl;
+    cout << "               '2' to use G-function" << endl;
+    cout << "               '3' to use H-function" << endl;
+    cout << "               '4' to use B-function" << endl;
+    cout << "               '5' to use C-function" << endl;
+    cout << "               '6' to use Z-function" << endl;
+    cout << "                  '0' to use de complete random model" << endl;
+    cout << "                  '1' to use hardcore distances to constrain the model" << endl;
+    cout << "                  '2' to use distances to the border constraints" << endl;
+    cout << "                  '3' to use the hardcore and the boundary constraints" << endl;
+    cout << "                  '4' to use maximal repulsion model" << endl;
+    cout << "                                                         " << endl;
     cout << "           '7' (to study chromocenters organization) and after choose descriptor and model" << endl;
     cout << "           '7-2' (to study two kinds of organization) and after choose descriptor and model" << endl;
     cout << "           '7-nucleoli' (to study nucleoli organization) and after choose descriptor and model" << endl;
@@ -624,7 +636,7 @@ int main(int argc, char* argv[])
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
             ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
-            ( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ||  argv[3] == std::string("6") || argv[3] == std::string("all") ) &&
+            //( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ||  argv[3] == std::string("6") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
   {
@@ -640,15 +652,17 @@ int main(int argc, char* argv[])
     //introduce HERE the number of patterns to generate for each nucleus;
 //    const int numPatterns = 99;
     string test, function;
-    int constraints;
+    int constraints, numMS;
 
     //if ( argv[2] == std::string("6") )       test = "model";
-    if ( argv[2] == std::string("6") )       test = "2compartments";
+    //if ( argv[2] == std::string("6") )       test = "2compartments";
+    if ( argv[2] == std::string("6") )       test = "generatePatterns";
     else if ( argv[2] == std::string("7") )  test = "data";
     else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
     else if ( argv[2] == std::string("7-2") )  test = "2distributions";
 
-    if ( argv[3] == std::string("2") )       function = "G";
+    if ( argv[2] == std::string("6") )       numMS = atoi(argv[3]);
+    else if ( argv[3] == std::string("2") )  function = "G";
     else if ( argv[3] == std::string("3") )  function = "H";
     else if ( argv[3] == std::string("4") )  function = "B";
     else if ( argv[3] == std::string("5") )  function = "C";
@@ -663,8 +677,6 @@ int main(int argc, char* argv[])
     else if ( argv[4] == std::string("3") )  constraints = 3;
     else if ( argv[4] == std::string("4") )  constraints = 4;
     else if ( argv[4] == std::string("5") )  constraints = 5;
-
-
 
     // if we got enough parameters and options...
     for ( int i = 5 ; i < argc; ++i)
@@ -717,12 +729,16 @@ int main(int argc, char* argv[])
 ////            dataSet.save(analysisDir + oss.str() + "/" + function + "/" + filename + "_model.csv", true );
 ////            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
 //          }
-          if  ( test == "2distributions" )
+//          if  ( test == "2distributions" )
+//          {
+//            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+//            ostringstream oss;
+//            oss << constraints;
+//            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
+//          }
+          if  ( test == "generatePatterns" )
           {
-            twoCompartmentsEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
-            ostringstream oss;
-            oss << constraints;
-            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
+            generatePatterns( filename, parentDir, constraints, numMS, randomGenerator );
           }
           else if ( test == "data" )
           {
@@ -741,7 +757,7 @@ int main(int argc, char* argv[])
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );
             //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
-//            nucleoliEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
+            nucleoliEvaluator( filename, parentDir, function, constraints, dataSet, randomGenerator );
 
             //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
 
@@ -847,7 +863,7 @@ int main(int argc, char* argv[])
 
         //test2Distributions( filepath, filename, filename );
 
-        testsStatisticalTests();
+   //     testsStatisticalTests();
         //doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
