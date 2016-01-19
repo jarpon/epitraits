@@ -330,25 +330,25 @@ void generatePatterns(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
-//    case 1:
-//      evaluator_sizeConstrained(
-//        filename, parentDir,
-//        monteCarloSimulations, randomGenerator );
-//      break;
-//    case 2:
-//      evaluator_distanceConstrained(
-//        filename, parentDir,
-//        monteCarloSimulations, randomGenerator );
-//      break;
-//    case 3:
-//      evaluator_sizeAndDistanceConstrained(
-//        filename, parentDir,
-//        monteCarloSimulations, randomGenerator );
-//      break;
-//    case 4:
-//      evaluator_MaximalRepulsionConstrained(
-//        filename, parentDir,
-//        monteCarloSimulations, randomGenerator );
-//      break;
+    case 1:
+      evaluator_sizeConstrained(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 2:
+      evaluator_distanceConstrained(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 3:
+      evaluator_sizeAndDistanceConstrained(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 4:
+      evaluator_MaximalRepulsionConstrained(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
   }
 }
