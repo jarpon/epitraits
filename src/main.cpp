@@ -665,15 +665,16 @@ int main(int argc, char* argv[])
     else if ( argv[2] == std::string("7-2") )  test = "2distributions";
 
     if ( argv[2] == std::string("6") )       numMS = atoi(argv[3]);
-    else {
-    if ( argv[3] == std::string("2") )  function = "G";
-    else if ( argv[3] == std::string("3") )  function = "H";
-    else if ( argv[3] == std::string("4") )  function = "B";
-    else if ( argv[3] == std::string("5") )  function = "C";
-    else if ( argv[3] == std::string("6") )  function = "Z";
-    else if ( argv[3] == std::string("all") )  function = "all";
-    else //if ( argv[3] == std::string("1") )
-                                             function = "F";
+    else
+    {
+      if ( argv[3] == std::string("2") )  function = "G";
+      else if ( argv[3] == std::string("3") )  function = "H";
+      else if ( argv[3] == std::string("4") )  function = "B";
+      else if ( argv[3] == std::string("5") )  function = "C";
+      else if ( argv[3] == std::string("6") )  function = "Z";
+      else if ( argv[3] == std::string("all") )  function = "all";
+      else //if ( argv[3] == std::string("1") )
+                                               function = "F";
     }
 
     if ( argv[4] == std::string("0") )       constraints = 0;
@@ -683,6 +684,9 @@ int main(int argc, char* argv[])
     else if ( argv[4] == std::string("4") )  constraints = 4;
     else if ( argv[4] == std::string("5") )  constraints = 5;
 
+    EVAL(test);
+    EVAL(function);
+    EVAL(constraints);
     // if we got enough parameters and options...
     for ( int i = 5 ; i < argc; ++i)
     {
@@ -744,9 +748,6 @@ int main(int argc, char* argv[])
           if  ( test == "generatePatterns" )
           {
             generatePatterns( filename, parentDir, constraints, numMS, randomGenerator );
-            ostringstream oss;
-            oss << constraints;
-            dataSet.save(analysisDir + "pindexes_" + function + oss.str() + ".csv", true );
           }
           else if ( test == "analyseDataGeneratingPatterns" )
           {
@@ -761,14 +762,13 @@ int main(int argc, char* argv[])
             dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
 //            dataSet.save(analysisDir + "indexes_" + function + oss.str() + "_random.csv", true );
           }
-//          else if ( test == "analyseDataWithExistingPatterns" )
-//          {
-//            realDataEvaluatorExternalPatterns( filename, parentDir, function, constraints, dataSet, randomGenerator );
-
-//            ostringstream oss;
-//            oss << constraints;
-//            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
-//          }
+          else if ( test == "analyseDataWithExistingPatterns" )
+          {
+            realDataEvaluatorExternalPatterns( filename, parentDir, function, constraints, dataSet, randomGenerator );
+            ostringstream oss;
+            oss << constraints;
+            dataSet.save(analysisDir + "pindexes_" + function + oss.str() + ".csv", true );
+          }
           else if ( test == "nucleoli" )
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );

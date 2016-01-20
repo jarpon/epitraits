@@ -405,38 +405,39 @@ void realDataEvaluatorExternalPatterns(
   const string& function, const int& constraints,
     DataSet& dataSet, RandomGenerator& randomGenerator )
 {
+  string patternsDir;
   switch( constraints )
   {
     case 0:
-      const string patternsDir = parentDir + "/patterns/SpatialModelCompleteRandomness3D/";
+      patternsDir = parentDir + "/patterns/SpatialModelCompleteRandomness3D/";
       evaluator(
         filename, parentDir, patternsDir,
             function, constraints, dataSet, randomGenerator );
         break;
-//    case 1:
-//    const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
-//    evaluator(
-//      filename, parentDir, patternsDir,
-//          function, constraints, dataSet, randomGenerator );
-//      break;
-//    case 2:
-//    const string patternsDir = parentDir + "/patterns/SpatialModelBorderDistance3D/";
-//    evaluator(
-//      filename, parentDir, patternsDir,
-//          function, dataSet, randomGenerator );
-//      break;
-//    case 3:
-//    const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
-//    evaluator(
-//      filename, parentDir, patternsDir,
-//          function, dataSet, randomGenerator );
-//      break;
-//    case 4:
-//    const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
-//    evaluator(
-//      filename, parentDir, patternsDir,
-//          function, dataSet, randomGenerator );
-//      break;
+    case 1:
+    patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
+    evaluator(
+      filename, parentDir, patternsDir,
+          function, constraints, dataSet, randomGenerator );
+      break;
+    case 2:
+    patternsDir = parentDir + "/patterns/SpatialModelBorderDistance3D/";
+    evaluator(
+      filename, parentDir, patternsDir,
+          function, constraints, dataSet, randomGenerator );
+      break;
+    case 3:
+    patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
+    evaluator(
+      filename, parentDir, patternsDir,
+          function, constraints, dataSet, randomGenerator );
+      break;
+    case 4:
+    patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
+    evaluator(
+      filename, parentDir, patternsDir,
+          function, constraints, dataSet, randomGenerator );
+      break;
 //    case 5:
 //    evaluator(
 //      filename, parentDir, patternsDir,
