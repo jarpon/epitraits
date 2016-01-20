@@ -78,7 +78,8 @@ SOURCES += \
     src/spatialmodel2.cpp \
     src/getnucleusprojection.cpp \
     src/spatialdescriptorfunctionz.cpp \
-    src/generatepatterns.cpp
+    src/generatepatterns.cpp \
+    src/testrealdatawithexistingpatterns.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \

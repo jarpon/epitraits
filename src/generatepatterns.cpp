@@ -23,7 +23,6 @@ void evaluator_completeSpatialRandomness(
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const string patternsDir = parentDir + "/patterns/SpatialModelCompleteRandomness3D/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
@@ -49,6 +48,8 @@ void evaluator_completeSpatialRandomness(
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.initialize();
+
+  const string patternsDir = parentDir + "/patterns/SpatialModelCompleteRandomness3D/";
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
   Vertices<float> vertices( 3, numCCS, 0, 0 );

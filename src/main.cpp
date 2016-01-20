@@ -58,6 +58,8 @@ extern void generatePatterns(const string&, const string&,
                              const int&, const int&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
+extern void realDataEvaluatorExternalPatterns(const string&, const string&, const string&, const int&,
+                          DataSet&, RandomGenerator&);
 extern void twoCompartmentsEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
 extern void nucleoliEvaluator(const string&, const string&, const string&, const int&,
@@ -635,7 +637,7 @@ int main(int argc, char* argv[])
   /*! Evaluates spatial descriptors
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("6") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
+            ( argv[2] == std::string("6") || argv[2] == std::string("67") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
             //( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ||  argv[3] == std::string("6") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
@@ -657,12 +659,14 @@ int main(int argc, char* argv[])
     //if ( argv[2] == std::string("6") )       test = "model";
     //if ( argv[2] == std::string("6") )       test = "2compartments";
     if ( argv[2] == std::string("6") )       test = "generatePatterns";
-    else if ( argv[2] == std::string("7") )  test = "data";
+    else if ( argv[2] == std::string("67") )  test = "analyseDataGeneratingPatterns";
+    else if ( argv[2] == std::string("7") )  test = "analyseDataWithExistingPatterns";
     else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
     else if ( argv[2] == std::string("7-2") )  test = "2distributions";
 
     if ( argv[2] == std::string("6") )       numMS = atoi(argv[3]);
-    else if ( argv[3] == std::string("2") )  function = "G";
+    else {
+    if ( argv[3] == std::string("2") )  function = "G";
     else if ( argv[3] == std::string("3") )  function = "H";
     else if ( argv[3] == std::string("4") )  function = "B";
     else if ( argv[3] == std::string("5") )  function = "C";
@@ -670,6 +674,7 @@ int main(int argc, char* argv[])
     else if ( argv[3] == std::string("all") )  function = "all";
     else //if ( argv[3] == std::string("1") )
                                              function = "F";
+    }
 
     if ( argv[4] == std::string("0") )       constraints = 0;
     else if ( argv[4] == std::string("1") )  constraints = 1;
@@ -739,8 +744,11 @@ int main(int argc, char* argv[])
           if  ( test == "generatePatterns" )
           {
             generatePatterns( filename, parentDir, constraints, numMS, randomGenerator );
+            ostringstream oss;
+            oss << constraints;
+            dataSet.save(analysisDir + "pindexes_" + function + oss.str() + ".csv", true );
           }
-          else if ( test == "data" )
+          else if ( test == "analyseDataGeneratingPatterns" )
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );
             //realDataEvaluator( filename, parentDir, function, dataSet, randomGenerator );
@@ -753,6 +761,14 @@ int main(int argc, char* argv[])
             dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
 //            dataSet.save(analysisDir + "indexes_" + function + oss.str() + "_random.csv", true );
           }
+//          else if ( test == "analyseDataWithExistingPatterns" )
+//          {
+//            realDataEvaluatorExternalPatterns( filename, parentDir, function, constraints, dataSet, randomGenerator );
+
+//            ostringstream oss;
+//            oss << constraints;
+//            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
+//          }
           else if ( test == "nucleoli" )
           {
             //string originalName = filename.substr( 0,filename.find_last_of("-")  );
