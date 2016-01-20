@@ -77,7 +77,6 @@ void evaluator(
 
   VertexStack<float> spatialPatterns;
   spatialPatterns.load( patternsDir + filename + ".vs" );
-  EVAL(spatialPatterns.getSize());
 
   ShapeSet<float> modelPatterns, comparisonPatterns;
 
@@ -95,6 +94,9 @@ void evaluator(
 //    comparisonPatterns.insert( j, temp );
     comparisonPatterns.addShape( &spatialPatterns[j] );
   }
+
+  EVAL(modelPatterns.getSize());
+  EVAL(comparisonPatterns.getSize());
 
   Vertices<float> vertices( 3, numCCS, 0, 0 );
   int k = 0;
@@ -214,7 +216,6 @@ void evaluator(
     spatialDescriptor = spatialDescriptorFunctionF;
   }
 
-
   //processing data
   if ( function != "all" )
   {
@@ -243,22 +244,23 @@ void evaluator(
     int row, rank;
     vector<float> sdis;
     vector<int> ranks;
-
+    EVAL("he");
     modelEvaluator.setDescriptor( *spatialDescriptor );
-
+    EVAL("he");
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
     DataSet saveTest;
     try {
       //sdi = modelEvaluator.eval( vertices, &saveTest );
       modelEvaluator.eval( vertices, modelPatterns, comparisonPatterns, sdis, ranks, &saveTest );
+      EVAL(sdis.size());
 
   //    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
   //    EVAL( output[0] );
   //    EVAL( output[1] );
 
 
-      saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
+      saveTest.save( analysisDir +  "todel.csv", true );
     //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
       row = dataSet.size()[0];
 

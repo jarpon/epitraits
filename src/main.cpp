@@ -884,8 +884,24 @@ int main(int argc, char* argv[])
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
 
-        //doIt( filename, parentDir, randomGenerator);
+//        doIt( filename, parentDir, randomGenerator);
 
+        VoxelMatrix<float> vm;
+        vm.setSize( 128*8, 128*8, 128*8 );
+        vm.setZeros();
+
+        for ( int k = 0; k < 128*8; ++k )
+        {
+          for ( int ii = 0; ii < 128*8; ++ii )
+          {
+            for ( int j = 0; j < 128*8; ++j )
+            {
+              if ( ( ii > 32*8 && ii < 96*8) && ( j > 32*8 && j < 96*8) && ( k > 32*8 && k < 96*8)  )
+                vm[k](ii,j) = 255;
+            }
+          }
+        }
+        vm.save( "/home/jarpon/data/simulations/cube_1028.vm", true );
 
     }
     LEAVE();
