@@ -39,7 +39,7 @@ using namespace std;
 void evaluator(
   const TriMesh<float>& nucleusTriMesh,
   TriMeshSpatialModel<float>& triMeshSpatialModel,
-  const string& filename, const string& parentDir,
+  const string& filename, const string& parentDir, const string& spatialModel,
   const string& function, const int& constraints,
   DataSet& dataSet, RandomGenerator& randomGenerator)
 {
@@ -194,26 +194,6 @@ void evaluator(
   //processing data
   if ( function != "all" )
   {
-    string newVariable;
-    switch ( constraints )
-    {
-      case 0:
-        newVariable = ( "SpatialModelCompleteRandomness3D_" + function + "-SDI" );
-        break;
-      case 1:
-        newVariable = ( "SpatialModelHardcoreDistance3D_" + function + "-SDI" );
-        break;
-      case 2:
-        newVariable = ( "spatialModelBorderDistance3D_" + function + "-SDI" );
-        break;
-      case 3:
-        newVariable = ( "SpatialModelBorderHardcoreDistance3D_" + function + "-SDI" );
-        break;
-      case 4:
-        newVariable = ( "SpatialModelMaximalRepulsion3D_" + function + "-SDI" );
-        break;
-    }
-
     //globalAnalysis.setValues<float>( newVariable, -1 );
     float sdi;
     int row;
@@ -232,7 +212,7 @@ void evaluator(
   //    EVAL( output[1] );
 
 
-      saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
+      saveTest.save( analysisDir + "/" + spatialModel + "/" + function + "/" + filename + ".csv", true );
     //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
       row = dataSet.size()[0];
 
@@ -243,7 +223,8 @@ void evaluator(
       //dataSet.setValue( "index", row, output[0] );
       //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-      globalAnalysis.setValue( newVariable, numCurrentNucleus, sdi );
+      //globalAnalysis.setValue( newVariable, numCurrentNucleus, sdi );
+      globalAnalysis.setValue( spatialModel + "_" + function + "-SDI", numCurrentNucleus, sdi );
     }
     catch( Exception exception ) {
       EVAL( exception.getWhat() );
@@ -290,43 +271,33 @@ void evaluator(
     EVAL( sdis[4] );
     EVAL( sdis[5] );
 
-    string newVariable;
-    switch ( constraints )
-    {
-      case 0: newVariable = "SpatialModelCompleteRandomness3D_";
-      case 1: newVariable = "SpatialModelHardcoreDistance3D_";
-      case 2: newVariable = "spatialModelBorderDistance3D_";
-      case 3: newVariable = "SpatialModelBorderHardcoreDistance3D_";
-      case 4: newVariable = "SpatialModelMaximalRepulsion3D_";
-    }
-
     //unifying datasets
     for ( int jj = 0; jj < sdis.size(); ++jj )
     {
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
-        globalAnalysis.setValue( newVariable + "F-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( spatialModel + "_F-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "F-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( spatialModel + "_F-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
-        globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( spatialModel + "_G-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( spatialModel + "_G-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
-        globalAnalysis.setValue( newVariable + "H-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( spatialModel + "_H-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "H-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( spatialModel + "_H-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
-        globalAnalysis.setValue( newVariable + "B-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( spatialModel + "_B-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "B-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( spatialModel + "_B-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
-        globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( spatialModel + "_C-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( spatialModel + "_C-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 5 ) )
-        globalAnalysis.setValue( newVariable + "Z-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "Z-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sdis[jj] );
     }
 
     dataSet.setValue( "nucleus", row, filename );
@@ -374,7 +345,7 @@ void evaluator(
 /*! Preparing constraints for the model
 ****************************************************************/
 void evaluator_completeSpatialRandomness(
-  const string& filename, const string& parentDir,
+  const string& filename, const string& parentDir, const string& spatialModel,
   const string& function, const int& constraints,
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
@@ -392,13 +363,13 @@ void evaluator_completeSpatialRandomness(
   evaluator(
     nucleusTriMesh,
     triMeshSpatialModel,
-    filename, parentDir,
+    filename, parentDir, spatialModel,
     function, constraints,
     dataSet, randomGenerator );
 }
 
 void evaluator_sizeConstrained(
-  const string& filename, const string& parentDir,
+  const string& filename, const string& parentDir, const string& spatialModel,
   const string& function, const int& constraints,
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
@@ -456,13 +427,13 @@ void evaluator_sizeConstrained(
   evaluator(
     nucleusTriMesh,
     triMeshSpatialModel,
-    filename, parentDir,
+    filename, parentDir, spatialModel,
     function, constraints,
     dataSet, randomGenerator );
 }
 
 void evaluator_distanceConstrained(
-  const string& filename, const string& parentDir,
+  const string& filename, const string& parentDir, const string& spatialModel,
   const string& function, const int& constraints,
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
@@ -485,13 +456,13 @@ void evaluator_distanceConstrained(
   evaluator(
     nucleusTriMesh,
     triMeshSpatialModel,
-    filename, parentDir,
+    filename, parentDir, spatialModel,
     function, constraints,
     dataSet, randomGenerator );
 }
 
 void evaluator_sizeAndDistanceConstrained(
-  const string& filename, const string& parentDir,
+  const string& filename, const string& parentDir, const string& spatialModel,
   const string& function, const int& constraints,
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
@@ -549,12 +520,12 @@ void evaluator_sizeAndDistanceConstrained(
   triMeshSpatialModel.initialize();
 
   evaluator(
-    nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
+    nucleusTriMesh, triMeshSpatialModel, filename, parentDir, spatialModel,
     function, constraints, dataSet, randomGenerator );
 }
 
 void evaluator_MaximalRepulsionConstrained(
-  const string& filename, const string& parentDir,
+  const string& filename, const string& parentDir, const string& spatialModel,
   const string& function, const int& constraints,
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
@@ -614,7 +585,7 @@ void evaluator_MaximalRepulsionConstrained(
   triMeshSpatialModel.initializeBeta( numCCS );
 
   evaluator(
-    nucleusTriMesh, triMeshSpatialModel, filename, parentDir,
+    nucleusTriMesh, triMeshSpatialModel, filename, parentDir, spatialModel,
     function, constraints, dataSet, randomGenerator );
 }
 
@@ -668,41 +639,47 @@ void realDataEvaluator(
   DataSet& dataSet,
   RandomGenerator& randomGenerator)
 {
+  string spatialModel;
   switch( constraints )
   {
     case 0:
+      spatialModel = "SpatialModelCompleteRandomness3D";
       evaluator_completeSpatialRandomness(
-        filename, parentDir,
+        filename, parentDir, spatialModel,
         function, constraints,
         dataSet, randomGenerator );
       break;
     case 1:
+      spatialModel = "SpatialModelHardcoreDistance3D";
       evaluator_sizeConstrained(
-        filename, parentDir,
+        filename, parentDir, spatialModel,
         function, constraints,
         dataSet, randomGenerator );
       break;
     case 2:
+      spatialModel = "SpatialModelBorderDistance3D";
       evaluator_distanceConstrained(
-        filename, parentDir,
+        filename, parentDir, spatialModel,
         function, constraints,
         dataSet, randomGenerator );
       break;
     case 3:
+      spatialModel = "SpatialModelHardcoreBorderDistance3D";
       evaluator_sizeAndDistanceConstrained(
-        filename, parentDir,
+        filename, parentDir, spatialModel,
         function, constraints,
         dataSet, randomGenerator );
       break;
     case 4:
+      spatialModel = "SpatialModelMaximalRepulsion3D";
       evaluator_MaximalRepulsionConstrained(
-        filename, parentDir,
+        filename, parentDir, spatialModel,
         function, constraints,
         dataSet, randomGenerator );
       break;
 //    case 5:
 //    evaluator_MaxRepulsionWithDistanceToTheBorderConstrained(
-//      filename, parentDir,
+//      filename, parentDir, spatialModel,
 //      function, constraints,
 //      dataSet, randomGenerator );
 //    break;

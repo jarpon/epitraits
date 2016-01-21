@@ -14,7 +14,7 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
                      const string& filename, const string& parentDir, const int& numNucleus, DataSet& nucleiDataset)
 {
   //const string analysisDir = parentDir + "/analysis/";
-  const string shapesDir = parentDir + "/shapes/";
+  const string shapesDir = parentDir + "/shapes/nuclei/";
 
   Thresholding<float> thresholding;
   thresholding.setForeground( 1.0 );
