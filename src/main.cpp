@@ -325,18 +325,19 @@ int main(int argc, char* argv[])
 
         if ( process == "0" )
         {
-          ENTER("Nuclei maximum intensity Z-projection");
+          ENTER("Nuclear maximum intensity Z-projection");
+          const string& outputDir = parentDir + "/z_projections/";
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           PixelMatrix<float> nucleusProjection;
           //nucleusProjection = originalVoxelMatrix.getZProjection();
           nucleusProjection = getProjection(originalVoxelMatrix);
-          nucleusProjection.saveAsImage( parentDir + "/" + filename + ".vm", true );
+          nucleusProjection.saveAsImage( outputDir + filename + ".tif", true );
           LEAVE();
         }
 
         else if ( process == "1" )
         {
-          ENTER("Nuclei segmentation");
+          ENTER("Nuclear segmentation");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
           nucleusMask = findNucleus( originalVoxelMatrix );
@@ -346,7 +347,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "1+" )
         {
-          ENTER("Nuclei segmentation, looking for more than 1 nucleus");
+          ENTER("Nuclear segmentation, looking for more than 1 nucleus");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
           nucleusMask = findMoreNuclei( originalVoxelMatrix, filename, nucleiDir );
@@ -356,7 +357,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "1a" )
         {
-          ENTER("Nuclei alternative segmentation");
+          ENTER("Nuclear alternative segmentation");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
           nucleusMask = findNucleusAlternative( originalVoxelMatrix );
@@ -366,7 +367,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "1c" )
         {
-          ENTER("Nuclei segmentation with cascade method");
+          ENTER("Nuclear segmentation with cascade method");
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
           //nucleusMask = findNucleusCascadeMethod( originalVoxelMatrix, filename, nucleiDir );
@@ -376,7 +377,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "2" )
         {
-          ENTER("Nuclei quantification");
+          ENTER("Nucleus quantification");
           string originalName = filename.substr( 0,filename.find_last_of("-")  );
           EVAL(originalName);
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
@@ -389,7 +390,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "3" )
         {
-          ENTER("Chromocenters segmentation");
+          ENTER("Chromocenter segmentation");
           string originalName = filename.substr( 0,filename.find_last_of("-")  );
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
@@ -402,7 +403,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "3_16b" )
         {
-          ENTER("Chromocenters segmentation (16bits images)");
+          ENTER("Chromocenter segmentation (16bits images)");
           string originalName = filename.substr( 0,filename.find_last_of("-")  );
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
@@ -415,7 +416,7 @@ int main(int argc, char* argv[])
 
         else if ( process == "3m" )
         {
-          ENTER("Chromocenters manual segmentation");
+          ENTER("Chromocenter manual segmentation");
           string originalName = filename.substr( 0,filename.find_last_of("-")  );
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           //VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
@@ -429,22 +430,24 @@ int main(int argc, char* argv[])
 
         else if ( process == "4" )
         {
-          ENTER("Chromocenters quantification");
+          ENTER("Chromocenter quantification");
+          const string& outputDir = analysisDir + "chromocentersInfo/";
           DataSet individualChromocentersDataset;
           VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
           chromocentersAnalysis( ccsMask, filename, parentDir, numNucleus, totalNumCCs, nucleiDataset, chromocentersDataset, individualChromocentersDataset );
-          individualChromocentersDataset.save(analysisDir + filename + "_chromocenters.csv", true );
+          individualChromocentersDataset.save(outputDir + filename + ".data", true );
           ++numNucleus;
           LEAVE();
         }
 
         else if ( process == "4-interdistances" )
         {
-          ENTER("Chromocenters interdistances quantification");
+          ENTER("Chromocenter interdistances quantification");
+          const string& outputDir = analysisDir + "chromocentersDistances/";
           DataSet individualChromocentersDataset;
           //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
           chromocentersInterdistances( filename, analysisDir, individualChromocentersDataset );
-          individualChromocentersDataset.save(analysisDir + filename + "_chromocentersInterdistances.csv", true );
+          individualChromocentersDataset.save(outputDir + filename + ".data", true );
           LEAVE();
         }
 
@@ -677,12 +680,37 @@ int main(int argc, char* argv[])
                                                function = "F";
     }
 
-    if ( argv[4] == std::string("0") )       constraints = 0;
-    else if ( argv[4] == std::string("1") )  constraints = 1;
-    else if ( argv[4] == std::string("2") )  constraints = 2;
-    else if ( argv[4] == std::string("3") )  constraints = 3;
-    else if ( argv[4] == std::string("4") )  constraints = 4;
-    else if ( argv[4] == std::string("5") )  constraints = 5;
+    string spatialModel;
+    if ( argv[4] == std::string("0") )
+    {
+      constraints = 0;
+      spatialModel = "SpatialModelCompleteRandomness3D";
+    }
+    else if ( argv[4] == std::string("1") )
+    {
+      constraints = 1;
+      spatialModel = "SpatialModelHardcoreDistance3D";
+    }
+    else if ( argv[4] == std::string("2") )
+    {
+      constraints = 2;
+      spatialModel = "spatialModelBorderDistance3D";
+    }
+    else if ( argv[4] == std::string("3") )
+    {
+      constraints = 3;
+      spatialModel = "SpatialModelBorderHardcoreDistance3D";
+    }
+    else if ( argv[4] == std::string("4") )
+    {
+      constraints = 4;
+      spatialModel = "SpatialModelMaximalRepulsion3D";
+    }
+//    else if ( argv[4] == std::string("5") )
+//    {
+//      constraints = 5;
+//      spatialModel = "SpatialModelBorderMaximalRepulsion3D";
+//    }
 
     EVAL(test);
     EVAL(function);
@@ -757,17 +785,13 @@ int main(int argc, char* argv[])
 
             //realDataEvaluator( originalName, parentDir, function, constraints, dataSet, randomGenerator );
 
-            ostringstream oss;
-            oss << constraints;
-            dataSet.save(analysisDir + "indexes_" + function + oss.str() + ".csv", true );
-//            dataSet.save(analysisDir + "indexes_" + function + oss.str() + "_random.csv", true );
+            dataSet.save(analysisDir + "indexes_" + spatialModel + "-" + function + ".data", true );
+//            dataSet.save(analysisDir + "indexes_" + function + oss.str() + "_random.data", true );
           }
           else if ( test == "analyseDataWithExistingPatterns" )
           {
             realDataEvaluatorExternalPatterns( filename, parentDir, function, constraints, dataSet, randomGenerator );
-            ostringstream oss;
-            oss << constraints;
-            dataSet.save(analysisDir + "pindexes_" + function + oss.str() + ".csv", true );
+            dataSet.save(analysisDir + "indexes_" + spatialModel + "-" + function + ".data", true );
           }
           else if ( test == "nucleoli" )
           {
@@ -779,7 +803,7 @@ int main(int argc, char* argv[])
 
             ostringstream oss;
             oss << constraints;
-            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".csv", true );
+            dataSet.save(analysisDir + "indexes_" + oss.str() + function + oss.str() + ".data", true );
           }
           else if ( test == "2distributions" )
           {

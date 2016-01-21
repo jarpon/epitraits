@@ -39,7 +39,7 @@ using namespace std;
 
 
 void evaluator(
-  const string& filename, const string& parentDir, const string& patternsDir,
+  const string& filename, const string& parentDir, const string& patternsDir, const string& spatialAnalysisDir,
   const string& function, const int& constraints, DataSet& dataSet, RandomGenerator& randomGenerator )
 {
   ENTER("Analyzing data using existing spatial patterns");
@@ -48,12 +48,11 @@ void evaluator(
   string classif = parentDir;
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
   //open data info
-  const string analysisDir = parentDir + "/analysis/";
 //  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 //  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
   //DataSet globalAnalysis( analysisDir + "nuclei.csv" );
-  DataSet globalAnalysis( analysisDir + "nuclei_extended.csv" );
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  DataSet globalAnalysis( parentDir + "/analysis/nuclei_extended.csv" );
+  const DataSet ccsInfo( parentDir + "/analysis/ccs.csv" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -80,20 +79,12 @@ void evaluator(
 
   ShapeSet<float> modelPatterns, comparisonPatterns;
 
-  const int numTotalPatterns = spatialPatterns.getSize();
-  Vertices<float> temp( 3, numCCS, 0, 0 );
+  const int numTotalPatterns = spatialPatterns.getHeight();
   for ( int i = 0; i < numTotalPatterns/2; ++i )
-  {
-//    temp = spatialPatterns[i];
-//    modelPatterns.insert( i, temp );
     modelPatterns.addShape( &spatialPatterns[i] );
-  }
+
   for ( int j = numTotalPatterns/2; j < numTotalPatterns; ++j )
-  {
-//    temp = spatialPatterns[j];
-//    comparisonPatterns.insert( j, temp );
     comparisonPatterns.addShape( &spatialPatterns[j] );
-  }
 
   EVAL(modelPatterns.getSize());
   EVAL(comparisonPatterns.getSize());
@@ -121,7 +112,7 @@ void evaluator(
   EVAL (numCurrentNucleus);
 
   //const int numPoints = vertices.getNumVertices();
-  const int numPatterns = 99;
+  //const int numPatterns = 99;
 
   SpatialModelEvaluatorBase<float,float> modelEvaluator;
   //modelEvaluator.setModel( triMeshSpatialModel );
@@ -129,7 +120,6 @@ void evaluator(
   modelEvaluator.setPrecision( 0.05 );
 
   SpatialDescriptor<float>* spatialDescriptor;
-
 
   //setting function parameters
   if ( function == "all" )
@@ -240,38 +230,36 @@ void evaluator(
     }
 
     //globalAnalysis.setValues<float>( newVariable, -1 );
-    float sdi;
-    int row, rank;
+    //float sdi;
+    int row;//, rank;
     vector<float> sdis;
     vector<int> ranks;
-    EVAL("he");
+
     modelEvaluator.setDescriptor( *spatialDescriptor );
-    EVAL("he");
+
     ostringstream iss; //we suppose as much 99 labels
     iss << constraints;
     DataSet saveTest;
     try {
       //sdi = modelEvaluator.eval( vertices, &saveTest );
       modelEvaluator.eval( vertices, modelPatterns, comparisonPatterns, sdis, ranks, &saveTest );
-      EVAL(sdis.size());
 
   //    Vector<float> output = modelEvaluator.evalSDIandMaxDiff( vertices, &saveTest );
   //    EVAL( output[0] );
   //    EVAL( output[1] );
 
-
-      saveTest.save( analysisDir +  "todel.csv", true );
+      saveTest.save( spatialAnalysisDir + filename + ".data", true );
     //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
       row = dataSet.size()[0];
 
       dataSet.setValue( "nucleus", row, filename );
       dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
       dataSet.setValue( "descriptor", row, function );//spatial descriptor
-      dataSet.setValue( "index", row, sdi );
+      dataSet.setValue( "index", row, sdis[0] );
       //dataSet.setValue( "index", row, output[0] );
       //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-      globalAnalysis.setValue( newVariable, numCurrentNucleus, sdi );
+      globalAnalysis.setValue( newVariable, numCurrentNucleus, sdis[0] );
     }
     catch( Exception exception ) {
       EVAL( exception.getWhat() );
@@ -284,20 +272,11 @@ void evaluator(
       dataSet.setValue( "descriptor", row, function );//spatial descriptor
       dataSet.setValue( "index", row, sqrt(-1) );
 
-
     }
 
   }
   else
   {
-//    Vertices<float> vertices ( 3, numPoints, 0, 0 );
-//    for ( int i = 0; i < numPoints; ++i )
-//    {
-//      vertices[i][0] = datasetNucleus.getValue<float>( "centroidCoordX", i );
-//      vertices[i][1] = datasetNucleus.getValue<float>( "centroidCoordY", i );
-//      vertices[i][2] = datasetNucleus.getValue<float>( "centroidCoordZ", i );
-//      EVAL(vertices[i]);
-//    }
 
     const int row = dataSet.numRows();
     vector<float> sdis;
@@ -323,40 +302,40 @@ void evaluator(
     string newVariable;
     switch ( constraints )
     {
-      case 0: newVariable = "SpatialModelCompleteRandomness3D_";
-      case 1: newVariable = "SpatialModelHardcoreDistance3D_";
-      case 2: newVariable = "spatialModelBorderDistance3D_";
-      case 3: newVariable = "SpatialModelBorderHardcoreDistance3D_";
-      case 4: newVariable = "SpatialModelMaximalRepulsion3D_";
+      case 0: newVariable = "SpatialModelCompleteRandomness3D";
+      case 1: newVariable = "SpatialModelHardcoreDistance3D";
+      case 2: newVariable = "spatialModelBorderDistance3D";
+      case 3: newVariable = "SpatialModelBorderHardcoreDistance3D";
+      case 4: newVariable = "SpatialModelMaximalRepulsion3D";
     }
 
     //unifying datasets
     for ( int jj = 0; jj < sdis.size(); ++jj )
     {
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
-        globalAnalysis.setValue( newVariable + "F-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( newVariable + "_F-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "F-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "_F-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
-        globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( newVariable + "_G-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "G-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "_G-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
-        globalAnalysis.setValue( newVariable + "H-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( newVariable + "_H-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "H-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "_H-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
-        globalAnalysis.setValue( newVariable + "B-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( newVariable + "_B-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "B-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "_B-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
-        globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( newVariable + "_C-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "C-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "_C-SDI", numCurrentNucleus, sdis[jj] );
       if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 5 ) )
-        globalAnalysis.setValue( newVariable + "Z-SDI", numCurrentNucleus, sqrt(-1) );
+        globalAnalysis.setValue( newVariable + "_Z-SDI", numCurrentNucleus, sqrt(-1) );
       else
-        globalAnalysis.setValue( newVariable + "Z-SDI", numCurrentNucleus, sdis[jj] );
+        globalAnalysis.setValue( newVariable + "_Z-SDI", numCurrentNucleus, sdis[jj] );
     }
 
     dataSet.setValue( "nucleus", row, filename );
@@ -374,9 +353,9 @@ void evaluator(
     dataSet.setValue( "Z-SDI", row, sdis[4] );
 //    dataSet.setValue( "Z-maxDiff", row, maxDiff[5] );
 
-    ostringstream iss; //we have 4 constraints
-    iss << constraints;
-    saveTest.save( analysisDir + iss.str() + "/" + filename + ".csv", true );
+//    ostringstream iss; //we have 4 constraints
+//    iss << constraints;
+//    saveTest.save( analysisDir + "/" + filename + ".csv", true );
 
     }
     catch( Exception exception ) {
@@ -395,7 +374,7 @@ void evaluator(
 
   }
 
-  globalAnalysis.save( analysisDir + "/" + "nuclei_complete2.csv", true );
+  globalAnalysis.save( parentDir + "/analysis/nuclei_complete2.csv", true );
 
   LEAVE();
 }
@@ -407,37 +386,42 @@ void realDataEvaluatorExternalPatterns(
   const string& function, const int& constraints,
     DataSet& dataSet, RandomGenerator& randomGenerator )
 {
-  string patternsDir;
+  string patternsDir, analysisDir;
   switch( constraints )
   {
     case 0:
       patternsDir = parentDir + "/patterns/SpatialModelCompleteRandomness3D/";
+      analysisDir = parentDir + "/analysis/SpatialModelCompleteRandomness3D/";
       evaluator(
-        filename, parentDir, patternsDir,
-            function, constraints, dataSet, randomGenerator );
+        filename, parentDir, patternsDir, analysisDir,
+        function, constraints, dataSet, randomGenerator );
         break;
     case 1:
     patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
+    analysisDir = parentDir + "/analysis/SpatialModelHardcoreDistance3D/";
     evaluator(
-      filename, parentDir, patternsDir,
+          filename, parentDir, patternsDir, analysisDir,
           function, constraints, dataSet, randomGenerator );
       break;
     case 2:
     patternsDir = parentDir + "/patterns/SpatialModelBorderDistance3D/";
+    analysisDir = parentDir + "/analysis/SpatialModelBorderDistance3D/";
     evaluator(
-      filename, parentDir, patternsDir,
+          filename, parentDir, patternsDir, analysisDir,
           function, constraints, dataSet, randomGenerator );
       break;
     case 3:
     patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
+    analysisDir = parentDir + "/analysis/SpatialModelHardcoreBorderDistance3D/";
     evaluator(
-      filename, parentDir, patternsDir,
+          filename, parentDir, patternsDir, analysisDir,
           function, constraints, dataSet, randomGenerator );
       break;
     case 4:
     patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
+    analysisDir = parentDir + "/analysis/SpatialModelMaximalRepulsion3D/";
     evaluator(
-      filename, parentDir, patternsDir,
+          filename, parentDir, patternsDir, analysisDir,
           function, constraints, dataSet, randomGenerator );
       break;
 //    case 5:
