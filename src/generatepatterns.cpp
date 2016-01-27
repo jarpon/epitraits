@@ -23,7 +23,8 @@ void evaluator_completeSpatialRandomness(
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
   Vector<string> tempFileNames;
@@ -73,7 +74,7 @@ void evaluator_sizeConstrained(
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
@@ -142,7 +143,7 @@ void evaluator_distanceConstrained(
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
   const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
   EVAL(distancesToBorder);
@@ -178,7 +179,7 @@ void evaluator_sizeAndDistanceConstrained(
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
@@ -250,7 +251,7 @@ void evaluator_MaximalRepulsionConstrained(
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
   const DataSet ccsInfo( analysisDir + "ccs.csv" );
 

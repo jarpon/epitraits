@@ -341,7 +341,7 @@ int main(int argc, char* argv[])
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + filename + ".vm" );
           VoxelMatrix<float> nucleusMask;
           nucleusMask = findNucleus( originalVoxelMatrix );
-          nucleusMask.save ( nucleiDir + filename + ".vm", true );
+          nucleusMask.save ( nucleiDir + filename + ".vm", false );
           LEAVE();
         }
 
@@ -397,7 +397,7 @@ int main(int argc, char* argv[])
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> ccsMask;
           ccsMask = findCCs( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
-          ccsMask.save ( chromocentersDir + filename + ".vm", true );
+          ccsMask.save ( chromocentersDir + filename + ".vm", false );
           LEAVE();
         }
 
@@ -410,7 +410,7 @@ int main(int argc, char* argv[])
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           VoxelMatrix<float> ccsMask;
           ccsMask = findCCs16bits( originalVoxelMatrix, nucleusMask, filename, intermediateProcessesDir);
-          ccsMask.save ( chromocentersDir + filename + ".vm", true );
+          ccsMask.save ( chromocentersDir + filename + ".vm", false );
           LEAVE();
         }
 

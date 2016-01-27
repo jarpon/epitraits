@@ -48,7 +48,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   regionAnalysisCCs.run();
 
   //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "_nucleus.tm" );
-  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  //TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
   float nucleusVolume = fabs(nucleusTriMesh.volume());
 
   //float nucleusVolume = regionAnalysis.computeRegionFeature( REGION_FEATURE_VOLUME )[0];
