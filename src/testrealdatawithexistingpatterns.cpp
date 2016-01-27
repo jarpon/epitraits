@@ -43,7 +43,8 @@ void evaluator(
   const string& function, const int& constraints, DataSet& dataSet, RandomGenerator& randomGenerator )
 {
   ENTER("Analyzing data using existing spatial patterns");
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
   string classif = parentDir;
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
@@ -53,7 +54,7 @@ void evaluator(
   //DataSet globalAnalysis( analysisDir + "nuclei.csv" );
   const string analysisDir = parentDir + "/analysis/";
   DataSet globalAnalysis( analysisDir + "nuclei_extended.csv" );
-  const DataSet ccsInfo( analysisDir + "analysis/ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
