@@ -322,7 +322,7 @@ void evaluator(
 //    dataSet.setValue( "B-maxDiff", row, maxDiff[3] );
     dataSet.setValue( "C-SDI", row, sdis[4] );
 //    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
-    dataSet.setValue( "Z-SDI", row, sdis[4] );
+    dataSet.setValue( "Z-SDI", row, sdis[5] );
 //    dataSet.setValue( "Z-maxDiff", row, maxDiff[5] );
 
 //    ostringstream iss; //we have 4 constraints
@@ -362,39 +362,44 @@ void realDataEvaluatorExternalPatterns(
   switch( constraints )
   {
     case 0:
+      EVAL("SpatialModelCompleteRandomness3D");
       patternsDir = parentDir + "/patterns/SpatialModelCompleteRandomness3D/";
       spatialModel = "SpatialModelCompleteRandomness3D";
       evaluator(
         filename, parentDir, patternsDir, spatialModel,
         function, constraints, dataSet, randomGenerator );
-        break;
+      break;
     case 1:
-    patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
-    spatialModel = "SpatialModelHardcoreDistance3D";
-    evaluator(
-          filename, parentDir, patternsDir, spatialModel,
-          function, constraints, dataSet, randomGenerator );
+      EVAL("SpatialModelHardcoreDistance3D");
+      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
+      spatialModel = "SpatialModelHardcoreDistance3D";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
       break;
     case 2:
-    patternsDir = parentDir + "/patterns/SpatialModelBorderDistance3D/";
-    spatialModel = "SpatialModelBorderDistance3D";
-    evaluator(
-          filename, parentDir, patternsDir, spatialModel,
-          function, constraints, dataSet, randomGenerator );
+      EVAL("SpatialModelBorderDistance3D");
+      patternsDir = parentDir + "/patterns/SpatialModelBorderDistance3D/";
+      spatialModel = "SpatialModelBorderDistance3D";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
       break;
     case 3:
-    patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
-    spatialModel = "SpatialModelHardcoreBorderDistance3D";
-    evaluator(
-          filename, parentDir, patternsDir, spatialModel,
-          function, constraints, dataSet, randomGenerator );
+      EVAL("SpatialModelHardcoreBorderDistance3D");
+      patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
+      spatialModel = "SpatialModelHardcoreBorderDistance3D";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
       break;
     case 4:
-    patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
-    spatialModel = "SpatialModelMaximalRepulsion3D";
-    evaluator(
-          filename, parentDir, patternsDir, spatialModel,
-          function, constraints, dataSet, randomGenerator );
+      EVAL("SpatialModelMaximalRepulsion3D");
+      patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
+      spatialModel = "SpatialModelMaximalRepulsion3D";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
       break;
 //    case 5:
 //    evaluator(
