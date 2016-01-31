@@ -97,19 +97,11 @@ void evaluator_sizeConstrained(
   }
 
   Vector<float> eqRadiiTemp( numCCS );
-  Vector<float> distancesToBorder( numCCS );
   int k = 0;
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-  {
     eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
-//    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
-    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
-  }
 
-
-  for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
-    if ( eqRadiiTemp[i] > distancesToBorder[i] )
-      eqRadiiTemp[i] = distancesToBorder[i];
+  EVAL(eqRadiiTemp);
 
   const Vector<float> eqRadii = eqRadiiTemp;
   EVAL(eqRadii);
@@ -144,11 +136,33 @@ void evaluator_distanceConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
-  EVAL(distancesToBorder);
 
-  const int numCCS = distancesToBorder.getSize();
+  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+  int lastPos, numCCS = 0;
+
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
+
+  if ( numCCS == 0 )
+  {
+    EVAL("Nucleus not found");
+    return;
+  }
+
+  Vector<float> distancesToBorder( numCCS );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+
+  EVAL(distancesToBorder);
 
   SpatialModelBorderDistance3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );

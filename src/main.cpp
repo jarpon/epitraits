@@ -15,6 +15,7 @@
 #include <stopwatch.h>
 #include<stdio.h>
 #include <stdlib.h>
+#include <cmath>
 
 #define TRACE
 #include <trace.h>
@@ -443,10 +444,11 @@ int main(int argc, char* argv[])
         else if ( process == "4-interdistances" )
         {
           ENTER("Chromocenter interdistances quantification");
-          const string& outputDir = analysisDir + "chromocentersDistances/";
+//          const string& outputDir = analysisDir + "chromocentersDistances/";
+          const string& outputDir = analysisDir;
           DataSet individualChromocentersDataset;
           //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
-          chromocentersInterdistances( filename, analysisDir, individualChromocentersDataset );
+          chromocentersInterdistances( filename, parentDir, individualChromocentersDataset );
           individualChromocentersDataset.save(outputDir + filename + ".data", true );
           LEAVE();
         }
@@ -910,22 +912,78 @@ int main(int argc, char* argv[])
 
 //        doIt( filename, parentDir, randomGenerator);
 
-        VoxelMatrix<float> vm;
-        vm.setSize( 128*8, 128*8, 128*8 );
-        vm.setZeros();
+        // // generate cubes
+//        VoxelMatrix<float> vm;
+//        vm.setSize( 128*2, 128*2, 128*2 );
+//        vm.setZeros();
 
-        for ( int k = 0; k < 128*8; ++k )
-        {
-          for ( int ii = 0; ii < 128*8; ++ii )
-          {
-            for ( int j = 0; j < 128*8; ++j )
-            {
-              if ( ( ii > 32*8 && ii < 96*8) && ( j > 32*8 && j < 96*8) && ( k > 32*8 && k < 96*8)  )
-                vm[k](ii,j) = 255;
-            }
-          }
-        }
-        vm.save( "/home/jarpon/data/simulations/cube_1028.vm", true );
+//        float side = 240;
+//        Vector<float> vertex(3);
+//        Vector<float> centroid(3);
+//        Vector<float> temp(3);
+//        centroid[0] = 64*2;
+//        centroid[1] = 64*2;
+//        centroid[2] = 64*2;
+
+//        for ( int k = 0; k < 128*2; ++k )
+//        {
+//          for ( int ii = 0; ii < 128*2; ++ii )
+//          {
+//            for ( int j = 0; j < 128*2; ++j )
+//            {
+//              vertex[0] = ii;
+//              vertex[1] = j;
+//              vertex[2] = k;
+//              temp = vertex.operator -(centroid);
+//              if ( ( abs(temp[0]) <= (side/2) ) && ( abs(temp[1]) <= (side/2) ) && ( abs(temp[2]) <= (side/2) ) )
+//                vm[k](ii,j) = 255;
+//            }
+//          }
+//        }
+//        vm.save( "/home/jarpon/data/simulations/cube_256.vm", true );
+
+//        TriMesh<float> triMesh;
+//        VoxelMatrix<float> currentLabeledVM = ccsMask;
+//        Thresholding<float> thresholding;
+//        thresholding.setForeground( 1.0 );
+//        thresholding.setBackground( 0.0 );
+//        thresholding.levelSetMask( currentLabeledVM, numCC+1 );
+//        triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
+//        triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
+//        nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
+//        float distanceToBorder = centroid.distance( vertexTriMesh );
+
+        // // // generate spheres
+
+//        VoxelMatrix<float> vm;
+//        vm.setSize( 128, 128, 128 );
+//        vm.setZeros();
+
+//        float radio = 60;
+//        float test;
+//        Vector<float> vertex(3);
+//        Vector<float> centroid(3);
+//        centroid[0] = 64;
+//        centroid[1] = 64;
+//        centroid[2] = 64;
+
+//        for ( int k = 0; k < 128; ++k )
+//        {
+//          for ( int ii = 0; ii < 128; ++ii )
+//          {
+//            for ( int j = 0; j < 128; ++j )
+//            {
+//              //test = sqrt(pow(64+ii,2) + pow(64+j,2) + pow(64+k,2));
+//              vertex[0] = ii;
+//              vertex[1] = j;
+//              vertex[2] = k;
+//              //if ( sqrt(pow(64+radio,2)) >= test )
+//              if ( vertex.sdistance(centroid) <= pow(radio,2) )
+//                vm[k](ii,j) = 255;
+//            }
+//          }
+//        }
+//        vm.save( "/home/jarpon/data/simulations/sphere_128.vm", true );
 
     }
     LEAVE();
