@@ -136,7 +136,8 @@ int main(int argc, char* argv[])
     cout << "               '3' to use H-function" << endl;
     cout << "               '4' to use B-function" << endl;
     cout << "               '5' to use C-function" << endl;
-    cout << "               '6' to use Z-function" << endl;
+    cout << "               '6' to use LRD-function" << endl;
+    cout << "               '7' to use Z-function" << endl;
     cout << "                  '0' to use de complete random model" << endl;
     cout << "                  '1' to use hardcore distances to constrain the model" << endl;
     cout << "                  '2' to use distances to the border constraints" << endl;
@@ -677,6 +678,7 @@ int main(int argc, char* argv[])
       else if ( argv[3] == std::string("4") )  function = "B";
       else if ( argv[3] == std::string("5") )  function = "C";
       else if ( argv[3] == std::string("6") )  function = "Z";
+      else if ( argv[3] == std::string("7") )  function = "LRD";
       else if ( argv[3] == std::string("all") )  function = "all";
       else //if ( argv[3] == std::string("1") )
                                                function = "F";

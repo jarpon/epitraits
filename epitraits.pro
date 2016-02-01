@@ -79,7 +79,8 @@ SOURCES += \
     src/getnucleusprojection.cpp \
     src/spatialdescriptorfunctionz.cpp \
     src/generatepatterns.cpp \
-    src/testrealdatawithexistingpatterns.cpp
+    src/testrealdatawithexistingpatterns.cpp \
+    src/spatialdescriptorfunctionlrd.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
@@ -103,5 +104,6 @@ HEADERS += \
     src/spatialmodelborderdistance3ddifferentcompartments.h \
     src/spatialmodelhardcoredistance3ddifferentcompartments.h \
     src/spatialmodel2.h \
-    src/spatialdescriptorfunctionz.h
+    src/spatialdescriptorfunctionz.h \
+    src/spatialdescriptorfunctionlrd.h
 

@@ -6,6 +6,7 @@
 #include <spatialdescriptorfunctionb.h>
 #include <spatialdescriptorfunctionc.h>
 #include "spatialdescriptorfunctionz.h"
+#include "spatialdescriptorfunctionlrd.h"
 #include <spatialmodelmaximalrepulsion3d.h>
 #include "maxrepulsionwithdistances.h"
 #include <spatialmodelcompleterandomness3d.h>
@@ -161,6 +162,9 @@ void evaluator(
 
     spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
     modelEvaluator.addDescriptor( *spatialDescriptor );
+
+    spatialDescriptor = new SpatialDescriptorFunctionLRD<float>();
+    modelEvaluator.addDescriptor( *spatialDescriptor );
   }
   else if ( function == "G" )
   {
@@ -188,12 +192,22 @@ void evaluator(
     spatialDescriptorFunctionC->setCenter( nucleusTriMesh.cog() );
     spatialDescriptor = spatialDescriptorFunctionC;
   }
+  else if ( function == "LRD" )
+  {
+    PRINT("LRD");
+    spatialDescriptor = new SpatialDescriptorFunctionLRD<float>();
+  }
   else if ( function == "Z" )
   {
     PRINT("Z");
     spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
   }
-  else //if ( function == "F" )
+  else if ( function == "LRD" )
+  {
+    PRINT("LRD");
+    spatialDescriptor = new SpatialDescriptorFunctionLRD<float>();
+  }
+  else
   {
     PRINT("F");
     SpatialModelCompleteRandomness3D<float> tempTriMeshSpatialModel;
@@ -280,6 +294,7 @@ void evaluator(
     EVAL( sdis[3] );
     EVAL( sdis[4] );
     EVAL( sdis[5] );
+    EVAL( sdis[6] );
 
     //unifying datasets
     for ( int jj = 0; jj < sdis.size(); ++jj )
@@ -308,6 +323,10 @@ void evaluator(
         globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sqrt(-1) );
       else
         globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sdis[jj] );
+      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 6 ) )
+        globalAnalysis.setValue( spatialModel + "_LRD-SDI", numCurrentNucleus, sqrt(-1) );
+      else
+        globalAnalysis.setValue( spatialModel + "_LRD-SDI", numCurrentNucleus, sdis[jj] );
     }
 
     dataSet.setValue( "nucleus", row, filename );
@@ -324,6 +343,9 @@ void evaluator(
 //    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
     dataSet.setValue( "Z-SDI", row, sdis[5] );
 //    dataSet.setValue( "Z-maxDiff", row, maxDiff[5] );
+    dataSet.setValue( "LRD-SDI", row, sdis[6] );
+//    dataSet.setValue( "LRD-maxDiff", row, maxDiff[6] );
+
 
 //    ostringstream iss; //we have 4 constraints
 //    iss << constraints;

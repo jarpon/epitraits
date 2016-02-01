@@ -3,7 +3,7 @@
  * \author Javier Arpon (ja), INRA
  * \date   2016.01.18 - creation (ja)
  * \brief  Z-function statistics for spatial point processes
- * It studies the interacion between objects at long range distances
+ * It studies the interacion between each objects and its furthest one
 ****************************************************************/
 
 #include "spatialdescriptorfunctionz.h"
@@ -27,23 +27,19 @@ void SpatialDescriptorFunctionZ<CoordType>::eval(
   Vector<CoordType>& y)
 {
   const int numVertices = vertices.getSize();
-  int i, j, k = 0;
-  Vector<CoordType> gFunction;
-  CoordType threshold, temp;
-  gFunction = vertices.squareNearestNeighborDistances();
-  gFunction.apply( sqrt );
-  threshold = gFunction.max();
-
-  x.setSize( (numVertices*(numVertices-1))/2 );
-  y.setSize( (numVertices*(numVertices-1))/2 );
+  int i, j = 0;
+  x.setSize( numVertices );
+  x.setZeros();
+  CoordType temp;
 
   for (i = 0; i < numVertices; ++i)
-    for (j = i+1; j < numVertices; ++j)
-    {
-      temp = vertices[i].distance( vertices[j] );
-      if ( temp > threshold )
-        x[k++] = temp;
-    }
+    for (j = 0; j < numVertices ; ++j)
+      if ( i != j )
+      {
+        temp = vertices[i].distance( vertices[j] );
+        if ( temp > x[i] )
+          x[i] = temp;
+      }
 
   x.sort();
 
