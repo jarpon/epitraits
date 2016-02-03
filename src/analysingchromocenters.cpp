@@ -172,19 +172,24 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     triMesh.closestPoint( vertexTriMesh, ccFrontierVertexTriMesh );
     float roomToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
     float tempRoomToBorder, tempDistanceToBorder, tempMinRoomToBorder;
-    tempMinRoomToBorder = roomToBorder;
-    do
+    if ( roomToBorder < distanceToBorder )
     {
-      nucleusTriMesh.closestPoint( ccFrontierVertexTriMesh, vertexTriMesh );
-      tempDistanceToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
-      triMesh.closestPoint( vertexTriMesh, ccFrontierVertexTriMesh );
-      tempRoomToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
-      if ( tempRoomToBorder < tempMinRoomToBorder )
-        tempMinRoomToBorder = tempRoomToBorder;
-    } while ( ( abs( tempRoomToBorder - roomToBorder ) > ccFrontierVertexTriMesh.epsilon() ) && ( tempRoomToBorder > tempMinRoomToBorder )  );
+      tempMinRoomToBorder = roomToBorder;
 
-    if ( tempMinRoomToBorder < roomToBorder )
+      do
+      {
+        nucleusTriMesh.closestPoint( ccFrontierVertexTriMesh, vertexTriMesh );
+        tempDistanceToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
+        triMesh.closestPoint( vertexTriMesh, ccFrontierVertexTriMesh );
+        tempRoomToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
+        if ( tempRoomToBorder < tempDistanceToBorder )
+          tempMinRoomToBorder = tempRoomToBorder;
+        else
+          tempMinRoomToBorder = tempDistanceToBorder;
+      } while ( ( abs( tempRoomToBorder - roomToBorder ) > ccFrontierVertexTriMesh.epsilon() ) && ( tempRoomToBorder > tempMinRoomToBorder )  );
+
       roomToBorder = tempMinRoomToBorder;
+    }
 
     float ccVolume_tm = fabs(triMesh.volume());
     float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> max area correction -> eq radius
