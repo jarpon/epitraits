@@ -28,24 +28,25 @@ void SpatialDescriptorFunctionLRD<CoordType>::eval(
 {
   const int numVertices = vertices.getSize();
   int i, j, k = 0;
-  Vector<CoordType> gFunction;
-  CoordType threshold, temp;
+  Vector<CoordType> gFunction, temp;
+  CoordType threshold;
   gFunction = vertices.squareNearestNeighborDistances();
   gFunction.apply( sqrt );
   threshold = gFunction.max();
 
-  x.setSize( (numVertices*(numVertices-1))/2 );
-  y.setSize( (numVertices*(numVertices-1))/2 );
+  x.setSize( 0 );
+  temp.setSize( 1 );
 
   for (i = 0; i < numVertices; ++i)
     for (j = i+1; j < numVertices; ++j)
     {
-      temp = vertices[i].distance( vertices[j] );
-      if ( temp > threshold )
-        x[k++] = temp;
+      temp[0] = vertices[i].distance( vertices[j] );
+      if ( temp[0] > threshold )
+        x.append( temp );
     }
 
   x.sort();
+  y.setSize( x.getSize() );
 
   CDFTools<CoordType> cdfTools;
   y = cdfTools.cdf( x );

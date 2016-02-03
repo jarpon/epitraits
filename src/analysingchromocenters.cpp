@@ -8,6 +8,7 @@
 #include <marchingcubes.h>
 #include <thresholding.h>
 #include <trimesh.h>
+#include <sstream>
 
 #define TRACE
 #include <trace.h>
@@ -59,6 +60,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   Vector<float> centroid(3);
   Vector<float> vertexTriMesh(3);
+  Vector<float> ccFrontierVertexTriMesh(3);
 
   // get the name of the class
   string classif = parentDir;
@@ -162,8 +164,28 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     thresholding.levelSetMask( currentLabeledVM, numCC+1 );
     triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
     triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
+    ostringstream oss;
+    oss << numCC +1;
+    triMesh.save( parentDir + "/shapes/chromocenters/" + filename + "-" + oss.str() + ".tm", true );
     nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
     float distanceToBorder = centroid.distance( vertexTriMesh );
+    triMesh.closestPoint( vertexTriMesh, ccFrontierVertexTriMesh );
+    float roomToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
+    float tempRoomToBorder, tempDistanceToBorder, tempMinRoomToBorder;
+    tempMinRoomToBorder = roomToBorder;
+    do
+    {
+      nucleusTriMesh.closestPoint( ccFrontierVertexTriMesh, vertexTriMesh );
+      tempDistanceToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
+      triMesh.closestPoint( vertexTriMesh, ccFrontierVertexTriMesh );
+      tempRoomToBorder = ccFrontierVertexTriMesh.distance( vertexTriMesh );
+      if ( tempRoomToBorder < tempMinRoomToBorder )
+        tempMinRoomToBorder = tempRoomToBorder;
+    } while ( ( abs( tempRoomToBorder - roomToBorder ) > ccFrontierVertexTriMesh.epsilon() ) && ( tempRoomToBorder > tempMinRoomToBorder )  );
+
+    if ( tempMinRoomToBorder < roomToBorder )
+      roomToBorder = tempMinRoomToBorder;
+
     float ccVolume_tm = fabs(triMesh.volume());
     float eqRadius_tm = triMesh.equivalentRadius()/pow(3.,1./6.);//SPF correction -> max area correction -> eq radius
 
@@ -176,7 +198,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     chromocentersDataset.setValue ( "ccVolume_vm", numCC+totalNumCCs, ccsVolume[numCC] );
     chromocentersDataset.setValue ( "ccVolume_corrected", numCC+totalNumCCs, ccsVolume_corrected[numCC]);
     chromocentersDataset.setValue ( "ccVolume_tm", numCC+totalNumCCs, ccVolume_tm );
-    chromocentersDataset.setValue ( "distanceToTheBorder", numCC+totalNumCCs, distanceToBorder );
+    chromocentersDataset.setValue ( "distanceToTheBorder", numCC+totalNumCCs, abs( distanceToBorder ) );
+    chromocentersDataset.setValue ( "roomToTheBorder", numCC+totalNumCCs, abs( roomToBorder ) );
     chromocentersDataset.setValue ( "ccRelativeVolume", numCC+totalNumCCs, ccVolume_tm/nucleusVolume );
     chromocentersDataset.setValue ( "flatness", numCC+totalNumCCs, ccsFlatness[numCC] );
     chromocentersDataset.setValue ( "elongation", numCC+totalNumCCs, ccsElongation[numCC] );
@@ -198,7 +221,8 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     individualChromocentersDataset.setValue ( "equivalentRadius_ZprojCorrection", numCC, ccsEqRadius[numCC] );
     individualChromocentersDataset.setValue ( "equivalentRadius_tm", numCC, eqRadius_tm/pow(3.,1./3.) );
     individualChromocentersDataset.setValue ( "equivalentRadius_PSFVolCorrection", numCC, eqRealRadii[numCC]/pow(3.,1./3.) );
-    individualChromocentersDataset.setValue ( "distanceToTheBorder", numCC, distanceToBorder );
+    individualChromocentersDataset.setValue ( "distanceToTheBorder", numCC, abs( distanceToBorder ) );
+    individualChromocentersDataset.setValue ( "roomToTheBorder", numCC, abs( roomToBorder ) );
     individualChromocentersDataset.setValue ( "ccVolume_vm", numCC, ccsVolume[numCC] );
     individualChromocentersDataset.setValue ( "ccVolume_corrected", numCC, ccsVolume_corrected[numCC]);
     individualChromocentersDataset.setValue ( "ccVolume_tm", numCC, ccVolume_tm );
@@ -232,6 +256,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
   nucleiDataset.setValue ( "minDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").min() );
   nucleiDataset.setValue ( "maxDistanceToCC", numNucleus, individualChromocentersDataset.getValues<float>("minDistanceToCC").max() );
   nucleiDataset.setValue ( "avgeDistanceToTheBorder", numNucleus, individualChromocentersDataset.getValues<float>("distanceToTheBorder").mean() );
+  nucleiDataset.setValue ( "avgeRoomToTheBorder", numNucleus, individualChromocentersDataset.getValues<float>("roomToTheBorder").mean() );
   nucleiDataset.setValue ( "problems", numNucleus, problems );
 
   totalNumCCs += regionAnalysisCCs.numRegions();
