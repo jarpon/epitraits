@@ -543,28 +543,28 @@ int main(int argc, char* argv[])
 
       if ( argv[2] == std::string("4") )
       {
-        nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
-        chromocentersDataset.save(analysisDir + "ccs.csv", true );
+        nucleiDataset.save(analysisDir + "nuclei_extended.data", true );
+        chromocentersDataset.save(analysisDir + "ccs.data", true );
       }
     }
 
     if ( argv[2] == std::string("2") )
-      nucleiDataset.save(analysisDir + "nuclei.csv", true );
+      nucleiDataset.save(analysisDir + "nuclei.data", true );
 
     else if ( argv[2] == std::string("4") )
     {
-      nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
-      chromocentersDataset.save(analysisDir + "ccs.csv", true );
+      nucleiDataset.save(analysisDir + "nuclei_extended.data", true );
+      chromocentersDataset.save(analysisDir + "ccs.data", true );
     }
 
     else if ( argv[2] == std::string("10") )
     {
-      nucleiDataset.save(analysisDir + "nuclei_extended.csv", true );
-      chromosomesDataset.save(analysisDir + "ccs.csv", true );
+      nucleiDataset.save(analysisDir + "nuclei_extended.data", true );
+      chromosomesDataset.save(analysisDir + "ccs.data", true );
     }
 
     else if ( argv[2] == std::string("12") )
-      nucleoliDataset.save(analysisDir + "nucleoli.csv", true );
+      nucleoliDataset.save(analysisDir + "nucleoli.data", true );
 
     stopWatch.stop( "Global process" );
     stopWatch.print();
