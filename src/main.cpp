@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
           VoxelMatrix<float> originalVoxelMatrix( originalVMDir + originalName + ".vm" );
           VoxelMatrix<float> nucleusMask ( nucleiDir + filename + ".vm" );
           nucleusAnalysis( originalVoxelMatrix, nucleusMask, filename, parentDir, numNucleus, nucleiDataset );
-          nucleiDataset.save(analysisDir + "nuclei.csv", true );
+          nucleiDataset.save(analysisDir + "nuclei.data", true );
           ++numNucleus;
           LEAVE();
         }
