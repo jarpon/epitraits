@@ -1,11 +1,10 @@
 #include <dataset.h>
-//#include "regionanalysis2.h"
-//#include "regionanalysis.h"
 #include <regionanalysis3d.h>
 #include <marchingcubes.h>
 #include "thresholding.h"
 #include <trimesh.h>
 #include <cmath>
+#include <regionanalysis2d.h>
 
 #define TRACE
 #include <trace.h>
@@ -38,6 +37,26 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   string classif = parentDir;
   classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
 
+  PixelMatrix<float> zProj( originalVoxelMatrix.getSize1(), originalVoxelMatrix.getSize2() );
+  int i, j, k;
+
+  for (i = 0; i < nucleusMask.getSize1(); ++i)
+    for (j = 0; j < nucleusMask.getSize2(); ++j)
+      for (k = 1; k < nucleusMask.getSize3(); ++k)
+        if ( nucleusMask[k][i][j] > zProj(j,i) )
+          zProj(j,i) = nucleusMask[k][i][j];
+
+  PixelCalibration pixelCalibration;
+  pixelCalibration.setPixelHeight(originalVoxelMatrix.getVoxelCalibration().getVoxelHeight() );
+  pixelCalibration.setPixelWidth( originalVoxelMatrix.getVoxelCalibration().getVoxelWidth() );
+  pixelCalibration.setLengthUnit( originalVoxelMatrix.getVoxelCalibration().getLengthUnit() );
+  zProj.setPixelCalibration( pixelCalibration );
+
+  RegionAnalysis2D<float> regionAnalysis2D;
+  regionAnalysis2D.setLabelMatrix( zProj );
+  regionAnalysis2D.setValueMatrix( zProj );
+  regionAnalysis2D.run();
+
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
   nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
   nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0] );//nucleus volume got from the voxelmatrix
@@ -51,6 +70,8 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
   nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA)[0] );//surface area of the nucleus
   nucleiDataset.setValue ( "surfaceArea_tm", numNucleus, abs(triMesh.area() ) );//nucleus volume got from the trimesh
+  nucleiDataset.setValue ( "areaZprojection", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_AREA)[0] );
+  nucleiDataset.setValue ( "circularity", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );
   //old:nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] * regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0]  );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SUM_VALUE)[0] );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] );//compute the integrated density taking into account the real size of the nucleus
