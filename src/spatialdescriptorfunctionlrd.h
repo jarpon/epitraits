@@ -10,7 +10,14 @@ class SpatialDescriptorFunctionLRD : public SpatialDescriptor<CoordType>
 
     SpatialDescriptorFunctionLRD();
 
+    void setDistanceThreshold(const CoordType&);
+    const CoordType& getDistanceThreshold() const;
+
     void eval(const Vertices<CoordType>&,Vector<CoordType>&,Vector<CoordType>&);
+
+  private:
+
+    CoordType _distanceThreshold;
 };
 
 #endif // SPATIALDESCRIPTORFUNCTIONLRD_H

@@ -21,18 +21,26 @@ SpatialDescriptorFunctionLRD<CoordType>::SpatialDescriptorFunctionLRD() : Spatia
 }
 
 template<class CoordType>
+void SpatialDescriptorFunctionLRD<CoordType>::setDistanceThreshold(const CoordType& distanceThreshold )
+{
+  _distanceThreshold = distanceThreshold;
+}
+
+template<class CoordType>
+const CoordType& SpatialDescriptorFunctionLRD<CoordType>::getDistanceThreshold() const
+{
+  return _distanceThreshold;
+}
+
+template<class CoordType>
 void SpatialDescriptorFunctionLRD<CoordType>::eval(
   const Vertices<CoordType>& vertices,
   Vector<CoordType>& x,
   Vector<CoordType>& y)
 {
   const int numVertices = vertices.getSize();
-  int i, j, k = 0;
-  Vector<CoordType> gFunction, temp;
-  CoordType threshold;
-  gFunction = vertices.squareNearestNeighborDistances();
-  gFunction.apply( sqrt );
-  threshold = gFunction.max();
+  int i, j = 0;
+  Vector<CoordType> temp;
 
   x.setSize( 0 );
   temp.setSize( 1 );
@@ -41,7 +49,7 @@ void SpatialDescriptorFunctionLRD<CoordType>::eval(
     for (j = i+1; j < numVertices; ++j)
     {
       temp[0] = vertices[i].distance( vertices[j] );
-      if ( temp[0] > threshold )
+      if ( temp[0] > _distanceThreshold )
         x.append( temp );
     }
 

@@ -50,12 +50,12 @@ void evaluator(
   string classif = parentDir;
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
   //open data info
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
-  //DataSet globalAnalysis( analysisDir + "nuclei.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.data" );
+  //DataSet globalAnalysis( analysisDir + "nuclei.data" );
   const string analysisDir = parentDir + "/analysis/";
-  DataSet globalAnalysis( analysisDir + "nuclei_extended.csv" );
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -163,7 +163,18 @@ void evaluator(
     spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
     modelEvaluator.addDescriptor( *spatialDescriptor );
 
-    spatialDescriptor = new SpatialDescriptorFunctionLRD<float>();
+    SpatialDescriptorFunctionLRD<float>* spatialDescriptorFunctionLRD;
+    spatialDescriptorFunctionLRD = new SpatialDescriptorFunctionLRD<float>();
+
+    Vector<float> gFunction;
+    float distanceThreshold;
+    gFunction = vertices.squareNearestNeighborDistances( );
+    gFunction.apply( sqrt );
+    distanceThreshold = gFunction.max();
+    EVAL(distanceThreshold);
+
+    spatialDescriptorFunctionLRD->setDistanceThreshold( distanceThreshold );
+    spatialDescriptor = spatialDescriptorFunctionLRD;
     modelEvaluator.addDescriptor( *spatialDescriptor );
   }
   else if ( function == "G" )
@@ -192,11 +203,6 @@ void evaluator(
     spatialDescriptorFunctionC->setCenter( nucleusTriMesh.cog() );
     spatialDescriptor = spatialDescriptorFunctionC;
   }
-  else if ( function == "LRD" )
-  {
-    PRINT("LRD");
-    spatialDescriptor = new SpatialDescriptorFunctionLRD<float>();
-  }
   else if ( function == "Z" )
   {
     PRINT("Z");
@@ -205,7 +211,17 @@ void evaluator(
   else if ( function == "LRD" )
   {
     PRINT("LRD");
-    spatialDescriptor = new SpatialDescriptorFunctionLRD<float>();
+    SpatialDescriptorFunctionLRD<float>* spatialDescriptorFunctionLRD;
+    spatialDescriptorFunctionLRD = new SpatialDescriptorFunctionLRD<float>();
+
+    Vector<float> gFunction;
+    float distanceThreshold;
+    gFunction = vertices.squareNearestNeighborDistances( );
+    gFunction.apply( sqrt );
+    distanceThreshold = gFunction.max();
+
+    spatialDescriptorFunctionLRD->setDistanceThreshold( distanceThreshold );
+    spatialDescriptor = spatialDescriptorFunctionLRD;
   }
   else
   {
@@ -245,7 +261,7 @@ void evaluator(
   //    EVAL( output[1] );
 
       saveTest.save( analysisDir + "/" + spatialModel + "/" + function + "/" + filename + ".data", true );
-    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
+    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.data", true );
       row = dataSet.size()[0];
 
       dataSet.setValue( "nucleus", row, filename );
@@ -349,7 +365,7 @@ void evaluator(
 
 //    ostringstream iss; //we have 4 constraints
 //    iss << constraints;
-//    saveTest.save( analysisDir + "/" + filename + ".csv", true );
+//    saveTest.save( analysisDir + "/" + filename + ".data", true );
 
     }
     catch( Exception exception ) {
@@ -368,7 +384,7 @@ void evaluator(
 
   }
 
-  globalAnalysis.save( parentDir + "/analysis/nuclei_complete2.csv", true );
+  globalAnalysis.save( parentDir + "/analysis/nuclei_complete2.data", true );
 
   LEAVE();
 }

@@ -25,7 +25,7 @@ void evaluator_completeSpatialRandomness(
   const string analysisDir = parentDir + "/analysis/";
   //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -76,7 +76,7 @@ void evaluator_sizeConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -137,7 +137,7 @@ void evaluator_distanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -195,7 +195,7 @@ void evaluator_sizeAndDistanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -267,7 +267,7 @@ void evaluator_MaximalRepulsionConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );

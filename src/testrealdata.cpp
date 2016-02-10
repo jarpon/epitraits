@@ -48,11 +48,11 @@ void evaluator(
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
-  //DataSet globalAnalysis( analysisDir + "nuclei.csv" );
-  DataSet globalAnalysis( analysisDir + "nuclei_extended.csv" );
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.data" );
+  //DataSet globalAnalysis( analysisDir + "nuclei.data" );
+  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -222,8 +222,8 @@ void evaluator(
   //    EVAL( output[1] );
 
 
-      saveTest.save( analysisDir + "/" + spatialModel + "/" + function + "/" + filename + ".csv", true );
-    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
+      saveTest.save( analysisDir + "/" + spatialModel + "/" + function + "/" + filename + ".data", true );
+    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.data", true );
       row = dataSet.size()[0];
 
       dataSet.setValue( "nucleus", row, filename );
@@ -334,7 +334,7 @@ void evaluator(
 
     ostringstream iss; //we have 4 constraints
     iss << constraints;
-    saveTest.save( analysisDir + iss.str() + "/" + filename + ".csv", true );
+    saveTest.save( analysisDir + iss.str() + "/" + filename + ".data", true );
 
     }
     catch( Exception exception ) {
@@ -353,7 +353,7 @@ void evaluator(
 
   }
 
-  globalAnalysis.save( analysisDir + "/" + "nuclei_complete2.csv", true );
+  globalAnalysis.save( analysisDir + "/" + "nuclei_complete2.data", true );
 
 
 }
@@ -397,7 +397,7 @@ void evaluator_sizeConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -460,7 +460,7 @@ void evaluator_distanceConstrained(
   //open data info
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
   const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
   EVAL(distancesToBorder);
 
@@ -490,7 +490,7 @@ void evaluator_sizeAndDistanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -553,7 +553,7 @@ void evaluator_MaximalRepulsionConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -624,9 +624,9 @@ void evaluator_MaximalRepulsionConstrained(
 //  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
 
 //  //new data
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
 //  //old data
-//  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
+//  //const DataSet datasetNucleus( analysisDir + filename + ".data" );
 //  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
 
 //  //new data

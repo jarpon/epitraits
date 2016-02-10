@@ -674,14 +674,20 @@ int main(int argc, char* argv[])
     else
     {
       if ( argv[3] == std::string("2") )  function = "G";
+      else if ( argv[3] == std::string("G") )  function = "G";
       else if ( argv[3] == std::string("3") )  function = "H";
+      else if ( argv[3] == std::string("H") )  function = "H";
       else if ( argv[3] == std::string("4") )  function = "B";
+      else if ( argv[3] == std::string("B") )  function = "B";
       else if ( argv[3] == std::string("5") )  function = "C";
+      else if ( argv[3] == std::string("C") )  function = "C";
       else if ( argv[3] == std::string("6") )  function = "Z";
+      else if ( argv[3] == std::string("Z") )  function = "Z";
       else if ( argv[3] == std::string("7") )  function = "LRD";
+      else if ( argv[3] == std::string("LRD") )  function = "LRD";
       else if ( argv[3] == std::string("all") )  function = "all";
-      else //if ( argv[3] == std::string("1") )
-                                               function = "F";
+      else if ( argv[3] == std::string("1") )  function = "F";
+      else if ( argv[3] == std::string("F") )  function = "F";
     }
 
     string spatialModel;

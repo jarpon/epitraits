@@ -35,10 +35,10 @@ void evalDiffCompartments(
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
   //open data info
   const string analysisDir = parentDir + "/analysis/";
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
-//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.csv" );
-  DataSet globalAnalysis( analysisDir + "nuclei.csv" );
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.data" );
+  DataSet globalAnalysis( analysisDir + "nuclei.data" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -210,8 +210,8 @@ void evalDiffCompartments(
 //  //    EVAL( output[1] );
 
 
-//      saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".csv", true );
-//    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.csv", true );
+//      saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + ".data", true );
+//    //  saveTest.save( analysisDir + iss.str() + "/" + function + "/" + filename + "_random.data", true );
 //      row = dataSet.size()[0];
 
 //      dataSet.setValue( "nucleus", row, filename );
@@ -329,7 +329,7 @@ void evalDiffCompartments(
 
 //  }
 
-//  globalAnalysis.save( analysisDir + "/" + "nuclei_complete2.csv", true );
+//  globalAnalysis.save( analysisDir + "/" + "nuclei_complete2.data", true );
 
 
 }
@@ -373,7 +373,7 @@ void evalDiffCompartments_sizeConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -445,7 +445,7 @@ void evalDiffCompartments_distanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -506,7 +506,7 @@ void evalDiffCompartments_sizeAndDistanceConstrained(
   const string analysisDir = parentDir + "/analysis/";
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
 
-  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -569,12 +569,12 @@ void evalDiffCompartments_maximalRepulsionConstrained(
 //  //open data info
 //  const string analysisDir = parentDir + "/analysis/";
 //  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-// // const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+// // const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
 ////  const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_tm" );
 // // const Vector<float> eqRadii = datasetNucleus.getValues<float>( "equivalentRadius_vm" );
 ////  EVAL(eqRadii);
 
-//  const DataSet ccsInfo( analysisDir + "ccs.csv" );
+//  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
 //  Vector<string> tempFileNames;
 //  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -645,9 +645,9 @@ void evalDiffCompartments_maximalRepulsionConstrained(
 //  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + "-nucleus.tm" );
 
 //  //new data
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
+//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
 //  //old data
-//  //const DataSet datasetNucleus( analysisDir + filename + ".csv" );
+//  //const DataSet datasetNucleus( analysisDir + filename + ".data" );
 //  const Vector<float> distancesToBorder = datasetNucleus.getValues<float>( "distanceToTheBorder" );
 
 //  //new data
