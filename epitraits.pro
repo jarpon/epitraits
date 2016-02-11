@@ -80,7 +80,9 @@ SOURCES += \
     src/spatialdescriptorfunctionz.cpp \
     src/generatepatterns.cpp \
     src/testrealdatawithexistingpatterns.cpp \
-    src/spatialdescriptorfunctionlrd.cpp
+    src/spatialdescriptorfunctionlrd.cpp \
+    src/spatialdescriptorfunctionalrd.cpp \
+    src/spatialdescriptorfunctionnn.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
@@ -105,5 +107,7 @@ HEADERS += \
     src/spatialmodelhardcoredistance3ddifferentcompartments.h \
     src/spatialmodel2.h \
     src/spatialdescriptorfunctionz.h \
-    src/spatialdescriptorfunctionlrd.h
+    src/spatialdescriptorfunctionlrd.h \
+    src/spatialdescriptorfunctionalrd.h \
+    src/spatialdescriptorfunctionnn.h
 

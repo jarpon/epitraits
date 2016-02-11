@@ -1,9 +1,10 @@
 /*!
  * \class  SpatialDescriptorFunctionLongRangeDistance
  * \author Javier Arpon (ja), INRA
- * \date   2016.01.18 - creation (ja)
- * \brief  LRD-function statistics for spatial point processes
- * It studies the interacion between objects at long range distances
+ * \date   2016.02.10 - creation (ja)
+ * \brief  Longe-Range-Distance-(LRD)-function statistics for spatial point processes
+ * It studies the interacion between objects at long range distances taking as distance threshold
+ * the maximum distance between neighbors in the observed pattern
 ****************************************************************/
 
 #include "spatialdescriptorfunctionlrd.h"

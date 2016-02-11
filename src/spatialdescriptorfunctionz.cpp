@@ -42,6 +42,7 @@ void SpatialDescriptorFunctionZ<CoordType>::eval(
       }
 
   x.sort();
+  y.setSize( x.getSize() );
 
   CDFTools<CoordType> cdfTools;
   y = cdfTools.cdf( x );
