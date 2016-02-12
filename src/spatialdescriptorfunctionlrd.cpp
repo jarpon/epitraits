@@ -49,10 +49,8 @@ void SpatialDescriptorFunctionLRD<CoordType>::eval(
     for (j = i+1; j < numVertices; ++j)
     {
       temp[0] = vertices[i].distance( vertices[j] );
-      EVAL(temp[0]);
       if ( temp[0] > _distanceThreshold )
         x.append( temp );
-      EVAL(x);
     }
 
   if ( x.getSize() != 0 )
