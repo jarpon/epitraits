@@ -51,11 +51,26 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   pixelCalibration.setPixelWidth( originalVoxelMatrix.getVoxelCalibration().getVoxelWidth() );
   pixelCalibration.setLengthUnit( originalVoxelMatrix.getVoxelCalibration().getLengthUnit() );
   zProj.setPixelCalibration( pixelCalibration );
+  EVAL("1");
+
+  PixelMatrix<float> originalZProj = zProj;
+  for (i = 0; i < originalVoxelMatrix.getSize1(); ++i)
+    for (j = 0; j < originalVoxelMatrix.getSize2(); ++j)
+      for (k = 1; k < originalVoxelMatrix.getSize3(); ++k)
+        if ( originalVoxelMatrix[k][i][j] > originalZProj(j,i) )
+          originalZProj(j,i) = originalVoxelMatrix[k][i][j];
+
+  originalZProj.setPixelCalibration( pixelCalibration );
+  EVAL("2");
 
   RegionAnalysis2D<float> regionAnalysis2D;
   regionAnalysis2D.setLabelMatrix( zProj );
   regionAnalysis2D.setValueMatrix( zProj );
+  EVAL("2---");
+
   regionAnalysis2D.run();
+  EVAL("2-1-");
+
 
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
   nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
@@ -70,11 +85,14 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
   nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA)[0] );//surface area of the nucleus
   nucleiDataset.setValue ( "surfaceArea_tm", numNucleus, abs(triMesh.area() ) );//nucleus volume got from the trimesh
+  EVAL("3");
+
   nucleiDataset.setValue ( "areaZprojection", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_AREA)[0] );
   nucleiDataset.setValue ( "circularity", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );
   //old:nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] * regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0]  );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SUM_VALUE)[0] );//sum of intensities of the nucleus volume
   nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] );//compute the integrated density taking into account the real size of the nucleus
+  EVAL("4");
 
   //return nucleiDataset;
 }

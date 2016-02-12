@@ -227,6 +227,7 @@ void evaluator(
     gFunction = vertices.squareNearestNeighborDistances( );
     gFunction.apply( sqrt );
     distanceThreshold = gFunction.max();
+    EVAL(distanceThreshold);
 
     spatialDescriptorFunctionLRD->setDistanceThreshold( distanceThreshold );
     spatialDescriptor = spatialDescriptorFunctionLRD;
@@ -333,45 +334,45 @@ void evaluator(
     EVAL( sdis[8] );
 
     //unifying datasets
-    for ( int jj = 0; jj < sdis.size(); ++jj )
-    {
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
-        globalAnalysis.setValue( spatialModel + "_F-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_F-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
-        globalAnalysis.setValue( spatialModel + "_G-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_G-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
-        globalAnalysis.setValue( spatialModel + "_H-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_H-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
-        globalAnalysis.setValue( spatialModel + "_B-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_B-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
-        globalAnalysis.setValue( spatialModel + "_C-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_C-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 5 ) )
-        globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 6 ) )
-        globalAnalysis.setValue( spatialModel + "_LRD-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_LRD-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 7 ) )
-        globalAnalysis.setValue( spatialModel + "_ALRD-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_ALRD-SDI", numCurrentNucleus, sdis[jj] );
-      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 8 ) )
-        globalAnalysis.setValue( spatialModel + "_NN-SDI", numCurrentNucleus, sqrt(-1) );
-      else
-        globalAnalysis.setValue( spatialModel + "_NN-SDI", numCurrentNucleus, sdis[jj] );
-    }
+//    for ( int jj = 0; jj < sdis.size(); ++jj )
+//    {
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 0 ) )
+//        globalAnalysis.setValue( spatialModel + "_F-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_F-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 1 ) )
+//        globalAnalysis.setValue( spatialModel + "_G-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_G-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 2 ) )
+//        globalAnalysis.setValue( spatialModel + "_H-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_H-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 3 ) )
+//        globalAnalysis.setValue( spatialModel + "_B-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_B-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 4 ) )
+//        globalAnalysis.setValue( spatialModel + "_C-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_C-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 5 ) )
+//        globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_Z-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 6 ) )
+//        globalAnalysis.setValue( spatialModel + "_LRD-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_LRD-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 7 ) )
+//        globalAnalysis.setValue( spatialModel + "_ALRD-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_ALRD-SDI", numCurrentNucleus, sdis[jj] );
+//      if ( ( sdis[jj] < 0 || sdis[jj] > 1 )  && ( jj = 8 ) )
+//        globalAnalysis.setValue( spatialModel + "_NN-SDI", numCurrentNucleus, sqrt(-1) );
+//      else
+//        globalAnalysis.setValue( spatialModel + "_NN-SDI", numCurrentNucleus, sdis[jj] );
+//    }
 
     dataSet.setValue( "nucleus", row, filename );
     dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
@@ -415,7 +416,7 @@ void evaluator(
 
   }
 
-  globalAnalysis.save( parentDir + "/analysis/nuclei_complete2.data", true );
+  //globalAnalysis.save( parentDir + "/analysis/nuclei_complete2.data", true );
 
   LEAVE();
 }

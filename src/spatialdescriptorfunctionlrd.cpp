@@ -42,23 +42,34 @@ void SpatialDescriptorFunctionLRD<CoordType>::eval(
   const int numVertices = vertices.getSize();
   int i, j = 0;
   Vector<CoordType> temp;
-
-  x.setSize( 0 );
-  temp.setSize( 1 );
+  temp.setSize(1);
+  x.setSize(0);
 
   for (i = 0; i < numVertices; ++i)
     for (j = i+1; j < numVertices; ++j)
     {
       temp[0] = vertices[i].distance( vertices[j] );
+      EVAL(temp[0]);
       if ( temp[0] > _distanceThreshold )
         x.append( temp );
+      EVAL(x);
     }
 
-  x.sort();
-  y.setSize( x.getSize() );
-
-  CDFTools<CoordType> cdfTools;
-  y = cdfTools.cdf( x );
+  if ( x.getSize() != 0 )
+  {
+    x.sort();
+    y.setSize( x.getSize() );
+    CDFTools<CoordType> cdfTools;
+    y = cdfTools.cdf( x );
+  }
+  else
+  {
+    x.setSize( 1 );
+    x[0] = 0;
+    y.setSize( x.getSize() );
+    CDFTools<CoordType> cdfTools;
+    y = cdfTools.cdf( x );
+  }
 }
 
 template class SpatialDescriptorFunctionLRD<float>;
