@@ -82,7 +82,8 @@ SOURCES += \
     src/testrealdatawithexistingpatterns.cpp \
     src/spatialdescriptorfunctionlrd.cpp \
     src/spatialdescriptorfunctionalrd.cpp \
-    src/spatialdescriptorfunctionnn.cpp
+    src/spatialdescriptorfunctionnn.cpp \
+    src/spatialmodelmaximalrepulsion3d2.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
@@ -109,5 +110,6 @@ HEADERS += \
     src/spatialdescriptorfunctionz.h \
     src/spatialdescriptorfunctionlrd.h \
     src/spatialdescriptorfunctionalrd.h \
-    src/spatialdescriptorfunctionnn.h
+    src/spatialdescriptorfunctionnn.h \
+    src/spatialmodelmaximalrepulsion3d2.h
 
