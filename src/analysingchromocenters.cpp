@@ -9,6 +9,7 @@
 #include <thresholding.h>
 #include <trimesh.h>
 #include <sstream>
+#include <iomanip>
 
 #define TRACE
 #include <trace.h>
@@ -60,7 +61,6 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   Vector<float> centroid(3);
   Vector<float> vertexTriMesh(3);
-  Vector<float> ccFrontierVertexTriMesh(3);
 
   // get the name of the class
   string classif = parentDir;
@@ -105,7 +105,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
 
   Vector<float> ccsVolume_corrected (numCompartments);
   float tempDistance;
-  Vector<float> temp1, temp2;
+  Vector<float> temp2;
   Vector<float> min, max;
   min.setSize( numCompartments );
   max.setSize( numCompartments );
@@ -165,7 +165,7 @@ void chromocentersAnalysis(VoxelMatrix<float>& ccsMask, const string& filename, 
     triMesh = marchingCubes.buildMesh( currentLabeledVM, 0.5, true );
     triMesh.scale( originalVoxelMatrix.getVoxelCalibration().getVoxelSize() );
     ostringstream oss;
-    oss << numCC +1;
+    oss << setw(2) << setfill('0') << numCC +1;
     triMesh.save( parentDir + "/shapes/chromocenters/" + filename + "-" + oss.str() + ".tm", true );
     nucleusTriMesh.closestPoint( centroid, vertexTriMesh );
     float distanceToBorder = centroid.distance( vertexTriMesh );

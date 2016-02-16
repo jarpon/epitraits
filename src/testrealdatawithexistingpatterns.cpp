@@ -403,14 +403,18 @@ void evaluator(
     catch( Exception exception ) {
       EVAL( exception.getWhat() );
       EVAL( exception.getWhere() );
-      const int row = dataSet.size()[0];
 
       dataSet.setValue( "nucleus", row, filename );
       dataSet.setValue( "class", row, classif );//classification: mutant, tissue, etc.
-      dataSet.setValue( "descriptor", row, function );//spatial descriptor
-      dataSet.setValue( "index", row, sqrt(-1) );
-      //dataSet.setValue( "index", row, output[0] );
-      //dataSet.setValue( "signedMaxDiff", row, output[1] );
+      dataSet.setValue( "F-SDI", row, sqrt(-1) );
+      dataSet.setValue( "G-SDI", row, sqrt(-1) );
+      dataSet.setValue( "H-SDI", row, sqrt(-1) );
+      dataSet.setValue( "B-SDI", row, sqrt(-1) );
+      dataSet.setValue( "C-SDI", row, sqrt(-1) );
+      dataSet.setValue( "Z-SDI", row, sqrt(-1) );
+      dataSet.setValue( "LRD-SDI", row, sqrt(-1) );
+      dataSet.setValue( "ALRD-SDI", row, sqrt(-1) );
+      dataSet.setValue( "NN-SDI", row, sqrt(-1) );
 
     }
 
