@@ -6,6 +6,8 @@
 #include <spatialdescriptorfunctionb.h>
 #include <spatialdescriptorfunctionc.h>
 #include "spatialdescriptorfunctionz.h"
+#include "spatialdescriptorfunctionsrd.h"
+#include "spatialdescriptorfunctionasrd.h"
 #include "spatialdescriptorfunctionlrd.h"
 #include "spatialdescriptorfunctionalrd.h"
 #include "spatialdescriptorfunctionnn.h"
@@ -165,25 +167,33 @@ void evaluator(
     spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
     modelEvaluator.addDescriptor( *spatialDescriptor );
 
-    SpatialDescriptorFunctionLRD<float>* spatialDescriptorFunctionLRD;
-    spatialDescriptorFunctionLRD = new SpatialDescriptorFunctionLRD<float>();
+//    Vector<float> gFunction;
+//    float distanceThreshold;
+//    gFunction = vertices.squareNearestNeighborDistances( );
+//    gFunction.apply( sqrt );
+//    distanceThreshold = gFunction.max();
+//    EVAL(distanceThreshold);
 
-    Vector<float> gFunction;
-    float distanceThreshold;
-    gFunction = vertices.squareNearestNeighborDistances( );
-    gFunction.apply( sqrt );
-    distanceThreshold = gFunction.max();
-    EVAL(distanceThreshold);
+//    SpatialDescriptorFunctionSRD<float>* spatialDescriptorFunctionSRD;
+//    spatialDescriptorFunctionSRD = new SpatialDescriptorFunctionSRD<float>();
+//    spatialDescriptorFunctionSRD->setDistanceThreshold( distanceThreshold );
+//    spatialDescriptor = spatialDescriptorFunctionSRD;
+//    modelEvaluator.addDescriptor( *spatialDescriptor );
 
-    spatialDescriptorFunctionLRD->setDistanceThreshold( distanceThreshold );
-    spatialDescriptor = spatialDescriptorFunctionLRD;
-    modelEvaluator.addDescriptor( *spatialDescriptor );
+//    spatialDescriptor = new SpatialDescriptorFunctionASRD<float>();
+//    modelEvaluator.addDescriptor( *spatialDescriptor );
 
-    spatialDescriptor = new SpatialDescriptorFunctionALRD<float>();
-    modelEvaluator.addDescriptor( *spatialDescriptor );
+//    SpatialDescriptorFunctionLRD<float>* spatialDescriptorFunctionLRD;
+//    spatialDescriptorFunctionLRD = new SpatialDescriptorFunctionLRD<float>();
+//    spatialDescriptorFunctionLRD->setDistanceThreshold( distanceThreshold );
+//    spatialDescriptor = spatialDescriptorFunctionLRD;
+//    modelEvaluator.addDescriptor( *spatialDescriptor );
 
-    spatialDescriptor = new SpatialDescriptorFunctionNN<float>();
-    modelEvaluator.addDescriptor( *spatialDescriptor );
+//    spatialDescriptor = new SpatialDescriptorFunctionALRD<float>();
+//    modelEvaluator.addDescriptor( *spatialDescriptor );
+
+//    spatialDescriptor = new SpatialDescriptorFunctionNN<float>();
+//    modelEvaluator.addDescriptor( *spatialDescriptor );
   }
   else if ( function == "G" )
   {
@@ -215,6 +225,27 @@ void evaluator(
   {
     PRINT("Z");
     spatialDescriptor = new SpatialDescriptorFunctionZ<float>();
+  }
+  else if ( function == "SRD" )
+  {
+    PRINT("SRD");
+    SpatialDescriptorFunctionSRD<float>* spatialDescriptorFunctionSRD;
+    spatialDescriptorFunctionSRD = new SpatialDescriptorFunctionSRD<float>();
+
+    Vector<float> gFunction;
+    float distanceThreshold;
+    gFunction = vertices.squareNearestNeighborDistances( );
+    gFunction.apply( sqrt );
+    distanceThreshold = gFunction.max();
+    EVAL(distanceThreshold);
+
+    spatialDescriptorFunctionSRD->setDistanceThreshold( distanceThreshold );
+    spatialDescriptor = spatialDescriptorFunctionSRD;
+  }
+  else if ( function == "ASRD" )
+  {
+    PRINT("ASRD");
+    spatialDescriptor = new SpatialDescriptorFunctionASRD<float>();
   }
   else if ( function == "LRD" )
   {
@@ -329,9 +360,11 @@ void evaluator(
     EVAL( sdis[3] );
     EVAL( sdis[4] );
     EVAL( sdis[5] );
-    EVAL( sdis[6] );
-    EVAL( sdis[7] );
-    EVAL( sdis[8] );
+//    EVAL( sdis[6] );
+//    EVAL( sdis[7] );
+//    EVAL( sdis[8] );
+//    EVAL( sdis[9] );
+//    EVAL( sdis[10] );
 
     //unifying datasets
 //    for ( int jj = 0; jj < sdis.size(); ++jj )
@@ -388,12 +421,16 @@ void evaluator(
 //    dataSet.setValue( "C-maxDiff", row, maxDiff[4] );
     dataSet.setValue( "Z-SDI", row, sdis[5] );
 //    dataSet.setValue( "Z-maxDiff", row, maxDiff[5] );
-    dataSet.setValue( "LRD-SDI", row, sdis[6] );
-//    dataSet.setValue( "LRD-maxDiff", row, maxDiff[6] );
-    dataSet.setValue( "ALRD-SDI", row, sdis[7] );
-//    dataSet.setValue( "ALRD-maxDiff", row, maxDiff[7] );
-    dataSet.setValue( "NN-SDI", row, sdis[8] );
-//    dataSet.setValue( "NN-maxDiff", row, maxDiff[8] );
+//    dataSet.setValue( "SRD-SDI", row, sdis[6] );
+////    dataSet.setValue( "SRD-maxDiff", row, maxDiff[6] );
+//    dataSet.setValue( "ASRD-SDI", row, sdis[7] );
+////    dataSet.setValue( "ASRD-maxDiff", row, maxDiff[7] );
+//    dataSet.setValue( "LRD-SDI", row, sdis[8] );
+////    dataSet.setValue( "LRD-maxDiff", row, maxDiff[6] );
+//    dataSet.setValue( "ALRD-SDI", row, sdis[9] );
+////    dataSet.setValue( "ALRD-maxDiff", row, maxDiff[7] );
+//    dataSet.setValue( "NN-SDI", row, sdis[10] );
+////    dataSet.setValue( "NN-maxDiff", row, maxDiff[8] );
 
 //    ostringstream iss; //we have 4 constraints
 //    iss << constraints;
@@ -412,9 +449,11 @@ void evaluator(
       dataSet.setValue( "B-SDI", row, sqrt(-1) );
       dataSet.setValue( "C-SDI", row, sqrt(-1) );
       dataSet.setValue( "Z-SDI", row, sqrt(-1) );
-      dataSet.setValue( "LRD-SDI", row, sqrt(-1) );
-      dataSet.setValue( "ALRD-SDI", row, sqrt(-1) );
-      dataSet.setValue( "NN-SDI", row, sqrt(-1) );
+//      dataSet.setValue( "SRD-SDI", row, sqrt(-1) );
+//      dataSet.setValue( "ASRD-SDI", row, sqrt(-1) );
+//      dataSet.setValue( "LRD-SDI", row, sqrt(-1) );
+//      dataSet.setValue( "ALRD-SDI", row, sqrt(-1) );
+//      dataSet.setValue( "NN-SDI", row, sqrt(-1) );
 
     }
 

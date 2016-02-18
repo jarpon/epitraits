@@ -83,7 +83,9 @@ SOURCES += \
     src/spatialdescriptorfunctionlrd.cpp \
     src/spatialdescriptorfunctionalrd.cpp \
     src/spatialdescriptorfunctionnn.cpp \
-    src/spatialmodelmaximalrepulsion3d2.cpp
+    src/spatialmodelmaximalrepulsion3d2.cpp \
+    src/spatialdescriptorfunctionsrd.cpp \
+    src/spatialdescriptorfunctionasrd.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
@@ -111,5 +113,7 @@ HEADERS += \
     src/spatialdescriptorfunctionlrd.h \
     src/spatialdescriptorfunctionalrd.h \
     src/spatialdescriptorfunctionnn.h \
-    src/spatialmodelmaximalrepulsion3d2.h
+    src/spatialmodelmaximalrepulsion3d2.h \
+    src/spatialdescriptorfunctionsrd.h \
+    src/spatialdescriptorfunctionasrd.h
 
