@@ -1,8 +1,8 @@
 /*!
- * \class  SpatialDescriptorFunctionAssymetricShortRangeDistance
+ * \class  SpatialDescriptorFunctionAdaptativeShortRangeDistance
  * \author Javier Arpon (ja), INRA
  * \date   2016.02.18 - creation (ja)
- * \brief  Assymetric-Longe-Range-Distance-(ASRD)-function statistics for spatial point processes
+ * \brief  Adaptative-Longe-Range-Distance-(ASRD)-function statistics for spatial point processes
  * It studies the interacion between objects at short range distances taking as distance threshold
  * the maximum distance between neighbors in each pattern
 ****************************************************************/

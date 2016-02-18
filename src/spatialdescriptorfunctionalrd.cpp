@@ -1,8 +1,8 @@
 /*!
- * \class  SpatialDescriptorFunctionAssymetricLongRangeDistance
+ * \class  SpatialDescriptorFunctionAdaptativeLongRangeDistance
  * \author Javier Arpon (ja), INRA
  * \date   2016.02.10 - creation (ja)
- * \brief  Assymetric-Longe-Range-Distance-(ALRD)-function statistics for spatial point processes
+ * \brief  Adaptative-Longe-Range-Distance-(ALRD)-function statistics for spatial point processes
  * It studies the interacion between objects at long range distances taking as distance threshold
  * the maximum distance between neighbors in each pattern
 ****************************************************************/
