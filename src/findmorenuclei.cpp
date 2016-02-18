@@ -77,22 +77,22 @@ VoxelMatrix<float> findMoreNuclei(const VoxelMatrix<float>& originalVoxelMatrix,
    */
 
 
-//  int labelTruncated = 0;
+  int labelTruncated = 0;
 
-//  for ( int i = 0; i < size1; ++i )
-//    for ( int j = 0; j < size2; ++j )
-//      for ( int k = 0; k < size3; ++k )
-//          if ( i==0 || i==size1-1 || j==0 || j==size2-1 || k==0 || k==size3-1 )
-//            if ( nucleusMask(i,j,k) != 0 )
-//            {
-//                labelTruncated = nucleusMask(i,j,k);
-//                EVAL(labelTruncated);
-//                for (int ii = 0; ii < size1; ++ii)
-//                for (int jj = 0; jj < size2; ++jj)
-//                  for (int kk = 0; kk < size3; ++kk)
-//                     if ( nucleusMask(ii,jj,kk) == labelTruncated )
-//                         nucleusMask(ii,jj,kk) = 0;
-//            }
+  for ( int i = 0; i < size1; ++i )
+    for ( int j = 0; j < size2; ++j )
+      for ( int k = 0; k < size3; ++k )
+          if ( i==0 || i==size1-1 || j==0 || j==size2-1 || k==0 || k==size3-1 )
+            if ( nucleusMask(i,j,k) != 0 )
+            {
+                labelTruncated = nucleusMask(i,j,k);
+                EVAL(labelTruncated);
+                for (int ii = 0; ii < size1; ++ii)
+                for (int jj = 0; jj < size2; ++jj)
+                  for (int kk = 0; kk < size3; ++kk)
+                     if ( nucleusMask(ii,jj,kk) == labelTruncated )
+                         nucleusMask(ii,jj,kk) = 0;
+            }
 
   componentLabelling.apply( nucleusMask );
   const int numComponents = componentLabelling.getNumLabels();

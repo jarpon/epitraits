@@ -311,7 +311,7 @@ void evaluator_MaximalRepulsionConstrained(
   SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setNumMonteCarloCycles( 2000 );
+  triMeshSpatialModel.setNumMonteCarloCycles( 4000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
