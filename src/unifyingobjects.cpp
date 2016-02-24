@@ -47,7 +47,7 @@ VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>& originalVM )
     }
 
 
-    cout << "You are going to replace: " << oldLabel << " with" << newLabel << endl << endl;
+    cout << "You are going to replace: " << oldLabel << " with " << newLabel << endl << endl;
 
 
     VoxelMatrix<float> changedVM = originalVM;

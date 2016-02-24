@@ -57,6 +57,8 @@ extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string
 //                          DataSet&, RandomGenerator&);
 extern void generatePatterns(const string&, const string&,
                              const int&, const int&, RandomGenerator&);
+extern void generatePatternsUsingLessObjects(const string&, const string&,
+                             const int&, const int&, RandomGenerator&);
 extern void realDataEvaluator(const string&, const string&, const string&, const int&,
                           DataSet&, RandomGenerator&);
 extern void realDataEvaluatorExternalPatterns(const string&, const string&, const string&, const int&,
@@ -643,7 +645,7 @@ int main(int argc, char* argv[])
   /*! Evaluates spatial descriptors
   ****************************************************************/
   else if ( ( argv[1] == std::string("-p") ) &&
-            ( argv[2] == std::string("6") || argv[2] == std::string("67") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
+            ( argv[2] == std::string("6") || argv[2] == std::string("6-") || argv[2] == std::string("67") || argv[2] == std::string("7") || argv[2] == std::string("7-2") || argv[2] == std::string("7-nucleoli") || argv[2] == std::string("7-2distributions") ) &&
             //( argv[3] == std::string("1") || argv[3] == std::string("2") || argv[3] == std::string("3") || argv[3] == std::string("4") || argv[3] == std::string("5") ||  argv[3] == std::string("6") || argv[3] == std::string("all") ) &&
 //            ( argv[4] == std::string("0") || argv[4] == std::string("1") || argv[4] == std::string("2") || argv[4] == std::string("3") ) || argv[4] == std::string("4") ) &&
             ( argc > 5 ) )
@@ -665,38 +667,27 @@ int main(int argc, char* argv[])
     //if ( argv[2] == std::string("6") )       test = "model";
     //if ( argv[2] == std::string("6") )       test = "2compartments";
     if ( argv[2] == std::string("6") )       test = "generatePatterns";
+    else if ( argv[2] == std::string("6-") )  test = "generatePatternsWithLessObjects";
     else if ( argv[2] == std::string("67") )  test = "analyseDataGeneratingPatterns";
     else if ( argv[2] == std::string("7") )  test = "analyseDataWithExistingPatterns";
     else if ( argv[2] == std::string("7-nucleoli") )  test = "nucleoli";
     else if ( argv[2] == std::string("7-2") )  test = "2distributions";
 
-    if ( argv[2] == std::string("6") )       numMS = atoi(argv[3]);
+    if ( argv[2] == std::string("6") || argv[2] == std::string("6-") )       numMS = atoi(argv[3]);
     else
     {
-      if ( argv[3] == std::string("1") )  function = "F";
-      else if ( argv[3] == std::string("F") )  function = "F";
-      else if ( argv[3] == std::string("2") )  function = "G";
-      else if ( argv[3] == std::string("G") )  function = "G";
-      else if ( argv[3] == std::string("3") )  function = "H";
-      else if ( argv[3] == std::string("H") )  function = "H";
-      else if ( argv[3] == std::string("4") )  function = "B";
-      else if ( argv[3] == std::string("B") )  function = "B";
-      else if ( argv[3] == std::string("5") )  function = "C";
-      else if ( argv[3] == std::string("C") )  function = "C";
-      else if ( argv[3] == std::string("6") )  function = "Z";
-      else if ( argv[3] == std::string("Z") )  function = "Z";
-      else if ( argv[3] == std::string("7") )  function = "SRD";
-      else if ( argv[3] == std::string("SRD") )  function = "SRD";
-      else if ( argv[3] == std::string("8") )  function = "ASRD";
-      else if ( argv[3] == std::string("ASRD") )  function = "ASRD";
-      else if ( argv[3] == std::string("9") )  function = "LRD";
-      else if ( argv[3] == std::string("LRD") )  function = "LRD";
-      else if ( argv[3] == std::string("10") )  function = "ALRD";
-      else if ( argv[3] == std::string("ALRD") )  function = "ALRD";
-      else if ( argv[3] == std::string("11") )  function = "NN";
-      else if ( argv[3] == std::string("NN") )  function = "NN";
-      else if ( argv[3] == std::string("all") )  function = "all";
-
+      if      ( ( argv[3] == std::string("1") ) || ( argv[3] == std::string("F") ) ) function = "F";
+      else if ( ( argv[3] == std::string("2") ) || ( argv[3] == std::string("G") ) ) function = "G";
+      else if ( ( argv[3] == std::string("3") ) || ( argv[3] == std::string("H") ) ) function = "H";
+      else if ( ( argv[3] == std::string("4") ) || ( argv[3] == std::string("B") ) ) function = "B";
+      else if ( ( argv[3] == std::string("5") ) || ( argv[3] == std::string("C") ) ) function = "C";
+      else if ( ( argv[3] == std::string("6") ) || ( argv[3] == std::string("Z") ) ) function = "Z";
+      else if ( ( argv[3] == std::string("7") ) || ( argv[3] == std::string("SRD") ) ) function = "SRD";
+      else if ( ( argv[3] == std::string("8") ) || ( argv[3] == std::string("ASRD") ) ) function = "ASRD";
+      else if ( ( argv[3] == std::string("9") ) || ( argv[3] == std::string("LRD") ) ) function = "LRD";
+      else if ( ( argv[3] == std::string("10")) || ( argv[3] == std::string("ALRD") ) ) function = "ALRD";
+      else if ( ( argv[3] == std::string("11")) || ( argv[3] == std::string("NN") ) ) function = "NN";
+      else if (   argv[3] == std::string("all") )  function = "all";
     }
 
     string spatialModel;
@@ -795,6 +786,10 @@ int main(int argc, char* argv[])
           if  ( test == "generatePatterns" )
           {
             generatePatterns( filename, parentDir, constraints, numMS, randomGenerator );
+          }
+          else if  ( test == "generatePatternsWithLessObjects" )
+          {
+            generatePatternsUsingLessObjects( filename, parentDir, constraints, numMS, randomGenerator );
           }
           else if ( test == "analyseDataGeneratingPatterns" )
           {
@@ -1001,6 +996,63 @@ int main(int argc, char* argv[])
 //          }
 //        }
 //        vm.save( "/home/jarpon/data/simulations/sphere_128.vm", true );
+
+    }
+    LEAVE();
+
+    stopWatch.stop( "Global process" );
+    stopWatch.print();
+
+  }
+
+  /*! Temporal
+  ****************************************************************/
+  else if ( ( argv[1] == std::string("-p") ) && ( argv[2] == std::string("simulations") ) && ( argc > 3 ) )
+  {
+
+    Stopwatch stopWatch;
+    stopWatch.start( "Global process" );
+
+    ENTER("Objects simulations");
+
+    // if we got enough parameters and options...
+    for (int i = 3; i < argc; i++)
+    {
+      filename = argv[i];
+
+      // only vm files are processed
+
+        EVAL(filename);
+        FileInfo fileInfo (filename);
+
+        if ( fileInfo.isAbsolutePath() == false )
+        {
+          originalDir = getcwd( argv[i], 2048 );
+          originalDir = originalDir + "/";
+          filepath = originalDir + filename;
+          FileInfo fileInfo (filepath);
+          parentDir = originalDir.substr(0,originalDir.find_last_of("/\\"));
+          parentDir = parentDir.substr(0,parentDir.find_last_of("/\\")) + "/";
+          filename = fileInfo.baseName();
+        }
+
+        else
+        {
+          filepath = filename;
+          filename = fileInfo.baseName();
+          originalDir = fileInfo.dirName();
+          parentDir = originalDir.substr(0,originalDir.find_last_of("/\\"));
+          parentDir = parentDir.substr(0,parentDir.find_last_of("/\\"));
+        }
+
+        //const VoxelMatrix<float> originalVoxelMatrix( filepath );
+
+        //analysisDir = parentDir + "/analysis/";
+        EVAL(filename);
+        EVAL(parentDir);
+
+
+       testsStatisticalTests();
 
     }
     LEAVE();
