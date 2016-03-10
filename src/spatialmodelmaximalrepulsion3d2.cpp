@@ -1,5 +1,5 @@
 /*!
- * \class  SpatialModelMaximalRepulsion3D
+ * \class  SpatialModelMaximalRepulsion3D2
  * \author Javier Arpón (ja), INRA
  * \author Philippe Andrey (pa), INRA
  * \date   XXXX.XX.XX - creation (ja)
@@ -8,7 +8,6 @@
 ****************************************************************/
 
 #include "spatialmodelmaximalrepulsion3d2.h"
-
 #include <convergencetest.h>
 #include <dataset.h>
 #include <exception.h>
@@ -23,7 +22,7 @@
 /*! Constructor.
 ****************************************************************/
 template<class CoordType>
-SpatialModelMaximalRepulsion3D<CoordType>::SpatialModelMaximalRepulsion3D() : SpatialModelHardcoreDistance3D<CoordType>()
+SpatialModelMaximalRepulsion3D2<CoordType>::SpatialModelMaximalRepulsion3D2() : SpatialModelHardcoreDistance3D<CoordType>()
 {
   _numMonteCarloCycles = 1000;
   _beta = -1.0;
@@ -34,7 +33,7 @@ SpatialModelMaximalRepulsion3D<CoordType>::SpatialModelMaximalRepulsion3D() : Sp
  * The default value is 1000.
 ****************************************************************/
 template<class CoordType>
-void SpatialModelMaximalRepulsion3D<CoordType>::setNumMonteCarloCycles(const int numMonteCarloCycles)
+void SpatialModelMaximalRepulsion3D2<CoordType>::setNumMonteCarloCycles(const int numMonteCarloCycles)
 {
   _numMonteCarloCycles = numMonteCarloCycles;
 }
@@ -42,7 +41,7 @@ void SpatialModelMaximalRepulsion3D<CoordType>::setNumMonteCarloCycles(const int
 /*! Returns the maximum number of Monte Carlo cycles.
 ****************************************************************/
 template<class CoordType>
-int SpatialModelMaximalRepulsion3D<CoordType>::getNumMonteCarloCycles() const
+int SpatialModelMaximalRepulsion3D2<CoordType>::getNumMonteCarloCycles() const
 {
   return _numMonteCarloCycles;
 }
@@ -52,7 +51,7 @@ int SpatialModelMaximalRepulsion3D<CoordType>::getNumMonteCarloCycles() const
  * \sa initializeBeta
 ****************************************************************/
 template<class CoordType>
-CoordType SpatialModelMaximalRepulsion3D<CoordType>::getBeta() const
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::getBeta() const
 {
   return _beta;
 }
@@ -71,7 +70,7 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::getBeta() const
  * \sa getBeta
 ****************************************************************/
 template<class CoordType>
-void SpatialModelMaximalRepulsion3D<CoordType>::initializeBeta(const int numObjects)
+void SpatialModelMaximalRepulsion3D2<CoordType>::initializeBeta(const int numObjects)
 {
   const int n = 100;
   const CoordType maxRadius = this->getTriMesh().equivalentRadius() / 50.0;
@@ -99,7 +98,7 @@ void SpatialModelMaximalRepulsion3D<CoordType>::initializeBeta(const int numObje
  * to all chromocenters.
 ****************************************************************/
 template<class CoordType>
-CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<CoordType>& vertices) const
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<CoordType>& vertices) const
 {
   const int numChromocenters = vertices.getNumVertices();
   CoordType sumInterDistances = 0.0;
@@ -120,7 +119,7 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<Coord
  * energy functions.
 ****************************************************************/
 template<class CoordType>
-CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<CoordType>& vertices) const
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<CoordType>& vertices) const
 {
   Vector<CoordType> minDistances = vertices.squareNearestNeighborDistances();
   minDistances.apply( sqrt );
@@ -133,7 +132,7 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<Coord
  * to furthest neighbours.
 ****************************************************************/
 template<class CoordType>
-CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<CoordType>& vertices) const
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<CoordType>& vertices) const
 {
   for (i = 0; i < numVertices; ++i)
     for (j = 0; j < numVertices ; ++j)
@@ -149,7 +148,7 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::energy(const Vertices<Coord
 /*! Gets the current energy of the system
 ****************************************************************/
 template<class CoordType>
-CoordType SpatialModelMaximalRepulsion3D<CoordType>::getEnergy3(const Vertices<CoordType>& vertices)
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::getEnergy3(const Vertices<CoordType>& vertices)
 {
   CoordType energy;
   int numPoints = vertices.getNumVertices();
@@ -165,7 +164,7 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::getEnergy3(const Vertices<C
 /*! Gets the current energy of the system
 ****************************************************************/
 template<class CoordType>
-CoordType SpatialModelMaximalRepulsion3D<CoordType>::getEnergy4(const Vertices<CoordType>& vertices)
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::getEnergy4(const Vertices<CoordType>& vertices)
 {
   T partialEnergy;
   int numPoints = vertices.getNumVertices();
@@ -184,9 +183,9 @@ CoordType SpatialModelMaximalRepulsion3D<CoordType>::getEnergy4(const Vertices<C
 /*! Generates a sample according to this model.
 ****************************************************************/
 template<class CoordType>
-Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const int numPoints)
+Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int numPoints)
 {
-  ENTER("Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const int)");
+  ENTER("Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)");
 
   const int outerSteps = getNumMonteCarloCycles();
   const int innerSteps = numPoints;
@@ -238,7 +237,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const 
   if ( !converged )
   {
     Exception exception;
-    exception.setWhere( "Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const int)" );
+    exception.setWhere( "Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)" );
     exception.setWhat( "Convergence not reached after " + StringTools::toString(outerSteps) + " iterations" );
     throw exception;
   }
@@ -246,7 +245,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const 
   if ( !this->valid(vertices) )
   {
     cerr << "!!!!!!!!!!! ERROR !!!!!!!!!!" << endl;
-    cerr << "In Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const int)" << endl;
+    cerr << "In Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)" << endl;
     exit( EXIT_FAILURE );
   }
 
@@ -261,7 +260,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D<CoordType>::drawSample(const 
  * The energy profile gives the energy value after each Monte Carlo step.
 ****************************************************************/
 template<class CoordType>
-const Vector<CoordType>& SpatialModelMaximalRepulsion3D<CoordType>::getEnergyProfile() const
+const Vector<CoordType>& SpatialModelMaximalRepulsion3D2<CoordType>::getEnergyProfile() const
 {
   return _energyProfile;
 }
@@ -273,7 +272,7 @@ const Vector<CoordType>& SpatialModelMaximalRepulsion3D<CoordType>::getEnergyPro
  * triMesh and to respect the hardcore distances.
 ****************************************************************/
 template<class CoordType>
-void SpatialModelMaximalRepulsion3D<CoordType>::moveVertex(
+void SpatialModelMaximalRepulsion3D2<CoordType>::moveVertex(
   Vertices<CoordType>& vertices,
   const int v,
   const CoordType radius)
@@ -296,7 +295,7 @@ void SpatialModelMaximalRepulsion3D<CoordType>::moveVertex(
 /*! Checks if the hardcore distances between a new (moved) vertex and the others are respected.
 ****************************************************************/
 template<class CoordType>
-bool SpatialModelMaximalRepulsion3D<CoordType>::checkHardcoreDistances(
+bool SpatialModelMaximalRepulsion3D2<CoordType>::checkHardcoreDistances(
   const Vector<CoordType>& vertex,
   const int v,
   const Vertices<CoordType>& vertices) const
@@ -313,6 +312,6 @@ bool SpatialModelMaximalRepulsion3D<CoordType>::checkHardcoreDistances(
   return true;
 }
 
-template class SpatialModelMaximalRepulsion3D<float>;
-template class SpatialModelMaximalRepulsion3D<double>;
-template class SpatialModelMaximalRepulsion3D<long double>;
+template class SpatialModelMaximalRepulsion3D2<float>;
+template class SpatialModelMaximalRepulsion3D2<double>;
+template class SpatialModelMaximalRepulsion3D2<long double>;

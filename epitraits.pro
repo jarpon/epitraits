@@ -86,7 +86,8 @@ SOURCES += \
     src/spatialmodelmaximalrepulsion3d2.cpp \
     src/spatialdescriptorfunctionsrd.cpp \
     src/spatialdescriptorfunctionasrd.cpp \
-    src/generatepatternslessobjects.cpp
+    src/generatepatternslessobjects.cpp \
+    src/normalizeaxis.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \

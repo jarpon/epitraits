@@ -76,6 +76,7 @@ extern VoxelMatrix<float> unifyLabels( const VoxelMatrix<float>&);
 extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
 extern void test2Distributions(const string&, const string&, const string& = 0);
+extern void normalizeAxisTriMesh(const string&, const string&);
 
 //extern void analyzeSample(const string&, const int&, int&, DataSet&, DataSet&);
 int main(int argc, char* argv[])
@@ -914,6 +915,8 @@ int main(int argc, char* argv[])
         //analysisDir = parentDir + "/analysis/";
         EVAL(filename);
         EVAL(parentDir);
+
+        normalizeAxisTriMesh( filename, parentDir );
 
         //test2Distributions( filepath, filename, filename );
 

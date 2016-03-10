@@ -15,16 +15,16 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   //const string analysisDir = parentDir + "/analysis/";
   const string shapesDir = parentDir + "/shapes/nuclei/";
 
-  PixelMatrix<float> zProj( originalVoxelMatrix.getSize1(), originalVoxelMatrix.getSize2() );
+  PixelMatrix<float> zProj( nucleusMask.getSize1(), nucleusMask.getSize2() );
   zProj.setZeros();
 
   int i, j, k;
 
   for (i = 0; i < nucleusMask.getSize1(); ++i)
     for (j = 0; j < nucleusMask.getSize2(); ++j)
-      for (k = 1; k < nucleusMask.getSize3(); ++k)
-        if ( nucleusMask[k][i][j] > zProj(j,i) )
-          zProj(j,i) = nucleusMask[k][i][j];
+      for (k = 0; k < nucleusMask.getSize3(); ++k)
+        if ( nucleusMask[k][i][j] > zProj(i,j) )
+          zProj(i,j) = nucleusMask[k][i][j];
 
   PixelCalibration pixelCalibration;
   pixelCalibration.setPixelHeight(originalVoxelMatrix.getVoxelCalibration().getVoxelHeight() );
@@ -32,12 +32,13 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   pixelCalibration.setLengthUnit( originalVoxelMatrix.getVoxelCalibration().getLengthUnit() );
   zProj.setPixelCalibration( pixelCalibration );
 
-  PixelMatrix<float> originalZProj = zProj;
+  PixelMatrix<float> originalZProj( originalVoxelMatrix.getSize1(), originalVoxelMatrix.getSize2() );
+  originalZProj.setZeros();
   for (i = 0; i < originalVoxelMatrix.getSize1(); ++i)
     for (j = 0; j < originalVoxelMatrix.getSize2(); ++j)
-      for (k = 1; k < originalVoxelMatrix.getSize3(); ++k)
-        if ( originalVoxelMatrix[k][i][j] > originalZProj(j,i) )
-          originalZProj(j,i) = originalVoxelMatrix[k][i][j];
+      for (k = 0; k < originalVoxelMatrix.getSize3(); ++k)
+        if ( originalVoxelMatrix[k][i][j] > originalZProj(i,j) )
+          originalZProj(i,j) = originalVoxelMatrix[k][i][j];
 
   originalZProj.setPixelCalibration( pixelCalibration );
 
@@ -76,6 +77,9 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "equivalentRadius_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_EQUIVALENT_RADIUS)[0]);
   nucleiDataset.setValue ( "equivalentRadius_tm", numNucleus, abs(triMesh.equivalentRadius()) );
   nucleiDataset.setValue ( "voxelSizeUnit", numNucleus, originalVoxelMatrix.getVoxelCalibration().getLengthUnit().symbol() + "^3" );//real voxel size unit
+  nucleiDataset.setValue ( "major-axis", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_MAJOR_AXIS)[0] );//
+  nucleiDataset.setValue ( "intermediate-axis", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTERMEDIATE_AXIS)[0] );//
+  nucleiDataset.setValue ( "minor-axis", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_MINOR_AXIS)[0] );//
   nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS)[0] );//flatness parameter
   nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION)[0] );//elongation parameter
   nucleiDataset.setValue ( "sphericity_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );//sphericity parameter

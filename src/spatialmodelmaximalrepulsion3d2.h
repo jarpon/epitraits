@@ -4,11 +4,11 @@
 #include <spatialmodelhardcoredistance3d.h>
 
 template<class CoordType>
-class SpatialModelMaximalRepulsion3D : public SpatialModelHardcoreDistance3D<CoordType>
+class SpatialModelMaximalRepulsion3D2 : public SpatialModelHardcoreDistance3D<CoordType>
 {
   public:
 
-    SpatialModelMaximalRepulsion3D();
+    SpatialModelMaximalRepulsion3D2();
 
     void setNumMonteCarloCycles(const int);
     int getNumMonteCarloCycles() const;

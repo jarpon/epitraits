@@ -3,7 +3,7 @@
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
 //#include <spatialmodelmaximalrepulsion3d.h>
-#include "spatialmodelmaximalrepulsion3d2.h"
+#include <spatialmodelmaximalrepulsion3d.h>
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
@@ -99,6 +99,8 @@ void evaluatorLessCCS_sizeConstrained(
   //choose how many CCS are not taken into account
   Vector<int> ccsToAvoid;
   ccsToAvoid.setSize( 2 );
+//  int ccsToAvoid;
+//  ccsToAvoid = randomGenerator.uniformLF( 0, numCCS-1 );
   ccsToAvoid[0] = randomGenerator.uniformLF( 0, numCCS-1 );
   do
   {
@@ -115,9 +117,10 @@ void evaluatorLessCCS_sizeConstrained(
   EVAL(eqRadiiTemp);
   Vector<float> eqRadii;
   eqRadii.setSize( numCCS - 2 );
-  int n;
+  int n = 0;
   for ( int l = 0; l < numCCS; ++l )
     if ( ( l != ccsToAvoid[0] ) && ( l != ccsToAvoid[1] ) )
+//    if ( ( l != ccsToAvoid ) )
     {
       eqRadii[n] = eqRadiiTemp[l];
       ++n;
@@ -128,7 +131,7 @@ void evaluatorLessCCS_sizeConstrained(
   SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setHardcoreDistances( eqRadiiTemp );
+  triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
@@ -138,7 +141,7 @@ void evaluatorLessCCS_sizeConstrained(
 
   for ( int jj = 0; jj < 2*numMCSimulations; ++jj )
   {
-    vertices = triMeshSpatialModel.drawSample(numCCS);
+    vertices = triMeshSpatialModel.drawSample(numCCS-2);
     vertexStack.insert( jj, vertices );
   }
 

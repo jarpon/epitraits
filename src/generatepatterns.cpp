@@ -2,8 +2,8 @@
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
-//#include <spatialmodelmaximalrepulsion3d.h>
-#include "spatialmodelmaximalrepulsion3d2.h"
+#include <spatialmodelmaximalrepulsion3d.h>
+//#include "spatialmodelmaximalrepulsion3d2.h"
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
