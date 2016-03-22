@@ -359,9 +359,10 @@ void testPattern(
 //  gDataSet.setValue( "Z2-lowArea", r, allpValues2[4][3] );
     EVAL("ok");
 
-    ostringstream iss; //we have 4 constraints
+    ostringstream iss,iss2; //we have 4 constraints
     iss <<  setfill('0') << setw(5) << r;
-  dataset.save( "/home/jarpon/data/projects/testStatisticalTests/low-number-objects-20160214/" + iss.str() + ".data", true );
+    iss2 << pattern2.getNumVertices();
+  dataset.save( "/home/jarpon/data/projects/testStatisticalTests/low-number-objects-20160322/" + iss2.str() + "-" + iss.str() + ".data", true );
 
   LEAVE();
 }
@@ -516,8 +517,8 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
   SpatialModelBoundaryInteraction<float> spatialModel2;
   spatialModel2.setBoundary( boundary );
   spatialModel2.setRandomGenerator( randomGenerator );
-  //spatialModel2.setMargin( 0.2 );
-  spatialModel2.setMargin( 0.4 );
+  spatialModel2.setMargin( 0.2 );
+  //spatialModel2.setMargin( 0.4 );
   spatialModel2.setMarginProb( marginProb );
   spatialModel2.initialize();
 
@@ -529,14 +530,14 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
 
   boundary.save( "squareBoundary", true );
   spatialModel1.getInnerBoundary().save( "innerSquareBoundary1", true );
-  spatialModel1.drawSample( 50 ).save( "pattern-squareBoundaryInteractionModel1", true );
+  spatialModel1.drawSample( 20 ).save( "pattern-squareBoundaryInteractionModel1", true );
 
   //const int numObjectsS2 = initNumObjectsS2();
   //spatialModel2.getInnerBoundary().save( "innerSquareBoundary2", true );
   //spatialModel2.drawSample( numObjectsS2 ).save( "pattern-squareBoundaryInteractionModel2", true );
 
   DataSet dataSet;
-  const int numObjectsS1 = 50;
+  const int numObjectsS1 = 20;
 //  const vector<int> sampleSizes(1,100);
   const int numBatches = 1;
   testModel( spatialModel1, spatialModel2, csrSpatialModel, numObjectsS1, initNumObjectsS2(), boundary, numBatches, dataSet );
