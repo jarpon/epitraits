@@ -48,75 +48,80 @@ void evaluator(
   const string& function, const int& constraints, DataSet& dataSet, RandomGenerator& randomGenerator )
 {
   ENTER("Analyzing data using existing spatial patterns");
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/" + filename + ".tm" );
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
+  string tempName = filename.substr(0,filename.find_first_of("-"));
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + tempName + ".tm" );
 
+  EVAL("done");
   string classif = parentDir;
   classif = classif.substr( classif.find_last_of("/\\")+1, classif.length() );
   //open data info
-//  const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.data" );
-//  const DataSet datasetNucleus( analysisDir + filename + "_nucleoli.data" );
-  //DataSet globalAnalysis( analysisDir + "nuclei.data" );
   const string analysisDir = parentDir + "/analysis/";
-  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
-  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
-  Vector<string> tempFileNames;
-  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+//  %% normal use %%
+//  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
+//  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
-  int lastPos, numCCS = 0;
+//  Vector<string> tempFileNames;
+//  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
 
-  for ( int j = 0; j < tempFileNames.getSize(); ++j )
-    if ( tempFileNames[j] == filename )
-    {
-      lastPos = j;
-      ++ numCCS;
-    }
+//  int lastPos, numCCS = 0;
 
-  if ( numCCS == 0 )
-  {
-    ProgramError error;
-    error.setWhat( "There is a problem with the chromocenters dataset" );
-    throw error;
-    return;
-  }
+//  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+//    if ( tempFileNames[j] == filename )
+//    {
+//      lastPos = j;
+//      ++ numCCS;
+//    }
+
+//  if ( numCCS == 0 )
+//  {
+//    ProgramError error;
+//    error.setWhat( "There is a problem with the chromocenters dataset" );
+//    throw error;
+//    return;
+//  }
 
   VertexStack<float> spatialPatterns;
   spatialPatterns.load( patternsDir + filename + ".vs" );
-
+  EVAL("done2");
   ShapeSet<float> modelPatterns, comparisonPatterns;
 
   const int numTotalPatterns = spatialPatterns.getHeight();
   for ( int i = 0; i < numTotalPatterns/2; ++i )
     modelPatterns.addShape( &spatialPatterns[i] );
-
+  EVAL("done3");
   for ( int j = numTotalPatterns/2; j < numTotalPatterns; ++j )
     comparisonPatterns.addShape( &spatialPatterns[j] );
 
   EVAL(modelPatterns.getSize());
   EVAL(comparisonPatterns.getSize());
 
-  Vertices<float> vertices( 3, numCCS, 0, 0 );
-  int k = 0;
-  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-  {
-    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
-    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
-    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
-    EVAL(vertices[k]);
-  }
+//  %% normal use %%
+//  Vertices<float> vertices( 3, numCCS, 0, 0 );
+//  int k = 0;
+//  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+//  {
+//    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
+//    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
+//    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+//    EVAL(vertices[k]);
+//  }
 
-  Vector<string> nucleiNames ;
-  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
+  Vertices<float> vertices;
+  vertices.load( analysisDir + filename + ".vx" );
+  EVAL("done4");
+//  %% normal use %%
+//  Vector<string> nucleiNames ;
+//  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
-  //unifying datasets
-  int numCurrentNucleus;
+//  //unifying datasets
+//  int numCurrentNucleus;
 
-  for ( int j = 0; j < nucleiNames.getSize(); ++j )
-    if ( nucleiNames[j] == filename )
-      numCurrentNucleus = j;
+//  for ( int j = 0; j < nucleiNames.getSize(); ++j )
+//    if ( nucleiNames[j] == filename )
+//      numCurrentNucleus = j;
 
-  EVAL (numCurrentNucleus);
+//  EVAL (numCurrentNucleus);
 
   //const int numPoints = vertices.getNumVertices();
   //const int numPatterns = 99;
@@ -321,7 +326,8 @@ void evaluator(
       //dataSet.setValue( "index", row, output[0] );
       //dataSet.setValue( "signedMaxDiff", row, output[1] );
 
-      globalAnalysis.setValue( spatialModel + "_" + function + "-SDI", numCurrentNucleus, sdis[0] );
+      //  %% normal use %%
+      //globalAnalysis.setValue( spatialModel + "_" + function + "-SDI", numCurrentNucleus, sdis[0] );
     }
     catch( Exception exception ) {
       EVAL( exception.getWhat() );
@@ -484,7 +490,8 @@ void realDataEvaluatorExternalPatterns(
       break;
     case 1:
       EVAL("SpatialModelHardcoreDistance3D");
-      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
+      //patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
+      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DUsingLessCCS/";
       spatialModel = "SpatialModelHardcoreDistance3D";
       evaluator(
             filename, parentDir, patternsDir, spatialModel,

@@ -9,6 +9,7 @@
 #include <voxelmatrix.h>
 #include <fileinfo.h>
 #include <dataset.h>
+#include <sstream>
 
 #define TRACE
 #include <trace.h>
@@ -21,7 +22,7 @@ void evaluatorLessCCS_completeSpatialRandomness(
     const int& numMCSimulations, RandomGenerator& randomGenerator)
 {
   PRINT("generatePatterns_completeSpatialRandomness");
-  PRINT("using 2 chromocenters less");
+  PRINT("using 1 chromocenters less");
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
@@ -97,56 +98,86 @@ void evaluatorLessCCS_sizeConstrained(
   }
 
   //choose how many CCS are not taken into account
-  Vector<int> ccsToAvoid;
-  ccsToAvoid.setSize( 2 );
-//  int ccsToAvoid;
-//  ccsToAvoid = randomGenerator.uniformLF( 0, numCCS-1 );
-  ccsToAvoid[0] = randomGenerator.uniformLF( 0, numCCS-1 );
-  do
+//  Vector<int> ccsToAvoid;
+//  ccsToAvoid.setSize( 2 );
+////  int ccsToAvoid;
+////  ccsToAvoid = randomGenerator.uniformLF( 0, numCCS-1 );
+//  ccsToAvoid[0] = randomGenerator.uniformLF( 0, numCCS-1 );
+//  do
+//  {
+//    ccsToAvoid[1] = randomGenerator.uniformLF( 0, numCCS-1 );
+//  } while ( ccsToAvoid[0] == ccsToAvoid[1] );
+
+
+  for ( int i = 0; i < numCCS; ++i )
   {
-    ccsToAvoid[1] = randomGenerator.uniformLF( 0, numCCS-1 );
-  } while ( ccsToAvoid[0] == ccsToAvoid[1] );
+//    EVAL( ccsToAvoid );
 
-  EVAL( ccsToAvoid );
-
-  Vector<float> eqRadiiTemp( numCCS );
-  int k = 0;
-  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-      eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
-
-  EVAL(eqRadiiTemp);
-  Vector<float> eqRadii;
-  eqRadii.setSize( numCCS - 2 );
-  int n = 0;
-  for ( int l = 0; l < numCCS; ++l )
-    if ( ( l != ccsToAvoid[0] ) && ( l != ccsToAvoid[1] ) )
-//    if ( ( l != ccsToAvoid ) )
+    Vertices<float> originalVertices( 3, 0, 0, 0 );
+    Vector<float> eqRadiiTemp( numCCS );
+    Vector<float> vertex( 3 );
+    int k = 0;
+    for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
     {
-      eqRadii[n] = eqRadiiTemp[l];
-      ++n;
+        eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+        vertex[X] = ccsInfo.getValue<float>( "centroidCoordX", j );
+        vertex[Y] = ccsInfo.getValue<float>( "centroidCoordY", j );
+        vertex[Z] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+        originalVertices.append( vertex );
     }
 
-  EVAL(eqRadii);
+    EVAL(eqRadiiTemp);
+    Vector<float> eqRadii;
+    eqRadii.setSize( numCCS - 2 );
+    int n = 0;
 
-  SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
-  triMeshSpatialModel.setRandomGenerator( randomGenerator );
-  triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setHardcoreDistances( eqRadii );
-  triMeshSpatialModel.initialize();
+      Vector<int> ccsToAvoid;
+      ccsToAvoid.setSize( 2 );
+    //  int ccsToAvoid;
+    //  ccsToAvoid = randomGenerator.uniformLF( 0, numCCS-1 );
+      ccsToAvoid[0] = randomGenerator.uniformLF( 0, numCCS-1 );
+      do
+      {
+        ccsToAvoid[1] = randomGenerator.uniformLF( 0, numCCS-1 );
+      } while ( ccsToAvoid[0] == ccsToAvoid[1] );
 
-  VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
-  Vertices<float> vertices( 3, numCCS-2, 0, 0 );
+    for ( int l = 0; l < numCCS; ++l )
+      if ( ( l != ccsToAvoid[0] ) && ( l != ccsToAvoid[1] ) )
+  //    if ( ( l != ccsToAvoid ) )
+   //   if ( l != i )
+      {
+        eqRadii[n] = eqRadiiTemp[l];
+        ++n;
+      }
+    originalVertices.remove( ccsToAvoid.max() );
+    originalVertices.remove( ccsToAvoid.min() );
 
-  EVAL(vertexStack.getSize());
+    ostringstream oss;
+    oss << i;
+    originalVertices.save( parentDir + "/analysis/" + filename + "-2-" + oss.str() + ".vx", true );
+    EVAL(eqRadii);
 
-  for ( int jj = 0; jj < 2*numMCSimulations; ++jj )
-  {
-    vertices = triMeshSpatialModel.drawSample(numCCS-2);
-    vertexStack.insert( jj, vertices );
+    SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
+    triMeshSpatialModel.setRandomGenerator( randomGenerator );
+    triMeshSpatialModel.setTriMesh( nucleusTriMesh );
+    triMeshSpatialModel.setHardcoreDistances( eqRadii );
+    triMeshSpatialModel.initialize();
+
+    VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
+    Vertices<float> vertices( 3, numCCS-2, 0, 0 );
+
+    EVAL(vertexStack.getSize());
+
+    for ( int jj = 0; jj < 2*numMCSimulations; ++jj )
+    {
+      vertices = triMeshSpatialModel.drawSample(numCCS-2);
+      vertexStack.insert( jj, vertices );
+    }
+
+    const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DUsingLessCCS/";
+    vertexStack.save( patternsDir + filename + "-2-" + oss.str() + ".vs", true );
   }
 
-  const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DUsingLessCCS/";
-  vertexStack.save( patternsDir + filename + ".vs", true );
 }
 
 void evaluatorLessCCS_distanceConstrained(

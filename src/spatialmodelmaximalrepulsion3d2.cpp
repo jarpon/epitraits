@@ -92,6 +92,48 @@ void SpatialModelMaximalRepulsion3D2<CoordType>::initializeBeta(const int numObj
   _beta = log( 20.0 ) / ( sumDelta/n );
 }
 
+
+/*! Returns the energy of the specified configuration.
+ *
+ * The default implementation returns the inverse sum of distances
+ * to all chromocenters.
+****************************************************************/
+template<class CoordType>
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<CoordType>& vertices) const
+{
+  const int numChromocenters = vertices.getNumVertices();
+  CoordType sumInterDistances = 0.0;
+  for (int i = 0; i < numChromocenters; ++i)
+    for (int j = i+1; j < numChromocenters; ++j)
+       sumInterDistances += 1.0/vertices[i].distance(vertices[j]);
+
+  return sumInterDistances;
+}
+
+#if 0
+/*! Returns the energy of the specified configuration.
+ *
+ * The default implementation returns the inverse sum of distances
+ * to furthest neighbours.
+****************************************************************/
+template<class CoordType>
+CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<CoordType>& vertices) const
+{
+  const int numVertices = vertices.getNumVertices();
+  CoordType temp;
+  Vector<CoordType> x (numVertices);
+
+  for ( int i = 0; i < numVertices; ++i)
+    for ( int j = 0; j < numVertices ; ++j)
+      if ( i != j )
+      {
+        temp = vertices[i].distance( vertices[j] );
+        if ( temp > x[i] )
+          x[i] = 1.0/temp;
+      }
+  return x.mean();
+}
+
 /*! Returns the energy of the specified configuration.
  *
  * The default implementation returns the inverse sum of distances
@@ -115,7 +157,7 @@ CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<Coor
   return 1.0 / x.mean();
 }
 
-#if 0
+
 /*! Returns the energy of the specified configuration.
  *
  * The default implementation returns the inverse sum of distances

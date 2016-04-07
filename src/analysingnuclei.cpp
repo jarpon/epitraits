@@ -69,7 +69,7 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   string classif = parentDir;
   classif = classif.substr(classif.find_last_of("/\\")+1,classif.length());
 
-
+  EVAL(regionAnalysis.computeRegionFeature(REGION_FEATURE_MAJOR_AXIS));
   nucleiDataset.setValue ( "name", numNucleus, filename );//filename
   nucleiDataset.setValue ( "class", numNucleus, classif );//classification: mutant, tissue, etc.
   nucleiDataset.setValue ( "nucleusVolume_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0] );//nucleus volume got from the voxelmatrix

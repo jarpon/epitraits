@@ -10,6 +10,8 @@
 
 #include "spatialmodelboundaryinteraction.h"
 #include <spatialmodelcompleterandomness.h>
+
+#include <spatialmodelthomasprocess.h>
 #include "spatialmodelevaluator2.h"
 #include <dataset.h>
 //#include <spatialmodelevaluator.h>
@@ -61,8 +63,8 @@ extern void testsStatisticalTests();
 vector<int> initNumObjectsS2()
 {
   vector<int> numObjectsS2;
-  numObjectsS2.push_back( 10 );
-  for (int s = 2; s <= 32; s += 1)
+  numObjectsS2.push_back( 2 );
+  for (int s = 3; s <= 32; s += 1)
     numObjectsS2.push_back( s );
   return numObjectsS2;
 }
@@ -362,8 +364,8 @@ void testPattern(
     ostringstream iss,iss2; //we have 4 constraints
     iss <<  setfill('0') << setw(5) << r;
     iss2 << pattern2.getNumVertices();
-  dataset.save( "/home/jarpon/data/projects/testStatisticalTests/low-number-objects-20160322/" + iss2.str() + "-" + iss.str() + ".data", true );
-
+  //dataset.save( "/home/jarpon/data/projects/testStatisticalTests/low-number-objects-20160324/" + iss2.str() + "-" + iss.str() + ".data", true );
+//dataset.save( "/home/jarpon/data/projects/testStatisticalTests/thomas-20160324/" + iss2.str() + "-" + iss.str() + ".data", true );
   LEAVE();
 }
 
@@ -501,6 +503,49 @@ void testModel(
 //  LEAVE();
 //}
 
+void thomas()
+{
+  ENTER( "void createSpatialModels(const float,DataSet&)" );
+  const Curve<CoordType> boundary = initSquareBoundary();
+  SpatialModelThomasProcess<float> spatialModel1;
+  RandomGenerator randomGenerator;
+  spatialModel1.setBoundary( boundary );
+  spatialModel1.setRandomGenerator( randomGenerator );
+  spatialModel1.setLambda(1);
+  spatialModel1.setMu(1.0);
+  spatialModel1.setSigma(1);
+  spatialModel1.initialize();
+
+  SpatialModelThomasProcess<float> spatialModel2;
+  spatialModel2.setBoundary( boundary );
+  spatialModel2.setRandomGenerator( randomGenerator );
+  spatialModel2.setLambda(1);
+  spatialModel2.setMu(1.0);
+  spatialModel2.setSigma(5);
+  spatialModel2.initialize();
+
+
+  SpatialModelCompleteRandomness<CoordType,PixelType> csrSpatialModel;
+  csrSpatialModel.setBoundary( boundary );
+  csrSpatialModel.setRandomGenerator( randomGenerator );
+  csrSpatialModel.initialize();
+
+  boundary.save( "squareBoundary", true );
+
+  //const int numObjectsS2 = initNumObjectsS2();
+  //spatialModel2.getInnerBoundary().save( "innerSquareBoundary2", true );
+  //spatialModel2.drawSample( numObjectsS2 ).save( "pattern-squareBoundaryInteractionModel2", true );
+
+  DataSet dataSet;
+  const int numObjectsS1 = 8;
+//  const vector<int> sampleSizes(1,100);
+  const int numBatches = 1;
+  testModel( spatialModel1, spatialModel2, csrSpatialModel, numObjectsS1, initNumObjectsS2(), boundary, numBatches, dataSet );
+  //dataSet.setValues( "marginProb", marginProb );
+
+  LEAVE();
+}
+
 void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
 {
   ENTER( "void createSpatialModels(const float,DataSet&)" );
@@ -530,14 +575,14 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
 
   boundary.save( "squareBoundary", true );
   spatialModel1.getInnerBoundary().save( "innerSquareBoundary1", true );
-  spatialModel1.drawSample( 20 ).save( "pattern-squareBoundaryInteractionModel1", true );
+  spatialModel1.drawSample( 8 ).save( "pattern-squareBoundaryInteractionModel1", true );
 
   //const int numObjectsS2 = initNumObjectsS2();
   //spatialModel2.getInnerBoundary().save( "innerSquareBoundary2", true );
   //spatialModel2.drawSample( numObjectsS2 ).save( "pattern-squareBoundaryInteractionModel2", true );
 
   DataSet dataSet;
-  const int numObjectsS1 = 20;
+  const int numObjectsS1 = 8;
 //  const vector<int> sampleSizes(1,100);
   const int numBatches = 1;
   testModel( spatialModel1, spatialModel2, csrSpatialModel, numObjectsS1, initNumObjectsS2(), boundary, numBatches, dataSet );
@@ -566,8 +611,9 @@ void powerUnderBoundaryInteractionModel()
 void testsStatisticalTests()
 {
   ENTER( "void testSpatialAnalysis()" );
-  //testPatternGeneration();
-  //testCSR();
-  powerUnderBoundaryInteractionModel();
+      //testPatternGeneration();
+      //testCSR();
+  //powerUnderBoundaryInteractionModel();
+  thomas();
   LEAVE();
 }
