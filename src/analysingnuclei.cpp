@@ -80,8 +80,8 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "major-axis", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_MAJOR_AXIS)[0] );//
   nucleiDataset.setValue ( "intermediate-axis", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTERMEDIATE_AXIS)[0] );//
   nucleiDataset.setValue ( "minor-axis", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_MINOR_AXIS)[0] );//
-  nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS)[0] );//flatness parameter
   nucleiDataset.setValue ( "elongation", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_ELONGATION)[0] );//elongation parameter
+  nucleiDataset.setValue ( "flatness", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_FLATNESS)[0] );//flatness parameter
   nucleiDataset.setValue ( "sphericity_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );//sphericity parameter
   nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
   nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA)[0] );//surface area of the nucleus

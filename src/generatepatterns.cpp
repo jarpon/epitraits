@@ -2,8 +2,8 @@
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
-#include <spatialmodelmaximalrepulsion3d.h>
-//#include "spatialmodelmaximalrepulsion3d2.h"
+//#include <spatialmodelmaximalrepulsion3d.h>
+#include "spatialmodelmaximalrepulsion3d2.h"
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
@@ -306,13 +306,19 @@ void evaluator_MaximalRepulsionConstrained(
   EVAL(distancesToBorder);
 
 
-  SpatialModelMaximalRepulsion3D<float> triMeshSpatialModel;
+  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
+//  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setNumMonteCarloCycles( 4000 );
+  triMeshSpatialModel.setNumMonteCarloCycles( 8000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
+  Vector<float> energy = triMeshSpatialModel.getEnergyProfile();
+  EVAL(energy);
+  DataSet energyProfile;
+  energyProfile.setValues<float> ( "energyProfile", energy );
+  energyProfile.save( parentDir + "/patterns/" + filename + "-H2.data", true );
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
   Vertices<float> vertices( 3, numCCS, 0, 0 );
@@ -325,7 +331,7 @@ void evaluator_MaximalRepulsionConstrained(
     vertexStack.insert( jj, vertices );
   }
 
-  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
+  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-H2/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 
 }

@@ -128,21 +128,22 @@ void evaluatorLessCCS_sizeConstrained(
 
     EVAL(eqRadiiTemp);
     Vector<float> eqRadii;
-    eqRadii.setSize( numCCS - 2 );
+    eqRadii.setSize( numCCS - 3 );
     int n = 0;
 
       Vector<int> ccsToAvoid;
-      ccsToAvoid.setSize( 2 );
+      ccsToAvoid.setSize( 3 );
     //  int ccsToAvoid;
     //  ccsToAvoid = randomGenerator.uniformLF( 0, numCCS-1 );
       ccsToAvoid[0] = randomGenerator.uniformLF( 0, numCCS-1 );
       do
       {
         ccsToAvoid[1] = randomGenerator.uniformLF( 0, numCCS-1 );
-      } while ( ccsToAvoid[0] == ccsToAvoid[1] );
+        ccsToAvoid[2] = randomGenerator.uniformLF( 0, numCCS-1 );
+      } while ( ccsToAvoid[0] == ccsToAvoid[1] == ccsToAvoid[2] );
 
     for ( int l = 0; l < numCCS; ++l )
-      if ( ( l != ccsToAvoid[0] ) && ( l != ccsToAvoid[1] ) )
+      if ( ( l != ccsToAvoid[0] ) && ( l != ccsToAvoid[1] ) && ( l != ccsToAvoid[2] ) )
   //    if ( ( l != ccsToAvoid ) )
    //   if ( l != i )
       {
@@ -154,7 +155,7 @@ void evaluatorLessCCS_sizeConstrained(
 
     ostringstream oss;
     oss << i;
-    originalVertices.save( parentDir + "/analysis/" + filename + "-2-" + oss.str() + ".vx", true );
+    originalVertices.save( parentDir + "/analysis/" + filename + "-3-" + oss.str() + ".vx", true );
     EVAL(eqRadii);
 
     SpatialModelHardcoreDistance3D<float> triMeshSpatialModel;
@@ -164,18 +165,18 @@ void evaluatorLessCCS_sizeConstrained(
     triMeshSpatialModel.initialize();
 
     VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
-    Vertices<float> vertices( 3, numCCS-2, 0, 0 );
+    Vertices<float> vertices( 3, numCCS-3, 0, 0 );
 
     EVAL(vertexStack.getSize());
 
     for ( int jj = 0; jj < 2*numMCSimulations; ++jj )
     {
-      vertices = triMeshSpatialModel.drawSample(numCCS-2);
+      vertices = triMeshSpatialModel.drawSample(numCCS-3);
       vertexStack.insert( jj, vertices );
     }
 
     const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DUsingLessCCS/";
-    vertexStack.save( patternsDir + filename + "-2-" + oss.str() + ".vs", true );
+    vertexStack.save( patternsDir + filename + "-3-" + oss.str() + ".vs", true );
   }
 
 }
