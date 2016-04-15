@@ -513,7 +513,7 @@ void thomas()
   spatialModel1.setRandomGenerator( randomGenerator );
   spatialModel1.setLambda(1);
   spatialModel1.setMu(0.1);
-  spatialModel1.setSigma(1);
+  spatialModel1.setSigma(0);
   spatialModel1.initialize();
 
   SpatialModelThomasProcess<float> spatialModel2;
