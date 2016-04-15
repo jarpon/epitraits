@@ -919,18 +919,18 @@ int main(int argc, char* argv[])
         EVAL(parentDir);
 
 
-        ENTER("Setting calibration");
-        VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + filename + ".vm" );
-        VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
-        VoxelMatrix<float> ccsMask( parentDir + "/segmented_chromocenters/" + filename + ".vm" );
-        addCalibration( originalVoxelMatrix, ccsMask, parentDir + "/new/", filename );
-        LEAVE();
+//        ENTER("Setting calibration");
+//        VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + filename + ".vm" );
+//        VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
+//        VoxelMatrix<float> ccsMask( parentDir + "/segmented_chromocenters/" + filename + ".vm" );
+//        addCalibration( originalVoxelMatrix, ccsMask, parentDir + "/new/", filename );
+//        LEAVE();
 
 //        normalizeAxisTriMesh( filename, parentDir );
 
         //test2Distributions( filepath, filename, filename );
 
-//        testsStatisticalTests();
+        testsStatisticalTests();
         //doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );
