@@ -77,6 +77,8 @@ extern void doIt(const string&, const string&, RandomGenerator&);
 extern void doIt2(const string&, const string&);
 extern void test2Distributions(const string&, const string&, const string& = 0);
 extern void normalizeAxisTriMesh(const string&, const string&);
+extern void addCalibration(const VoxelMatrix<float>&, const VoxelMatrix<float>&, const string&, const string& );
+
 
 //extern void analyzeSample(const string&, const int&, int&, DataSet&, DataSet&);
 int main(int argc, char* argv[])
@@ -912,15 +914,23 @@ int main(int argc, char* argv[])
 
         //const VoxelMatrix<float> originalVoxelMatrix( filepath );
 
-        //analysisDir = parentDir + "/analysis/";
+//        analysisDir = parentDir + "/analysis/";
         EVAL(filename);
         EVAL(parentDir);
+
+
+        ENTER("Setting calibration");
+        VoxelMatrix<float> originalVoxelMatrix( parentDir + "/originals_vm/" + filename + ".vm" );
+        VoxelMatrix<float> nucleusMask( parentDir + "/segmented_nuclei/" + filename + ".vm" );
+        VoxelMatrix<float> ccsMask( parentDir + "/segmented_chromocenters/" + filename + ".vm" );
+        addCalibration( originalVoxelMatrix, ccsMask, parentDir + "/new/", filename );
+        LEAVE();
 
 //        normalizeAxisTriMesh( filename, parentDir );
 
         //test2Distributions( filepath, filename, filename );
 
-        testsStatisticalTests();
+//        testsStatisticalTests();
         //doIt2( filename, parentDir );
 //        VoxelMatrix<float>nucleiMask = isolateNuclei( originalVoxelMatrix );
 //        nucleiMask.save( "/home/jarpon/Desktop/" + filename + "-nucleus.vm", true );

@@ -512,7 +512,7 @@ void thomas()
   spatialModel1.setBoundary( boundary );
   spatialModel1.setRandomGenerator( randomGenerator );
   spatialModel1.setLambda(1);
-  spatialModel1.setMu(1.0);
+  spatialModel1.setMu(0.0);
   spatialModel1.setSigma(1);
   spatialModel1.initialize();
 
@@ -521,7 +521,7 @@ void thomas()
   spatialModel2.setRandomGenerator( randomGenerator );
   spatialModel2.setLambda(1);
   spatialModel2.setMu(1.0);
-  spatialModel2.setSigma(5);
+  spatialModel2.setSigma(0);
   spatialModel2.initialize();
 
 

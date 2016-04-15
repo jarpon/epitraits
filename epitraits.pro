@@ -87,7 +87,8 @@ SOURCES += \
     src/spatialdescriptorfunctionsrd.cpp \
     src/spatialdescriptorfunctionasrd.cpp \
     src/generatepatternslessobjects.cpp \
-    src/normalizeaxis.cpp
+    src/normalizeaxis.cpp \
+    src/temporaltasks.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
