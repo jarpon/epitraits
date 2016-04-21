@@ -243,32 +243,34 @@ void testPattern(
   spatialModelEvaluator.evalArea( pattern1, pValues, allpValues );
 
   gDataSet.setValue( "F1-SDI", r, pValues[0] );
-  gDataSet.setValue( "F1-obArea", r, allpValues[0][0] );
-  gDataSet.setValue( "F1-avgArea", r, allpValues[0][1] );
-  gDataSet.setValue( "F1-uppArea", r, allpValues[0][2] );
-  gDataSet.setValue( "F1-lowArea", r, allpValues[0][3] );
+//  gDataSet.setValue( "F1-obArea", r, allpValues[0][0] );
+//  gDataSet.setValue( "F1-avgArea", r, allpValues[0][1] );
+//  gDataSet.setValue( "F1-uppArea", r, allpValues[0][2] );
+//  gDataSet.setValue( "F1-lowArea", r, allpValues[0][3] );
   gDataSet.setValue( "G1-SDI", r, pValues[1] );
-  gDataSet.setValue( "G1-obArea", r, allpValues[1][0] );
-  gDataSet.setValue( "G1-avgArea", r, allpValues[1][1] );
-  gDataSet.setValue( "G1-uppArea", r, allpValues[1][2] );
-  gDataSet.setValue( "G1-lowArea", r, allpValues[1][3] );
+//  gDataSet.setValue( "G1-obArea", r, allpValues[1][0] );
+//  gDataSet.setValue( "G1-avgArea", r, allpValues[1][1] );
+//  gDataSet.setValue( "G1-uppArea", r, allpValues[1][2] );
+//  gDataSet.setValue( "G1-lowArea", r, allpValues[1][3] );
   gDataSet.setValue( "H1-SDI", r, pValues[2] );
-  gDataSet.setValue( "H1-obArea", r, allpValues[2][0] );
-  gDataSet.setValue( "H1-avgArea", r, allpValues[2][1] );
-  gDataSet.setValue( "H1-uppArea", r, allpValues[2][2] );
-  gDataSet.setValue( "H1-lowArea", r, allpValues[2][3] );
+//  gDataSet.setValue( "H1-obArea", r, allpValues[2][0] );
+//  gDataSet.setValue( "H1-avgArea", r, allpValues[2][1] );
+//  gDataSet.setValue( "H1-uppArea", r, allpValues[2][2] );
+//  gDataSet.setValue( "H1-lowArea", r, allpValues[2][3] );
   gDataSet.setValue( "C1-SDI", r, pValues[3] );
-  gDataSet.setValue( "C1-obArea", r, allpValues[3][0] );
-  gDataSet.setValue( "C1-avgArea", r, allpValues[3][1] );
-  gDataSet.setValue( "C1-uppArea", r, allpValues[3][2] );
-  gDataSet.setValue( "C1-lowArea", r, allpValues[3][3] );
+//  gDataSet.setValue( "C1-obArea", r, allpValues[3][0] );
+//  gDataSet.setValue( "C1-avgArea", r, allpValues[3][1] );
+//  gDataSet.setValue( "C1-uppArea", r, allpValues[3][2] );
+//  gDataSet.setValue( "C1-lowArea", r, allpValues[3][3] );
 //  gDataSet.setValue( "Z1-SDI", r, pValues[4] );
 //  gDataSet.setValue( "Z1-obArea", r, allpValues[4][0] );
 //  gDataSet.setValue( "Z1-avgArea", r, allpValues[4][1] );
 //  gDataSet.setValue( "Z1-uppArea", r, allpValues[4][2] );
 //  gDataSet.setValue( "Z1-lowArea", r, allpValues[4][3] );
 
-    EVAL("ok");
+
+  gDataSet.setValue( "numObjectsS1", r, pattern1.getNumVertices());
+
  // SpatialDescriptorFunctionF<CoordType> functionF2;
  // SpatialDescriptorFunctionG<CoordType> functionG2;
  // SpatialDescriptorFunctionH<CoordType> functionH2;
@@ -335,25 +337,25 @@ void testPattern(
   EVAL(allpValues2[3][0]);
   EVAL(allpValues2[3][1]);
   gDataSet.setValue( "F2-SDI", r, pValues2[0] );
-  gDataSet.setValue( "F2-obArea", r, allpValues2[0][0] );
-  gDataSet.setValue( "F2-avgArea", r, allpValues2[0][1] );
-  gDataSet.setValue( "F2-uppArea", r, allpValues2[0][2] );
-  gDataSet.setValue( "F2-lowArea", r, allpValues2[0][3] );
+//  gDataSet.setValue( "F2-obArea", r, allpValues2[0][0] );
+//  gDataSet.setValue( "F2-avgArea", r, allpValues2[0][1] );
+//  gDataSet.setValue( "F2-uppArea", r, allpValues2[0][2] );
+//  gDataSet.setValue( "F2-lowArea", r, allpValues2[0][3] );
   gDataSet.setValue( "G2-SDI", r, pValues2[1] );
-  gDataSet.setValue( "G2-obArea", r, allpValues2[1][0] );
-  gDataSet.setValue( "G2-avgArea", r, allpValues2[1][1] );
-  gDataSet.setValue( "G2-uppArea", r, allpValues2[1][2] );
-  gDataSet.setValue( "G2-lowArea", r, allpValues2[1][3] );
+//  gDataSet.setValue( "G2-obArea", r, allpValues2[1][0] );
+//  gDataSet.setValue( "G2-avgArea", r, allpValues2[1][1] );
+//  gDataSet.setValue( "G2-uppArea", r, allpValues2-10-15[1][2] );
+//  gDataSet.setValue( "G2-lowArea", r, allpValues2[1][3] );
   gDataSet.setValue( "H2-SDI", r, pValues2[2] );
-  gDataSet.setValue( "H2-obArea", r, allpValues2[2][0] );
-  gDataSet.setValue( "H2-avgArea", r, allpValues2[2][1] );
-  gDataSet.setValue( "H2-uppArea", r, allpValues2[2][2] );
-  gDataSet.setValue( "H2-lowArea", r, allpValues2[2][3] );
+//  gDataSet.setValue( "H2-obArea", r, allpValues2[2][0] );
+//  gDataSet.setValue( "H2-avgArea", r, allpValues2[2][1] );
+//  gDataSet.setValue( "H2-uppArea", r, allpValues2[2][2] );
+//  gDataSet.setValue( "H2-lowArea", r, allpValues2[2][3] );
   gDataSet.setValue( "C2-SDI", r, pValues2[3] );
-  gDataSet.setValue( "C2-obArea", r, allpValues2[3][0] );
-  gDataSet.setValue( "C2-avgArea", r, allpValues2[3][1] );
-  gDataSet.setValue( "C2-uppArea", r, allpValues2[3][2] );
-  gDataSet.setValue( "C2-lowArea", r, allpValues2[3][3] );
+//  gDataSet.setValue( "C2-obArea", r, allpValues2[3][0] );
+//  gDataSet.setValue( "C2-avgArea", r, allpValues2[3][1] );
+//  gDataSet.setValue( "C2-uppArea", r, allpValues2[3][2] );
+//  gDataSet.setValue( "C2-lowArea", r, allpValues2[3][3] );
 //  gDataSet.setValue( "Z2-SDI", r, pValues2[4] );
 //  gDataSet.setValue( "Z2-obArea", r, allpValues2[4][0] );
 //  gDataSet.setValue( "Z2-avgArea", r, allpValues2[4][1] );
@@ -361,11 +363,17 @@ void testPattern(
 //  gDataSet.setValue( "Z2-lowArea", r, allpValues2[4][3] );
     EVAL("ok");
 
-    ostringstream iss,iss2; //we have 4 constraints
+
+
+    gDataSet.setValue( "numObjectsS2", r, pattern2.getNumVertices() );
+
+    ostringstream iss, iss1, iss2; //we have 4 constraints
     iss <<  setfill('0') << setw(5) << r;
+    iss1 << pattern1.getNumVertices();
     iss2 << pattern2.getNumVertices();
-  //dataset.save( "/home/jarpon/data/projects/testStatisticalTests/low-number-objects-20160324/" + iss2.str() + "-" + iss.str() + ".data", true );
-//dataset.save( "/home/jarpon/data/projects/testStatisticalTests/thomas-20160324/" + iss2.str() + "-" + iss.str() + ".data", true );
+    dataset.save( "/home/jarpon/data/projects/testStatisticalTests/marginprob-20160420-10-15/" + iss2.str() + "-" + iss.str() + ".data", true );
+    pattern1.save( "/home/jarpon/data/projects/testStatisticalTests/marginprob-20160420-10-15/pattern1-" + iss1.str() + "-" + iss.str() + ".vx", true );
+    pattern2.save( "/home/jarpon/data/projects/testStatisticalTests/marginprob-20160420-10-15/pattern2-" + iss2.str() + "-" + iss.str() + ".vx", true );
   LEAVE();
 }
 
@@ -385,13 +393,13 @@ void testModel(
   {
     const Vertices<CoordType> pattern1 = spatialModel1.drawSample( numObjectsS1 );
   //EVAL(pattern1.size());
-  EVAL("1 ok");
+//  EVAL("1 ok");
     const Vertices<CoordType> pattern2 = spatialModel2.drawSample( numObjectsS2 );
   //EVAL(pattern2.size());
-  EVAL("2 ok");
-  EVAL(numObjectsS2);
-    pattern1.save( "current-pattern1", true );
-    pattern2.save( "current-pattern2", true );
+//  EVAL("2 ok");
+//  EVAL(numObjectsS2);
+//    pattern1.save( "current-pattern1", true );
+//    pattern2.save( "current-pattern2", true );
     //testPattern( pattern1, pattern2, spatialModel1, spatialModel2, csrModel, boundary, gDataSet );
     testPattern( pattern1, pattern2, csrModel, boundary, gDataSet );
   }
@@ -434,7 +442,7 @@ void testModel(
     {
       DataSet dataSet;
       testModel( spatialModel1, spatialModel2, csrModel, numObjectsS1, numObjectsS2[s], boundary, numBatches, dataSet );
-      dataSet.setValues( "numObjectsS2", numObjectsS2[s] );
+//      dataSet.setValues( "numObjectsS2", numObjectsS2[s] );
       gDataSet.append( dataSet );
       gDataSet.save( "current-dataset.data", true );
     }
@@ -511,17 +519,17 @@ void thomas()
   RandomGenerator randomGenerator;
   spatialModel1.setBoundary( boundary );
   spatialModel1.setRandomGenerator( randomGenerator );
-  spatialModel1.setLambda(1);
-  spatialModel1.setMu(0.1);
-  spatialModel1.setSigma(0);
+  spatialModel1.setLambda(5);
+  spatialModel1.setMu(1);
+  spatialModel1.setSigma(1);
   spatialModel1.initialize();
 
   SpatialModelThomasProcess<float> spatialModel2;
   spatialModel2.setBoundary( boundary );
   spatialModel2.setRandomGenerator( randomGenerator );
-  spatialModel2.setLambda(1);
-  spatialModel2.setMu(1.0);
-  spatialModel2.setSigma(0);
+  spatialModel2.setLambda(10);
+  spatialModel2.setMu(1);
+  spatialModel2.setSigma(1);
   spatialModel2.initialize();
 
 
@@ -537,7 +545,7 @@ void thomas()
   //spatialModel2.drawSample( numObjectsS2 ).save( "pattern-squareBoundaryInteractionModel2", true );
 
   DataSet dataSet;
-  const int numObjectsS1 = 8;
+  const int numObjectsS1 = 10;
 //  const vector<int> sampleSizes(1,100);
   const int numBatches = 1;
   testModel( spatialModel1, spatialModel2, csrSpatialModel, numObjectsS1, initNumObjectsS2(), boundary, numBatches, dataSet );
@@ -554,7 +562,8 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
   RandomGenerator randomGenerator;
   spatialModel1.setBoundary( boundary );
   spatialModel1.setRandomGenerator( randomGenerator );
-  spatialModel1.setMargin( 0.2 );
+  spatialModel1.setMargin( 0.1 );
+//  spatialModel1.setMargin( 0.2 );
   //spatialModel1.setMargin( 0.4 );
   spatialModel1.setMarginProb( marginProb );
   spatialModel1.initialize();
@@ -562,7 +571,8 @@ void testBoundaryInteractionModel(const float marginProb, DataSet& gDataSet)
   SpatialModelBoundaryInteraction<float> spatialModel2;
   spatialModel2.setBoundary( boundary );
   spatialModel2.setRandomGenerator( randomGenerator );
-  spatialModel2.setMargin( 0.2 );
+  spatialModel2.setMargin( 0.15 );
+  //  spatialModel2.setMargin( 0.2 );
   //spatialModel2.setMargin( 0.4 );
   spatialModel2.setMarginProb( marginProb );
   spatialModel2.initialize();
@@ -613,7 +623,7 @@ void testsStatisticalTests()
   ENTER( "void testSpatialAnalysis()" );
       //testPatternGeneration();
       //testCSR();
-  //powerUnderBoundaryInteractionModel();
-  thomas();
+  powerUnderBoundaryInteractionModel();
+//  thomas();
   LEAVE();
 }

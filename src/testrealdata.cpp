@@ -101,7 +101,8 @@ void evaluator(
   SpatialModelEvaluator<float,float> modelEvaluator;
   modelEvaluator.setModel( triMeshSpatialModel );
   modelEvaluator.setNumMonteCarloSamples( numPatterns ); //to check uniformity
-  modelEvaluator.setPrecision( 0.05 );
+  //modelEvaluator.setPrecision( 0.05 );
+  modelEvaluator.setPrecision( 0.01 );
 
   SpatialDescriptor<float>* spatialDescriptor;
 

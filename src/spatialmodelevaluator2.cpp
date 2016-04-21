@@ -222,11 +222,11 @@ void SpatialModelEvaluator<CoordType,PixelType>::eval(
   Matrix<CoordType> x1, x2;
   CDFTools<CoordType> cdfTools;
 
-  EVAL("here2a1");
+//  EVAL("here2a1");
   descriptor.eval( monteCarloSamples1, x1 );
-  EVAL("here2a2");
+//  EVAL("here2a2");
   descriptor.eval( monteCarloSamples2, x2 );
-  EVAL("here2a3");
+//  EVAL("here2a3");
   descriptor.eval( vertices, x, y );
 
   const CoordType max1 = x1.max().max();
@@ -325,10 +325,10 @@ void SpatialModelEvaluator<CoordType,PixelType>::evalArea(
     values[2] = allValues[2];
     values[3] = allValues[3];
   }
-  EVAL(values[0]);
-  EVAL(values[1]);
-  EVAL(values[2]);
-  EVAL(values[3]);
+//  EVAL(values[0]);
+//  EVAL(values[1]);
+//  EVAL(values[2]);
+//  EVAL(values[3]);
   if ( dataSet != 0 )
   {
     Vector<float> percents( 2 );

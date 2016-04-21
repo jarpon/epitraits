@@ -237,6 +237,7 @@ void evaluator_sizeAndDistanceConstrained(
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.setDistancesToBorder( distancesToBorder );
+  //triMeshSpatialModel.setDistancesToBorder( eqRadii );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
 
@@ -252,6 +253,7 @@ void evaluator_sizeAndDistanceConstrained(
   }
 
   const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
+  //const string patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D-Radii/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 
 }
@@ -307,7 +309,7 @@ void evaluator_MaximalRepulsionConstrained(
 
 
   SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
-//  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
+  //SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.setNumMonteCarloCycles( 8000 );
@@ -315,10 +317,9 @@ void evaluator_MaximalRepulsionConstrained(
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
   Vector<float> energy = triMeshSpatialModel.getEnergyProfile();
-  EVAL(energy);
   DataSet energyProfile;
   energyProfile.setValues<float> ( "energyProfile", energy );
-  energyProfile.save( parentDir + "/patterns/" + filename + "-H2.data", true );
+  energyProfile.save( parentDir + "/patterns/" + filename + "-Z.data", true );
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
   Vertices<float> vertices( 3, numCCS, 0, 0 );
@@ -331,7 +332,7 @@ void evaluator_MaximalRepulsionConstrained(
     vertexStack.insert( jj, vertices );
   }
 
-  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-H2/";
+  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-Z/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 
 }

@@ -48,7 +48,8 @@ void evaluator(
   const string& function, const int& constraints, DataSet& dataSet, RandomGenerator& randomGenerator )
 {
   ENTER("Analyzing data using existing spatial patterns");
-  string tempName = filename.substr(0,filename.find_first_of("-"));
+  string tempName = filename.substr(0,filename.find_last_of("-"));
+  EVAL(tempName);
   const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + tempName + ".tm" );
 
   EVAL("done");
@@ -58,28 +59,28 @@ void evaluator(
   const string analysisDir = parentDir + "/analysis/";
 
 //  %% normal use %%
-//  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
-//  const DataSet ccsInfo( analysisDir + "ccs.data" );
+  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
 
-//  Vector<string> tempFileNames;
-//  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
 
-//  int lastPos, numCCS = 0;
+  int lastPos, numCCS = 0;
 
-//  for ( int j = 0; j < tempFileNames.getSize(); ++j )
-//    if ( tempFileNames[j] == filename )
-//    {
-//      lastPos = j;
-//      ++ numCCS;
-//    }
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
 
-//  if ( numCCS == 0 )
-//  {
-//    ProgramError error;
-//    error.setWhat( "There is a problem with the chromocenters dataset" );
-//    throw error;
-//    return;
-//  }
+  if ( numCCS == 0 )
+  {
+    ProgramError error;
+    error.setWhat( "There is a problem with the chromocenters dataset" );
+    throw error;
+    return;
+  }
 
   VertexStack<float> spatialPatterns;
   spatialPatterns.load( patternsDir + filename + ".vs" );
@@ -97,34 +98,35 @@ void evaluator(
   EVAL(comparisonPatterns.getSize());
 
 //  %% normal use %%
-//  Vertices<float> vertices( 3, numCCS, 0, 0 );
-//  int k = 0;
-//  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-//  {
-//    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
-//    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
-//    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
-//    EVAL(vertices[k]);
-//  }
+  Vertices<float> vertices( 3, numCCS, 0, 0 );
+  int k = 0;
+  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+  {
+    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
+    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
+    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+    EVAL(vertices[k]);
+  }
 
-  Vertices<float> vertices;
-  vertices.load( analysisDir + filename + ".vx" );
-  EVAL("done4");
+  //  %% opening vertices %%
+//  Vertices<float> vertices;
+//  vertices.load( analysisDir + filename + ".vx" );
+//  EVAL("done4");
 //  %% normal use %%
-//  Vector<string> nucleiNames ;
-//  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
+  Vector<string> nucleiNames ;
+  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
-//  //unifying datasets
-//  int numCurrentNucleus;
+  //unifying datasets
+  int numCurrentNucleus;
 
-//  for ( int j = 0; j < nucleiNames.getSize(); ++j )
-//    if ( nucleiNames[j] == filename )
-//      numCurrentNucleus = j;
+  for ( int j = 0; j < nucleiNames.getSize(); ++j )
+    if ( nucleiNames[j] == filename )
+      numCurrentNucleus = j;
 
-//  EVAL (numCurrentNucleus);
+  EVAL (numCurrentNucleus);
 
-  //const int numPoints = vertices.getNumVertices();
-  //const int numPatterns = 99;
+//  const int numPoints = vertices.getNumVertices();
+//  const int numPatterns = 99;
 
   SpatialModelEvaluatorBase<float,float> modelEvaluator;
   //modelEvaluator.setModel( triMeshSpatialModel );
@@ -508,6 +510,7 @@ void realDataEvaluatorExternalPatterns(
     case 3:
       EVAL("SpatialModelHardcoreBorderDistance3D");
       patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D/";
+//      patternsDir = parentDir + "/patterns/SpatialModelHardcoreBorderDistance3D-Radii/";
       spatialModel = "SpatialModelHardcoreBorderDistance3D";
       evaluator(
             filename, parentDir, patternsDir, spatialModel,
