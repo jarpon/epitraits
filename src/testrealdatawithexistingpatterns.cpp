@@ -492,8 +492,8 @@ void realDataEvaluatorExternalPatterns(
       break;
     case 1:
       EVAL("SpatialModelHardcoreDistance3D");
-      //patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
-      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DUsingLessCCS/";
+      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3D/";
+//      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DUsingLessCCS/";
       spatialModel = "SpatialModelHardcoreDistance3D";
       evaluator(
             filename, parentDir, patternsDir, spatialModel,
