@@ -2,8 +2,8 @@
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
-//#include <spatialmodelmaximalrepulsion3d.h>
-#include "spatialmodelmaximalrepulsion3d2.h"
+#include <spatialmodelmaximalrepulsion3d.h>
+//#include "spatialmodelmaximalrepulsion3d2.h"
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
@@ -220,6 +220,7 @@ void evaluator_sizeAndDistanceConstrained(
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
   {
     eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<int>( "equivalentRadius_ZprojCorrection", j );
 //    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
     distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   }
@@ -294,8 +295,9 @@ void evaluator_MaximalRepulsionConstrained(
   for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
   {
     eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+//    eqRadiiTemp[k] = ccsInfo.getValue<int>( "equivalentRadius_ZprojCorrection", j );
 //    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
-    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+    distancesToBorder[k] = ccsInfo.getValue<int>( "distanceToTheBorder", j );
   }
 
 
@@ -305,21 +307,21 @@ void evaluator_MaximalRepulsionConstrained(
 
   const Vector<float> eqRadii = eqRadiiTemp;
   EVAL(eqRadii);
-  EVAL(distancesToBorder);
+//  EVAL(distancesToBorder);
 
 
-  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
-  //SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
+//  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
+  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
   triMeshSpatialModel.setNumMonteCarloCycles( 8000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
-  Vector<float> energy = triMeshSpatialModel.getEnergyProfile();
-  DataSet energyProfile;
-  energyProfile.setValues<float> ( "energyProfile", energy );
-  energyProfile.save( parentDir + "/patterns/" + filename + "-Z.data", true );
+//  Vector<float> energy = triMeshSpatialModel.getEnergyProfile();
+//  DataSet energyProfile;
+//  energyProfile.setValues<float> ( "energyProfile", energy );
+//  energyProfile.save( parentDir + "/patterns/" + filename + "-Z.data", true );
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
   Vertices<float> vertices( 3, numCCS, 0, 0 );
@@ -332,7 +334,7 @@ void evaluator_MaximalRepulsionConstrained(
     vertexStack.insert( jj, vertices );
   }
 
-  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-Z/";
+  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 
 }

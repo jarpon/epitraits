@@ -46,7 +46,7 @@ extern VoxelMatrix<float> findGenes(const VoxelMatrix<float>&, VoxelMatrix<float
 extern void chromocentersAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
 extern void chromocentersInterdistances(const string&,
-                           const string&, DataSet&);
+                           const string&, int&, DataSet&, DataSet&);
 extern void chromosomesAnalysis(VoxelMatrix<float>&, const string&, const string&,
                                   const int&, int&, DataSet&, DataSet&, DataSet&);
 //extern void nucleoliAnalysis(VoxelMatrix<float>&, const string&, const string&,
@@ -450,11 +450,11 @@ int main(int argc, char* argv[])
         else if ( process == "4-interdistances" )
         {
           ENTER("Chromocenter interdistances quantification");
-//          const string& outputDir = analysisDir + "chromocentersDistances/";
+//         const string& outputDir = analysisDir + "chromocentersDistances/";
           const string& outputDir = analysisDir;
           DataSet individualChromocentersDataset;
           //VoxelMatrix<float> ccsMask ( chromocentersDir + filename + ".vm" );
-          chromocentersInterdistances( filename, parentDir, individualChromocentersDataset );
+          chromocentersInterdistances( filename, parentDir, totalNumCCs, nucleiDataset, individualChromocentersDataset );
           individualChromocentersDataset.save(outputDir + filename + ".data", true );
           LEAVE();
         }
@@ -560,6 +560,11 @@ int main(int argc, char* argv[])
     {
       nucleiDataset.save(analysisDir + "nuclei_extended.data", true );
       chromocentersDataset.save(analysisDir + "ccs.data", true );
+    }
+
+    else if ( argv[2] == std::string("4-interdistances") )
+    {
+      nucleiDataset.save(analysisDir + "distances-to-the-border.data", true );
     }
 
     else if ( argv[2] == std::string("10") )

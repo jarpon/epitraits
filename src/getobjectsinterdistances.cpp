@@ -12,11 +12,14 @@
 #include <trace.h>
 
 void chromocentersInterdistances(const string& filename,
-                           const string& parentDir, DataSet& individualChromocentersDataset)
+                           const string& parentDir,
+                                 int& totalNumCCs,
+                                 DataSet& completeDataset,
+                                 DataSet& individualChromocentersDataset)
 {
   //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 
-  const DataSet ccsInfo( parentDir + "/analysis/ccs.csv" );
+  const DataSet ccsInfo( parentDir + "/analysis/ccs.data" );
 
   Vector<string> tempFileNames;
   tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
@@ -75,5 +78,9 @@ void chromocentersInterdistances(const string& filename,
       individualChromocentersDataset.setValue ( iss.str(), i, tempDistance );
     }
     individualChromocentersDataset.setValue ( "distanceToTheBorder", i, distanceToBorder );
+    completeDataset.setValue ( "name", i+totalNumCCs, filename );
+    completeDataset.setValue ( "distanceToTheBorder", i+totalNumCCs, distanceToBorder );
+
   }
+  totalNumCCs += numCCS;
 }

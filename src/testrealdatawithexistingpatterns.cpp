@@ -48,9 +48,9 @@ void evaluator(
   const string& function, const int& constraints, DataSet& dataSet, RandomGenerator& randomGenerator )
 {
   ENTER("Analyzing data using existing spatial patterns");
-  string tempName = filename.substr(0,filename.find_last_of("-"));
-  EVAL(tempName);
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + tempName + ".tm" );
+//  string tempName = filename.substr(0,filename.find_last_of("-"));
+//  EVAL(tempName);
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
 
   EVAL("done");
   string classif = parentDir;
@@ -59,7 +59,7 @@ void evaluator(
   const string analysisDir = parentDir + "/analysis/";
 
 //  %% normal use %%
-  DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
+  //DataSet globalAnalysis( analysisDir + "nuclei_extended.data" );
   const DataSet ccsInfo( analysisDir + "ccs.data" );
 
   Vector<string> tempFileNames;
@@ -84,13 +84,12 @@ void evaluator(
 
   VertexStack<float> spatialPatterns;
   spatialPatterns.load( patternsDir + filename + ".vs" );
-  EVAL("done2");
   ShapeSet<float> modelPatterns, comparisonPatterns;
 
   const int numTotalPatterns = spatialPatterns.getHeight();
   for ( int i = 0; i < numTotalPatterns/2; ++i )
     modelPatterns.addShape( &spatialPatterns[i] );
-  EVAL("done3");
+
   for ( int j = numTotalPatterns/2; j < numTotalPatterns; ++j )
     comparisonPatterns.addShape( &spatialPatterns[j] );
 
@@ -114,16 +113,16 @@ void evaluator(
 //  EVAL("done4");
 //  %% normal use %%
   Vector<string> nucleiNames ;
-  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
+//  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
-  //unifying datasets
-  int numCurrentNucleus;
+//  //unifying datasets
+//  int numCurrentNucleus;
 
-  for ( int j = 0; j < nucleiNames.getSize(); ++j )
-    if ( nucleiNames[j] == filename )
-      numCurrentNucleus = j;
+//  for ( int j = 0; j < nucleiNames.getSize(); ++j )
+//    if ( nucleiNames[j] == filename )
+//      numCurrentNucleus = j;
 
-  EVAL (numCurrentNucleus);
+//  EVAL (numCurrentNucleus);
 
 //  const int numPoints = vertices.getNumVertices();
 //  const int numPatterns = 99;
