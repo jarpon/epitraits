@@ -2,8 +2,8 @@
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
-#include <spatialmodelmaximalrepulsion3d.h>
-//#include "spatialmodelmaximalrepulsion3d2.h"
+//#include <spatialmodelmaximalrepulsion3d.h>
+#include "spatialmodelmaximalrepulsion3d2.h"
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
@@ -305,23 +305,22 @@ void evaluator_MaximalRepulsionConstrained(
     if ( eqRadiiTemp[i] > distancesToBorder[i] )
       eqRadiiTemp[i] = distancesToBorder[i];
 
-  const Vector<float> eqRadii = eqRadiiTemp;
+  const Vector<float> eqRadii = eqRadiiTemp/1000;
   EVAL(eqRadii);
 //  EVAL(distancesToBorder);
 
 
-//  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
-  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
+  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
+//  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setNumMonteCarloCycles( 8000 );
+  triMeshSpatialModel.setNumMonteCarloCycles( 1000000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
-//  Vector<float> energy = triMeshSpatialModel.getEnergyProfile();
-//  DataSet energyProfile;
-//  energyProfile.setValues<float> ( "energyProfile", energy );
-//  energyProfile.save( parentDir + "/patterns/" + filename + "-Z.data", true );
+  DataSet energyProfile;
+  energyProfile.setValues<float> ( "energyProfile", triMeshSpatialModel.getEnergyProfile() );
+  energyProfile.save( filename + ".data", true );
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
   Vertices<float> vertices( 3, numCCS, 0, 0 );
@@ -334,7 +333,7 @@ void evaluator_MaximalRepulsionConstrained(
     vertexStack.insert( jj, vertices );
   }
 
-  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
+  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-H/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 
 }

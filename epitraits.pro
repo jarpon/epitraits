@@ -88,7 +88,8 @@ SOURCES += \
     src/spatialdescriptorfunctionasrd.cpp \
     src/generatepatternslessobjects.cpp \
     src/normalizeaxis.cpp \
-    src/temporaltasks.cpp
+    src/temporaltasks.cpp \
+    src/convergencetest2.cpp
 
 HEADERS += \
     src/spatialdescriptorborder.h \
@@ -118,5 +119,6 @@ HEADERS += \
     src/spatialdescriptorfunctionnn.h \
     src/spatialmodelmaximalrepulsion3d2.h \
     src/spatialdescriptorfunctionsrd.h \
-    src/spatialdescriptorfunctionasrd.h
+    src/spatialdescriptorfunctionasrd.h \
+    src/convergencetest2.h
 

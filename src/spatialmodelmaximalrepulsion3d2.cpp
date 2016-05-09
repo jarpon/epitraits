@@ -8,7 +8,8 @@
 ****************************************************************/
 
 #include "spatialmodelmaximalrepulsion3d2.h"
-#include <convergencetest.h>
+//#include <convergencetest.h>
+#include "convergencetest2.h"
 #include <dataset.h>
 #include <exception.h>
 #include <stringtools.h>
@@ -105,13 +106,14 @@ CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<Coor
   Vector<CoordType> sumInterDistances ( numVertices );
 
   for (int i = 0; i < numVertices; ++i)
-    //for (int j = i+1; j < numVertices; ++j)
-    for (int j = 0; j < numVertices, j != i; ++j)
-      sumInterDistances[i] += 1.0/vertices[i].distance(vertices[j]);
-//      sumInterDistances[i] += vertices[i].distance(vertices[j]);
+    for (int j = i+1; j < numVertices; ++j)
+//    for (int j = 0; j < numVertices, j != i; ++j)
+//      sumInterDistances[i] += 1.0/vertices[i].distance(vertices[j]);
+      sumInterDistances[i] += vertices[i].distance(vertices[j]);
 
-  return sumInterDistances.sum();
+//  return sumInterDistances.sum();
 //  return 1.0/sumInterDistances.mean();
+  return 1.0/sumInterDistances.sum();
 }
 
 #if 0
@@ -282,15 +284,17 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
   bool acceptTransition;
   int i, j, v;
 
-  ConvergenceTest<CoordType> convergenceTest;  
+  //ConvergenceTest2<CoordType> convergenceTest;
+  ConvergenceTest2<CoordType> convergenceTest;
   CoordType sumEnergy;
   bool converged = false;
   _energyProfile.setZeros( outerSteps );
   convergenceTest.setData( _energyProfile );
-  convergenceTest.setRange( 100 );
+  convergenceTest.setRange( 1000 );
 
   for (i = 0; !converged && i < outerSteps; ++i)
   {
+    EVAL(i);
 #if 0
     if ( (i%20)==0 )
     {
@@ -306,25 +310,45 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
       moveVertex( vertices, v, maxRadius );
       newEnergy = energy( vertices );
       deltaEnergy = newEnergy - currentEnergy;
+//      EVAL(deltaEnergy);
+//      EVAL(newEnergy);
+//      EVAL(currentEnergy);
+
       acceptTransition = deltaEnergy <= .0 || randomGenerator.uniformLF() < exp( -beta*deltaEnergy );
+//      EVAL(acceptTransition);
 
       if ( acceptTransition )
+      {
         currentEnergy = newEnergy;
-      else vertices[v] = vertex;
+
+//        string filename = "max-repulsion-vertices-" + StringTools::toString(i,4,'0') + ".vx";
+//        vertices.save( filename, true );
+      }
+      else
+      {
+        vertices[v] = vertex;
+        if ( isnan( currentEnergy ) )
+          currentEnergy = newEnergy;
+      }
+
       sumEnergy += currentEnergy;
+
+
     }
 
     _energyProfile[i] = sumEnergy / innerSteps;
-    converged = convergenceTest.isPositive( i );
+//    EVAL(_energyProfile[i]);
+//    converged = convergenceTest.isPositive( i );
+//    EVAL(converged);
   }
 
-  if ( !converged )
-  {
-    Exception exception;
-    exception.setWhere( "Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)" );
-    exception.setWhat( "Convergence not reached after " + StringTools::toString(outerSteps) + " iterations" );
-    throw exception;
-  }
+//  if ( !converged )
+//  {
+//    Exception exception;
+//    exception.setWhere( "Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)" );
+//    exception.setWhat( "Convergence not reached after " + StringTools::toString(outerSteps) + " iterations" );
+//    throw exception;
+//  }
 
   if ( !this->valid(vertices) )
   {
