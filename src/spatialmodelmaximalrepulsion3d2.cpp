@@ -8,8 +8,8 @@
 ****************************************************************/
 
 #include "spatialmodelmaximalrepulsion3d2.h"
-//#include <convergencetest.h>
-#include "convergencetest2.h"
+#include <convergencetest.h>
+//#include "convergencetest2.h"
 #include <dataset.h>
 #include <exception.h>
 #include <stringtools.h>
@@ -103,17 +103,19 @@ template<class CoordType>
 CoordType SpatialModelMaximalRepulsion3D2<CoordType>::energy(const Vertices<CoordType>& vertices) const
 {
   const int numVertices = vertices.getNumVertices();
-  Vector<CoordType> sumInterDistances ( numVertices );
+  //Vector<CoordType> sumInterDistances ( numVertices );
+  CoordType sum = 0.0;
 
   for (int i = 0; i < numVertices; ++i)
     for (int j = i+1; j < numVertices; ++j)
 //    for (int j = 0; j < numVertices, j != i; ++j)
 //      sumInterDistances[i] += 1.0/vertices[i].distance(vertices[j]);
-      sumInterDistances[i] += vertices[i].distance(vertices[j]);
+      sum += vertices[i].distance(vertices[j]);
 
 //  return sumInterDistances.sum();
 //  return 1.0/sumInterDistances.mean();
-  return 1.0/sumInterDistances.sum();
+  sum /= (numVertices-1)*numVertices;
+  return 1.0/sum;
 }
 
 #if 0
@@ -276,7 +278,8 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
   const int outerSteps = getNumMonteCarloCycles();
   const int innerSteps = numPoints;
   const CoordType beta = getBeta();
-  const CoordType maxRadius = this->getTriMesh().equivalentRadius() / 50.0;
+  //const CoordType maxRadius = this->getTriMesh().equivalentRadius() / 50.0;
+  CoordType maxRadius = this->getTriMesh().equivalentRadius() / 50.0;
   Vertices<CoordType> vertices = SpatialModelHardcoreDistance3D<CoordType>::drawSample( numPoints );
   RandomGenerator& randomGenerator = this->getRandomGenerator();
   CoordType currentEnergy, newEnergy, deltaEnergy;
@@ -285,7 +288,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
   int i, j, v;
 
   //ConvergenceTest2<CoordType> convergenceTest;
-  ConvergenceTest2<CoordType> convergenceTest;
+  ConvergenceTest<CoordType> convergenceTest;
   CoordType sumEnergy;
   bool converged = false;
   _energyProfile.setZeros( outerSteps );
@@ -294,7 +297,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
 
   for (i = 0; !converged && i < outerSteps; ++i)
   {
-    EVAL(i);
+//    EVAL(i);
 #if 0
     if ( (i%20)==0 )
     {
@@ -302,24 +305,25 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
       vertices.save( filename, true );
     }
 #endif
+
+    currentEnergy = energy( vertices );
+    EVAL(currentEnergy);
     for (j = 0, sumEnergy = 0.0; j < innerSteps; ++j)
     {
       v = randomGenerator.uniformL( numPoints );
       vertex = vertices[v];
-      if ( j == 0 ) currentEnergy = energy( vertices );
       moveVertex( vertices, v, maxRadius );
       newEnergy = energy( vertices );
       deltaEnergy = newEnergy - currentEnergy;
-//      EVAL(deltaEnergy);
-//      EVAL(newEnergy);
-//      EVAL(currentEnergy);
 
-      acceptTransition = deltaEnergy <= .0 || randomGenerator.uniformLF() < exp( -beta*deltaEnergy );
+      acceptTransition = deltaEnergy <= .0 ;//|| randomGenerator.uniformLF() < exp( -beta*deltaEnergy );
 //      EVAL(acceptTransition);
 
       if ( acceptTransition )
       {
         currentEnergy = newEnergy;
+        //maxRadius = vertex.distance( vertices[v] );
+        //EVAL(maxRadius);
 
 //        string filename = "max-repulsion-vertices-" + StringTools::toString(i,4,'0') + ".vx";
 //        vertices.save( filename, true );
@@ -327,8 +331,6 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
       else
       {
         vertices[v] = vertex;
-        if ( isnan( currentEnergy ) )
-          currentEnergy = newEnergy;
       }
 
       sumEnergy += currentEnergy;
@@ -338,17 +340,17 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
 
     _energyProfile[i] = sumEnergy / innerSteps;
 //    EVAL(_energyProfile[i]);
-//    converged = convergenceTest.isPositive( i );
+    converged = convergenceTest.isPositive( i );
 //    EVAL(converged);
   }
 
-//  if ( !converged )
-//  {
-//    Exception exception;
-//    exception.setWhere( "Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)" );
-//    exception.setWhat( "Convergence not reached after " + StringTools::toString(outerSteps) + " iterations" );
-//    throw exception;
-//  }
+  if ( !converged )
+  {
+    Exception exception;
+    exception.setWhere( "Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const int)" );
+    exception.setWhat( "Convergence not reached after " + StringTools::toString(outerSteps) + " iterations" );
+    throw exception;
+  }
 
   if ( !this->valid(vertices) )
   {

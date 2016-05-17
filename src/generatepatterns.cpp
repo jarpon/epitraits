@@ -305,34 +305,39 @@ void evaluator_MaximalRepulsionConstrained(
     if ( eqRadiiTemp[i] > distancesToBorder[i] )
       eqRadiiTemp[i] = distancesToBorder[i];
 
-  const Vector<float> eqRadii = eqRadiiTemp/1000;
+  Vector<float> eqRadii = eqRadiiTemp/1000;
+  eqRadii.setZeros();
   EVAL(eqRadii);
 //  EVAL(distancesToBorder);
 
 
   SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
 //  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
+  randomGenerator.init( 101 );
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setNumMonteCarloCycles( 1000000 );
+  triMeshSpatialModel.setNumMonteCarloCycles( 20000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
   DataSet energyProfile;
-  energyProfile.setValues<float> ( "energyProfile", triMeshSpatialModel.getEnergyProfile() );
-  energyProfile.save( filename + ".data", true );
+//  energyProfile.setValues<float> ( "energyProfile", triMeshSpatialModel.getEnergyProfile() );
+//  energyProfile.save( filename + ".data", true );
 
   VertexStack<float> vertexStack;//( 3, numCCS, 2*numMCSimulations, 0, 0 );
   Vertices<float> vertices( 3, numCCS, 0, 0 );
 
   EVAL(vertexStack.getSize());
 
-  for ( int jj = 0; jj < 2*numMCSimulations; ++jj )
+  //for ( int jj = 0; jj < numMCSimulations; ++jj )
+  for ( int jj = 0; jj < 2 * numMCSimulations; ++jj )
   {
     vertices = triMeshSpatialModel.drawSample(numCCS);
     vertexStack.insert( jj, vertices );
   }
 
+  energyProfile.setValues<float> ( "energyProfile", triMeshSpatialModel.getEnergyProfile() );
+  energyProfile.save( filename + ".data", true );
   const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-H/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 

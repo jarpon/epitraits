@@ -813,7 +813,7 @@ int main(int argc, char* argv[])
           else if ( test == "analyseDataWithExistingPatterns" )
           {
             realDataEvaluatorExternalPatterns( filename, parentDir, function, constraints, dataSet, randomGenerator );
-            dataSet.save(analysisDir + "indexes_" + spatialModel + "-" + function + ".data", true );
+            dataSet.save(analysisDir + "indexes-" + spatialModel + "-" + function + ".data", true );
           }
           else if ( test == "nucleoli" )
           {
