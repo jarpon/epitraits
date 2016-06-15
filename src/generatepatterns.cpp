@@ -2,13 +2,17 @@
 #include <spatialmodelborderdistance3d.h>
 #include <spatialmodelhardcoreborderdistance3d.h>
 #include <spatialmodelhardcoredistance3d.h>
-//#include <spatialmodelmaximalrepulsion3d.h>
-#include "spatialmodelmaximalrepulsion3d2.h"
+#include <spatialmodelmaximalrepulsion3d.h>
+//#include "spatialmodelmaximalrepulsion3d2.h"
 #include <spatialmodel.h>
 #include <trimesh.h>
 #include <voxelmatrix.h>
 #include <fileinfo.h>
 #include <dataset.h>
+#include <randompartitiongenerator.h>
+#include <orbitalhardcoreterritorialspatialmodel.h>
+#include <sstream>
+#include <iomanip>
 
 #define TRACE
 #include <trace.h>
@@ -16,7 +20,7 @@ using namespace std;
 
 /*! Preparing constraints for the model
 ****************************************************************/
-void evaluator_completeSpatialRandomness(
+void completeSpatialRandomness(
     const string& filename, const string& parentDir,
     const int& numMCSimulations, RandomGenerator& randomGenerator)
 {
@@ -67,7 +71,7 @@ void evaluator_completeSpatialRandomness(
   vertexStack.save( patternsDir + filename + ".vs", true );
 }
 
-void evaluator_sizeConstrained(
+void sizeConstrained(
     const string& filename, const string& parentDir,
     const int& numMCSimulations, RandomGenerator& randomGenerator)
 {
@@ -126,11 +130,11 @@ void evaluator_sizeConstrained(
   vertexStack.save( patternsDir + filename + ".vs", true );
 }
 
-void evaluator_distanceConstrained(
+void distanceConstrained(
     const string& filename, const string& parentDir,
     const int& numMCSimulations, RandomGenerator& randomGenerator)
 {
-  PRINT("spatialModelEvaluator_distanceConstrained");
+  PRINT("spatialModeldistanceConstrained");
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
@@ -184,11 +188,11 @@ void evaluator_distanceConstrained(
   vertexStack.save( patternsDir + filename + ".vs", true );
 }
 
-void evaluator_sizeAndDistanceConstrained(
+void sizeAndDistanceConstrained(
     const string& filename, const string& parentDir,
     const int& numMCSimulations, RandomGenerator& randomGenerator)
 {
-  PRINT("spatialModelEvaluator_sizeAndDistanceConstrained");
+  PRINT("spatialModelsizeAndDistanceConstrained");
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
@@ -259,11 +263,11 @@ void evaluator_sizeAndDistanceConstrained(
 
 }
 
-void evaluator_MaximalRepulsionConstrained(
+void maximalRepulsionConstrained(
     const string& filename, const string& parentDir,
     const int& numMCSimulations, RandomGenerator& randomGenerator)
 {
-  PRINT("spatialModelEvaluator_MaximalRepulsionConstrained");
+  PRINT("spatialModelMaximalRepulsionConstrained");
 
   //open data info
   const string analysisDir = parentDir + "/analysis/";
@@ -305,18 +309,18 @@ void evaluator_MaximalRepulsionConstrained(
     if ( eqRadiiTemp[i] > distancesToBorder[i] )
       eqRadiiTemp[i] = distancesToBorder[i];
 
-  Vector<float> eqRadii = eqRadiiTemp/1000;
-  eqRadii.setZeros();
+  Vector<float> eqRadii = eqRadiiTemp;
+//  eqRadii.setZeros();
   EVAL(eqRadii);
 //  EVAL(distancesToBorder);
 
 
-  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
-//  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
+//  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
+  SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
   randomGenerator.init( 101 );
   triMeshSpatialModel.setRandomGenerator( randomGenerator );
   triMeshSpatialModel.setTriMesh( nucleusTriMesh );
-  triMeshSpatialModel.setNumMonteCarloCycles( 20000 );
+  triMeshSpatialModel.setNumMonteCarloCycles( 100000 );
   triMeshSpatialModel.setHardcoreDistances( eqRadii );
   triMeshSpatialModel.initialize();
   triMeshSpatialModel.initializeBeta( numCCS );
@@ -329,8 +333,8 @@ void evaluator_MaximalRepulsionConstrained(
 
   EVAL(vertexStack.getSize());
 
-  //for ( int jj = 0; jj < numMCSimulations; ++jj )
-  for ( int jj = 0; jj < 2 * numMCSimulations; ++jj )
+  for ( int jj = 0; jj < numMCSimulations; ++jj )
+  //for ( int jj = 0; jj < 2 * numMCSimulations; ++jj )
   {
     vertices = triMeshSpatialModel.drawSample(numCCS);
     vertexStack.insert( jj, vertices );
@@ -338,12 +342,145 @@ void evaluator_MaximalRepulsionConstrained(
 
   energyProfile.setValues<float> ( "energyProfile", triMeshSpatialModel.getEnergyProfile() );
   energyProfile.save( filename + ".data", true );
-  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D-H/";
+  const string patternsDir = parentDir + "/patterns/SpatialModelMaximalRepulsion3D/";
   vertexStack.save( patternsDir + filename + ".vs", true );
 
 }
 
 
+void divideIntoTerritories(
+    const string& filename, const string& parentDir,
+    const int& numMCSimulations, RandomGenerator& randomGenerator)
+{
+  PRINT("divideIntoTerritories");
+
+  //open data info
+  const string analysisDir = parentDir + "/analysis/";
+  const DataSet ccsInfo( analysisDir + "ccs.data" );
+
+  Vector<string> tempFileNames;
+  tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+  int lastPos, numCCS = 0;
+
+  for ( int j = 0; j < tempFileNames.getSize(); ++j )
+    if ( tempFileNames[j] == filename )
+    {
+      lastPos = j;
+      ++ numCCS;
+    }
+
+  if ( numCCS == 0 )
+  {
+    EVAL("Nucleus not found");
+    return;
+  }
+
+  const string nucleiDir = parentDir + "/segmented_nuclei/";
+  VoxelMatrix<float> originalVoxelMatrixDomain;
+  originalVoxelMatrixDomain.load( nucleiDir + filename + ".vm" );
+  VoxelMatrix<float> voxelMatrixCT;
+
+  RandomPartitionGenerator<float> randomPartitionGenerator;
+  //randomPartitionGenerator.setRandomGenerator( *(new RandomGenerator()) );
+  randomPartitionGenerator.setRandomGenerator( randomGenerator );
+  randomPartitionGenerator.setNumRegions( numCCS );
+
+  for ( int jj = 0; jj < numMCSimulations; ++jj )
+  {
+    ostringstream oss;
+    oss << setw(2) << setfill('0') << jj +1;
+    voxelMatrixCT = originalVoxelMatrixDomain;
+    randomPartitionGenerator.run( voxelMatrixCT );
+    voxelMatrixCT.save( parentDir + filename + "-territories-" + oss.str() + ".vm", true );
+  }
+
+}
+
+
+  void sizeConstrainedIntoTerritories(
+      const string& filename, const string& parentDir,
+      const int& numMCSimulations, RandomGenerator& randomGenerator)
+  {
+    PRINT("divideIntoTerritories");
+
+    //open data info
+    const string analysisDir = parentDir + "/analysis/";
+    const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + ".tm" );
+
+    const DataSet ccsInfo( analysisDir + "ccs.data" );
+
+    Vector<string> tempFileNames;
+    tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+    int lastPos, numCCS = 0;
+
+    for ( int j = 0; j < tempFileNames.getSize(); ++j )
+      if ( tempFileNames[j] == filename )
+      {
+        lastPos = j;
+        ++ numCCS;
+      }
+
+    if ( numCCS == 0 )
+    {
+      EVAL("Nucleus not found");
+      return;
+    }
+
+    Vector<float> eqRadiiTemp( numCCS );
+    Vector<float> distancesToBorder( numCCS );
+    int k = 0;
+
+    TriMesh<float> currentTerritory;
+    Vector< TriMesh<float> >* allTerritoriesTrimeshes;
+    allTerritoriesTrimeshes->setSize( numCCS );
+
+    for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+    {
+      eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+  //    eqRadiiTemp[k] = ccsInfo.getValue<int>( "equivalentRadius_ZprojCorrection", j );
+  //    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+      distancesToBorder[k] = ccsInfo.getValue<int>( "distanceToTheBorder", j );
+      ostringstream oss;
+      oss << setw(2) << setfill('0') << j +1;
+      currentTerritory.load( parentDir + "/shapes/territories/" + filename + "-territories-" + oss.str() + ".tm" );
+      allTerritoriesTrimeshes[k] = currentTerritory;
+    }
+
+
+    for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+      if ( eqRadiiTemp[i] > distancesToBorder[i] )
+        eqRadiiTemp[i] = distancesToBorder[i];
+
+    Vector<float> eqRadii = eqRadiiTemp;
+  //  eqRadii.setZeros();
+    EVAL(eqRadii);
+  //  EVAL(distancesToBorder);
+
+
+    OrbitalHardcoreTerritorialSpatialModel<float> orbitalHardcoreTerritorialSpatialModel;
+    orbitalHardcoreTerritorialSpatialModel.setRandomGenerator( randomGenerator );
+    orbitalHardcoreTerritorialSpatialModel.setHardcoreDistances( eqRadii );
+    //orbitalHardcoreTerritorialSpatialModel.setDistancesToBorder( hardcoreDistances );
+    orbitalHardcoreTerritorialSpatialModel.setTerritories( *allTerritoriesTrimeshes );
+    orbitalHardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
+    orbitalHardcoreTerritorialSpatialModel.initialize();
+
+    VertexStack<float> vertexStack;
+    Vertices<float> vertices( 3, numCCS, 0, 0 );
+
+    for ( int jj = 0; jj < numMCSimulations; ++jj )
+    //for ( int jj = 0; jj < 2 * numMCSimulations; ++jj )
+    {
+      vertices = orbitalHardcoreTerritorialSpatialModel.drawSample( numCCS );
+      vertexStack.insert( jj, vertices );
+    }
+
+    //const string patternsDir = parentDir + "/patterns/SpatialModelTerritories/";
+    vertexStack.save( parentDir + filename + ".vs", true );
+
+}
 
 /*! Chooses case depending on the constraints
 ****************************************************************/
@@ -354,27 +491,37 @@ void generatePatterns(
   switch( constraints )
   {
     case 0:
-      evaluator_completeSpatialRandomness(
+      completeSpatialRandomness(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
     case 1:
-      evaluator_sizeConstrained(
+      sizeConstrained(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
     case 2:
-      evaluator_distanceConstrained(
+      distanceConstrained(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
     case 3:
-      evaluator_sizeAndDistanceConstrained(
+      sizeAndDistanceConstrained(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
     case 4:
-      evaluator_MaximalRepulsionConstrained(
+      maximalRepulsionConstrained(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 5:
+      divideIntoTerritories(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 6:
+      sizeConstrainedIntoTerritories(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;

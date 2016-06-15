@@ -724,11 +724,11 @@ int main(int argc, char* argv[])
       constraints = 4;
       spatialModel = "SpatialModelMaximalRepulsion3D";
     }
-//    else if ( argv[4] == std::string("5") )
-//    {
-//      constraints = 5;
-//      spatialModel = "SpatialModelBorderMaximalRepulsion3D";
-//    }
+    else if ( argv[4] == std::string("5") )
+    {
+      constraints = 5;
+      spatialModel = "SpatialModelTerritories3D";
+    }
 
     EVAL(test);
     EVAL(function);

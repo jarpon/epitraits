@@ -307,7 +307,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
 #endif
 
     currentEnergy = energy( vertices );
-    EVAL(currentEnergy);
+//    EVAL(currentEnergy);
     for (j = 0, sumEnergy = 0.0; j < innerSteps; ++j)
     {
       v = randomGenerator.uniformL( numPoints );
@@ -315,6 +315,7 @@ Vertices<CoordType> SpatialModelMaximalRepulsion3D2<CoordType>::drawSample(const
       moveVertex( vertices, v, maxRadius );
       newEnergy = energy( vertices );
       deltaEnergy = newEnergy - currentEnergy;
+      EVAL(deltaEnergy);
 
       acceptTransition = deltaEnergy <= .0 ;//|| randomGenerator.uniformLF() < exp( -beta*deltaEnergy );
 //      EVAL(acceptTransition);

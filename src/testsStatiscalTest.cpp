@@ -371,9 +371,9 @@ void testPattern(
     iss <<  setfill('0') << setw(5) << r;
     iss1 << pattern1.getNumVertices();
     iss2 << pattern2.getNumVertices();
-    dataset.save( "/home/jarpon/data/projects/testStatisticalTests/marginprob-20160420-10-15/" + iss2.str() + "-" + iss.str() + ".data", true );
-    pattern1.save( "/home/jarpon/data/projects/testStatisticalTests/marginprob-20160420-10-15/pattern1-" + iss1.str() + "-" + iss.str() + ".vx", true );
-    pattern2.save( "/home/jarpon/data/projects/testStatisticalTests/marginprob-20160420-10-15/pattern2-" + iss2.str() + "-" + iss.str() + ".vx", true );
+    dataset.save( "/home/jarpon/data/projects/testStatisticalTests/thomas-20160615-lambda2-3-mu01-01-sigma02-02/" + iss2.str() + "-" + iss.str() + ".data", true );
+    pattern1.save( "/home/jarpon/data/projects/testStatisticalTests/thomas-20160615-lambda2-3-mu01-01-sigma02-02/pattern1-" + iss1.str() + "-" + iss.str() + ".vx", true );
+    pattern2.save( "/home/jarpon/data/projects/testStatisticalTests/thomas-20160615-lambda2-3-mu01-01-sigma02-02/pattern2-" + iss2.str() + "-" + iss.str() + ".vx", true );
   LEAVE();
 }
 
@@ -519,17 +519,17 @@ void thomas()
   RandomGenerator randomGenerator;
   spatialModel1.setBoundary( boundary );
   spatialModel1.setRandomGenerator( randomGenerator );
-  spatialModel1.setLambda(5);
-  spatialModel1.setMu(1);
-  spatialModel1.setSigma(1);
+  spatialModel1.setLambda(2);
+  spatialModel1.setMu(0.1);
+  spatialModel1.setSigma(0.2);
   spatialModel1.initialize();
 
   SpatialModelThomasProcess<float> spatialModel2;
   spatialModel2.setBoundary( boundary );
   spatialModel2.setRandomGenerator( randomGenerator );
-  spatialModel2.setLambda(10);
-  spatialModel2.setMu(1);
-  spatialModel2.setSigma(1);
+  spatialModel2.setLambda(3);
+  spatialModel2.setMu(0.1);
+  spatialModel2.setSigma(0.2);
   spatialModel2.initialize();
 
 
@@ -545,9 +545,11 @@ void thomas()
   //spatialModel2.drawSample( numObjectsS2 ).save( "pattern-squareBoundaryInteractionModel2", true );
 
   DataSet dataSet;
-  const int numObjectsS1 = 10;
+  //const int numObjectsS1 = 10;
+  const int numObjectsS1 = 1;
 //  const vector<int> sampleSizes(1,100);
-  const int numBatches = 1;
+  //const int numBatches = 1;
+  const int numBatches = 5;
   testModel( spatialModel1, spatialModel2, csrSpatialModel, numObjectsS1, initNumObjectsS2(), boundary, numBatches, dataSet );
   //dataSet.setValues( "marginProb", marginProb );
 
@@ -623,7 +625,7 @@ void testsStatisticalTests()
   ENTER( "void testSpatialAnalysis()" );
       //testPatternGeneration();
       //testCSR();
-  powerUnderBoundaryInteractionModel();
-//  thomas();
+ // powerUnderBoundaryInteractionModel();
+  thomas();
   LEAVE();
 }
