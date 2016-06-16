@@ -729,6 +729,26 @@ int main(int argc, char* argv[])
       constraints = 5;
       spatialModel = "SpatialModelTerritories3D";
     }
+    else if ( argv[4] == std::string("6") )
+    {
+      constraints = 6;
+      spatialModel = "SpatialModelHardcoreDistanceIntoTerritories3D";
+    }
+    else if ( argv[4] == std::string("7") )
+    {
+      constraints = 7;
+      spatialModel = "SpatialModelBorderHardcoreDistanceIntoTerritories3D";
+    }
+    else if ( argv[4] == std::string("8") )
+    {
+      constraints = 8;
+      spatialModel = "SpatialModelHardcoreDistanceIntoVaryingTerritories3D";
+    }
+    else if ( argv[4] == std::string("9") )
+    {
+      constraints = 9;
+      spatialModel = "SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D";
+    }
 
     EVAL(test);
     EVAL(function);

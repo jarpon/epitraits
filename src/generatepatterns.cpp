@@ -13,6 +13,7 @@
 #include <orbitalhardcoreterritorialspatialmodel.h>
 #include <sstream>
 #include <iomanip>
+#include <stringtools.h>
 
 #define TRACE
 #include <trace.h>
@@ -301,7 +302,7 @@ void maximalRepulsionConstrained(
     eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
 //    eqRadiiTemp[k] = ccsInfo.getValue<int>( "equivalentRadius_ZprojCorrection", j );
 //    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
-    distancesToBorder[k] = ccsInfo.getValue<int>( "distanceToTheBorder", j );
+    distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
   }
 
 
@@ -310,10 +311,7 @@ void maximalRepulsionConstrained(
       eqRadiiTemp[i] = distancesToBorder[i];
 
   Vector<float> eqRadii = eqRadiiTemp;
-//  eqRadii.setZeros();
   EVAL(eqRadii);
-//  EVAL(distancesToBorder);
-
 
 //  SpatialModelMaximalRepulsion3D2 <float> triMeshSpatialModel;
   SpatialModelMaximalRepulsion3D <float> triMeshSpatialModel;
@@ -382,7 +380,6 @@ void divideIntoTerritories(
   VoxelMatrix<float> voxelMatrixCT;
 
   RandomPartitionGenerator<float> randomPartitionGenerator;
-  //randomPartitionGenerator.setRandomGenerator( *(new RandomGenerator()) );
   randomPartitionGenerator.setRandomGenerator( randomGenerator );
   randomPartitionGenerator.setNumRegions( numCCS );
 
@@ -392,7 +389,8 @@ void divideIntoTerritories(
     oss << setw(2) << setfill('0') << jj +1;
     voxelMatrixCT = originalVoxelMatrixDomain;
     randomPartitionGenerator.run( voxelMatrixCT );
-    voxelMatrixCT.save( parentDir + filename + "-territories-" + oss.str() + ".vm", true );
+    //voxelMatrixCT.save( parentDir + "/" + filename + "-territories-" + oss.str() + ".vm", true );
+    voxelMatrixCT.save( parentDir + "/segmented_territories/" + filename + "-" + oss.str() + ".vm", true );
   }
 
 }
@@ -402,11 +400,12 @@ void divideIntoTerritories(
       const string& filename, const string& parentDir,
       const int& numMCSimulations, RandomGenerator& randomGenerator)
   {
-    PRINT("divideIntoTerritories");
+    PRINT("randomCompartmentsIntoTerritories");
 
     //open data info
     const string analysisDir = parentDir + "/analysis/";
-    const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + ".tm" );
+
+    const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + "-01.tm" );
 
     const DataSet ccsInfo( analysisDir + "ccs.data" );
 
@@ -432,9 +431,7 @@ void divideIntoTerritories(
     Vector<float> distancesToBorder( numCCS );
     int k = 0;
 
-    TriMesh<float> currentTerritory;
-    Vector< TriMesh<float> >* allTerritoriesTrimeshes;
-    allTerritoriesTrimeshes->setSize( numCCS );
+    vector< TriMesh<float>*> allTerritoriesTrimeshes;
 
     for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
     {
@@ -443,9 +440,87 @@ void divideIntoTerritories(
   //    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
       distancesToBorder[k] = ccsInfo.getValue<int>( "distanceToTheBorder", j );
       ostringstream oss;
-      oss << setw(2) << setfill('0') << j +1;
-      currentTerritory.load( parentDir + "/shapes/territories/" + filename + "-territories-" + oss.str() + ".tm" );
-      allTerritoriesTrimeshes[k] = currentTerritory;
+      oss << setw(2) << setfill('0') << k +1;
+      const string tempName = parentDir + "/shapes/territories/" + filename + "-01-" + oss.str() + ".tm";
+      allTerritoriesTrimeshes.push_back( new TriMesh<float>(tempName) );
+    }
+
+    for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+      if ( eqRadiiTemp[i] > distancesToBorder[i] )
+        eqRadiiTemp[i] = distancesToBorder[i];
+
+    Vector<float> eqRadii = eqRadiiTemp;
+    EVAL(eqRadii);
+
+    HardcoreTerritorialSpatialModel<float> hardcoreTerritorialSpatialModel;
+    hardcoreTerritorialSpatialModel.setRandomGenerator( randomGenerator );
+    hardcoreTerritorialSpatialModel.setHardcoreDistances( eqRadii );
+    hardcoreTerritorialSpatialModel.setTerritories( allTerritoriesTrimeshes );
+    hardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
+    hardcoreTerritorialSpatialModel.initialize();
+
+    VertexStack<float> vertexStack;
+    Vertices<float> vertices( 3, numCCS, 0, 0 );
+
+    for ( int jj = 0; jj < numMCSimulations; ++jj )
+    {
+      vertices = hardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
+      vertexStack.insert( jj, vertices );
+      vertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoTerritories3D/" + filename + ".vs", true );
+    }
+
+    //const string patternsDir = parentDir + "/patterns/SpatialModelTerritories/";
+    vertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoTerritories3D/" + filename + ".vs", true );
+
+}
+
+  void sizeAndDistanceConstrainedIntoTerritories(
+      const string& filename, const string& parentDir,
+      const int& numMCSimulations, RandomGenerator& randomGenerator)
+  {
+    PRINT("peripheralCompartmentsIntoTerritories");
+
+    //open data info
+    const string analysisDir = parentDir + "/analysis/";
+
+    const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + "-01.tm" );
+
+    const DataSet ccsInfo( analysisDir + "ccs.data" );
+
+    Vector<string> tempFileNames;
+    tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+    int lastPos, numCCS = 0;
+
+    for ( int j = 0; j < tempFileNames.getSize(); ++j )
+      if ( tempFileNames[j] == filename )
+      {
+        lastPos = j;
+        ++ numCCS;
+      }
+
+    if ( numCCS == 0 )
+    {
+      EVAL("Nucleus not found");
+      return;
+    }
+
+    Vector<float> eqRadiiTemp( numCCS );
+    Vector<float> distancesToBorder( numCCS );
+    int k = 0;
+
+    vector< TriMesh<float>*> allTerritoriesTrimeshes;
+
+    for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+    {
+      eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+  //    eqRadiiTemp[k] = ccsInfo.getValue<int>( "equivalentRadius_ZprojCorrection", j );
+  //    eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_PSFVolCorrection", j );
+      distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+      ostringstream oss;
+      oss << setw(2) << setfill('0') << k +1;
+      const string tempName = parentDir + "/shapes/territories/" + filename + "-01-" + oss.str() + ".tm";
+      allTerritoriesTrimeshes.push_back( new TriMesh<float>(tempName) );
     }
 
 
@@ -454,16 +529,16 @@ void divideIntoTerritories(
         eqRadiiTemp[i] = distancesToBorder[i];
 
     Vector<float> eqRadii = eqRadiiTemp;
-  //  eqRadii.setZeros();
     EVAL(eqRadii);
-  //  EVAL(distancesToBorder);
 
 
+    EVAL(numCCS);
+    EVAL(allTerritoriesTrimeshes.size());
     OrbitalHardcoreTerritorialSpatialModel<float> orbitalHardcoreTerritorialSpatialModel;
     orbitalHardcoreTerritorialSpatialModel.setRandomGenerator( randomGenerator );
     orbitalHardcoreTerritorialSpatialModel.setHardcoreDistances( eqRadii );
-    //orbitalHardcoreTerritorialSpatialModel.setDistancesToBorder( hardcoreDistances );
-    orbitalHardcoreTerritorialSpatialModel.setTerritories( *allTerritoriesTrimeshes );
+    orbitalHardcoreTerritorialSpatialModel.setDistancesToBorder( distancesToBorder );
+    orbitalHardcoreTerritorialSpatialModel.setTerritories( allTerritoriesTrimeshes );
     orbitalHardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
     orbitalHardcoreTerritorialSpatialModel.initialize();
 
@@ -471,16 +546,102 @@ void divideIntoTerritories(
     Vertices<float> vertices( 3, numCCS, 0, 0 );
 
     for ( int jj = 0; jj < numMCSimulations; ++jj )
-    //for ( int jj = 0; jj < 2 * numMCSimulations; ++jj )
     {
-      vertices = orbitalHardcoreTerritorialSpatialModel.drawSample( numCCS );
+      vertices = orbitalHardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
       vertexStack.insert( jj, vertices );
+      vertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoTerritories3D/" + filename + ".vs", true );
     }
 
     //const string patternsDir = parentDir + "/patterns/SpatialModelTerritories/";
-    vertexStack.save( parentDir + filename + ".vs", true );
+    vertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoTerritories3D/" + filename + ".vs", true );
 
 }
+
+
+  void sizeConstrainedIntoVaryingTerritories(
+      const string& filename, const string& parentDir,
+      const int& numMCSimulations, RandomGenerator& randomGenerator)
+  {
+    PRINT("randomCompartmentsIntoTerritories");
+
+    //open data info
+    const string analysisDir = parentDir + "/analysis/";
+    const DataSet ccsInfo( analysisDir + "ccs.data" );
+
+    Vector<string> tempFileNames;
+    tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+    int lastPos, numCCS = 0;
+
+    for ( int j = 0; j < tempFileNames.getSize(); ++j )
+      if ( tempFileNames[j] == filename )
+      {
+        lastPos = j;
+        ++ numCCS;
+      }
+
+    if ( numCCS == 0 )
+    {
+      EVAL("Nucleus not found");
+      return;
+    }
+
+    Vector<float> eqRadiiTemp( numCCS );
+    Vector<float> distancesToBorder( numCCS );
+    int k = 0;
+
+
+    for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+      eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+
+    for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+      if ( eqRadiiTemp[i] > distancesToBorder[i] )
+        eqRadiiTemp[i] = distancesToBorder[i];
+
+    Vector<float> eqRadii = eqRadiiTemp;
+    EVAL(eqRadii);
+
+    VertexStack<float> finalVertexStack;
+
+    for ( int i = 0; i < numMCSimulations; ++i )
+    {
+      vector< TriMesh<float>*> allTerritoriesTrimeshes;
+      EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm");
+      const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm" );
+
+      for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+      {
+        EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm");
+        const string tempName = parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm";
+        allTerritoriesTrimeshes.push_back( new TriMesh<float>(tempName) );
+      }
+
+      HardcoreTerritorialSpatialModel<float> hardcoreTerritorialSpatialModel;
+      hardcoreTerritorialSpatialModel.setRandomGenerator( randomGenerator );
+      hardcoreTerritorialSpatialModel.setHardcoreDistances( eqRadii );
+      hardcoreTerritorialSpatialModel.setTerritories( allTerritoriesTrimeshes );
+      hardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
+      hardcoreTerritorialSpatialModel.initialize();
+
+      VertexStack<float> vertexStack;
+      Vertices<float> vertices( 3, numCCS, 0, 0 );
+
+      for ( int jj = 0; jj < numMCSimulations; ++jj )
+      {
+        vertices = hardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
+        vertexStack.insert( jj, vertices );
+        finalVertexStack.insert( i*numCCS+jj, vertices );
+        vertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
+        finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+      }
+
+      vertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
+      finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+
+    }
+
+}
+
 
 /*! Chooses case depending on the constraints
 ****************************************************************/
@@ -522,6 +683,16 @@ void generatePatterns(
       break;
     case 6:
       sizeConstrainedIntoTerritories(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 7:
+      sizeAndDistanceConstrainedIntoTerritories(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
+    case 8:
+      sizeConstrainedIntoVaryingTerritories(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
