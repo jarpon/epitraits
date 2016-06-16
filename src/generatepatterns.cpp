@@ -562,7 +562,7 @@ void divideIntoTerritories(
       const string& filename, const string& parentDir,
       const int& numMCSimulations, RandomGenerator& randomGenerator)
   {
-    PRINT("randomCompartmentsIntoTerritories");
+    PRINT("sizeConstrainedIntoVaryingTerritories");
 
     //open data info
     const string analysisDir = parentDir + "/analysis/";
@@ -640,8 +640,96 @@ void divideIntoTerritories(
 
     }
 
-}
+  }
 
+
+  void sizeAndDistanceConstrainedIntoVaryingTerritories(
+      const string& filename, const string& parentDir,
+      const int& numMCSimulations, RandomGenerator& randomGenerator)
+  {
+    PRINT("randomCompartmentsIntoTerritories");
+
+    //open data info
+    const string analysisDir = parentDir + "/analysis/";
+    const DataSet ccsInfo( analysisDir + "ccs.data" );
+
+    Vector<string> tempFileNames;
+    tempFileNames = ccsInfo.getValues<string>( ccsInfo.variableNames()[0] );
+
+    int lastPos, numCCS = 0;
+
+    for ( int j = 0; j < tempFileNames.getSize(); ++j )
+      if ( tempFileNames[j] == filename )
+      {
+        lastPos = j;
+        ++ numCCS;
+      }
+
+    if ( numCCS == 0 )
+    {
+      EVAL("Nucleus not found");
+      return;
+    }
+
+    Vector<float> eqRadiiTemp( numCCS );
+    Vector<float> distancesToBorder( numCCS );
+    int k = 0;
+
+
+    for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+    {
+      eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
+      distancesToBorder[k] = ccsInfo.getValue<float>( "distanceToTheBorder", j );
+    }
+
+    for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
+      if ( eqRadiiTemp[i] > distancesToBorder[i] )
+        eqRadiiTemp[i] = distancesToBorder[i];
+
+    Vector<float> eqRadii = eqRadiiTemp;
+    EVAL(eqRadii);
+
+    VertexStack<float> finalVertexStack;
+
+    for ( int i = 0; i < numMCSimulations; ++i )
+    {
+      vector< TriMesh<float>*> allTerritoriesTrimeshes;
+      EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm");
+      const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm" );
+
+      for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+      {
+        EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm");
+        const string tempName = parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm";
+        allTerritoriesTrimeshes.push_back( new TriMesh<float>(tempName) );
+      }
+
+      OrbitalHardcoreTerritorialSpatialModel<float> orbitalHardcoreTerritorialSpatialModel;
+      orbitalHardcoreTerritorialSpatialModel.setRandomGenerator( randomGenerator );
+      orbitalHardcoreTerritorialSpatialModel.setHardcoreDistances( eqRadii );
+      orbitalHardcoreTerritorialSpatialModel.setDistancesToBorder( distancesToBorder );
+      orbitalHardcoreTerritorialSpatialModel.setTerritories( allTerritoriesTrimeshes );
+      orbitalHardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
+      orbitalHardcoreTerritorialSpatialModel.initialize();
+
+      VertexStack<float> vertexStack;
+      Vertices<float> vertices( 3, numCCS, 0, 0 );
+
+      for ( int jj = 0; jj < numMCSimulations; ++jj )
+      {
+        vertices = orbitalHardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
+        vertexStack.insert( jj, vertices );
+        finalVertexStack.insert( i*numCCS+jj, vertices );
+        vertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
+        finalVertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+      }
+
+      vertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
+      finalVertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+
+    }
+
+  }
 
 /*! Chooses case depending on the constraints
 ****************************************************************/
@@ -696,5 +784,11 @@ void generatePatterns(
         filename, parentDir,
         monteCarloSimulations, randomGenerator );
       break;
+    case 9:
+      sizeAndDistanceConstrainedIntoVaryingTerritories(
+        filename, parentDir,
+        monteCarloSimulations, randomGenerator );
+      break;
   }
+
 }
