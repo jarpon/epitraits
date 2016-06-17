@@ -51,7 +51,8 @@ void chromocentersInterdistances(const string& filename,
   }
 
 
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/territories/" + filename + "-01.tm" );
   float distanceToBorder;
   Vector<float> vertexTriMesh(3);
 

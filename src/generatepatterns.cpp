@@ -586,33 +586,24 @@ void divideIntoTerritories(
       return;
     }
 
-    Vector<float> eqRadiiTemp( numCCS );
-    Vector<float> distancesToBorder( numCCS );
+    Vector<float> eqRadii( numCCS );
     int k = 0;
 
-
     for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-      eqRadiiTemp[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
-
-    for ( int i = 0; i < eqRadiiTemp.getSize(); ++i )
-      if ( eqRadiiTemp[i] > distancesToBorder[i] )
-        eqRadiiTemp[i] = distancesToBorder[i];
-
-    Vector<float> eqRadii = eqRadiiTemp;
-    EVAL(eqRadii);
+      eqRadii[k] = ccsInfo.getValue<float>( "equivalentRadius_ZprojCorrection", j );
 
     VertexStack<float> finalVertexStack;
 
     for ( int i = 0; i < numMCSimulations; ++i )
     {
       vector< TriMesh<float>*> allTerritoriesTrimeshes;
-      EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm");
       const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm" );
 
-      for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+      //VertexStack<float> vertexStack;
+
+      for ( int jj = 0; jj < numMCSimulations; ++jj )
       {
-        EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm");
-        const string tempName = parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm";
+        const string tempName = parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( jj+1 ,2,'0') + ".tm";
         allTerritoriesTrimeshes.push_back( new TriMesh<float>(tempName) );
       }
 
@@ -623,22 +614,21 @@ void divideIntoTerritories(
       hardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
       hardcoreTerritorialSpatialModel.initialize();
 
-      VertexStack<float> vertexStack;
       Vertices<float> vertices( 3, numCCS, 0, 0 );
 
-      for ( int jj = 0; jj < numMCSimulations; ++jj )
-      {
-        vertices = hardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
-        vertexStack.insert( jj, vertices );
-        finalVertexStack.insert( i*numCCS+jj, vertices );
-        vertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
-        finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
-      }
+      EVAL(numCCS);
+      EVAL(allTerritoriesTrimeshes.size());
 
-      vertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
-      finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+      vertices = hardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
+      vertices.save( parentDir + "/patterns/SpatialModelOrbital3DIntoVaryingTerritories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vx", true );
+//      vertexStack.insert( 0, vertices );
+      finalVertexStack.insert( i, vertices );
+//      vertexStack.save( parentDir + "/patterns/SpatialModelOrbital3DIntoVaryingTerritories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+//      finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
 
     }
+
+      finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-all.vs", true);
 
   }
 
@@ -647,7 +637,7 @@ void divideIntoTerritories(
       const string& filename, const string& parentDir,
       const int& numMCSimulations, RandomGenerator& randomGenerator)
   {
-    PRINT("randomCompartmentsIntoTerritories");
+    PRINT("Orbital3DIntoVaryingTerritories");
 
     //open data info
     const string analysisDir = parentDir + "/analysis/";
@@ -673,8 +663,8 @@ void divideIntoTerritories(
 
     Vector<float> eqRadiiTemp( numCCS );
     Vector<float> distancesToBorder( numCCS );
-    int k = 0;
 
+    int k = 0;
 
     for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
     {
@@ -694,13 +684,13 @@ void divideIntoTerritories(
     for ( int i = 0; i < numMCSimulations; ++i )
     {
       vector< TriMesh<float>*> allTerritoriesTrimeshes;
-      EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm");
       const TriMesh<float> territoriesTriMesh ( parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".tm" );
 
-      for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+      //VertexStack<float> vertexStack;
+
+      for ( int jj = 0; jj < numMCSimulations; ++jj )
       {
-        EVAL(parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm");
-        const string tempName = parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".tm";
+        const string tempName = parentDir + "/shapes/territories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( jj+1 ,2,'0') + ".tm";
         allTerritoriesTrimeshes.push_back( new TriMesh<float>(tempName) );
       }
 
@@ -712,22 +702,21 @@ void divideIntoTerritories(
       orbitalHardcoreTerritorialSpatialModel.setTriMesh( territoriesTriMesh );
       orbitalHardcoreTerritorialSpatialModel.initialize();
 
-      VertexStack<float> vertexStack;
       Vertices<float> vertices( 3, numCCS, 0, 0 );
 
-      for ( int jj = 0; jj < numMCSimulations; ++jj )
-      {
-        vertices = orbitalHardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
-        vertexStack.insert( jj, vertices );
-        finalVertexStack.insert( i*numCCS+jj, vertices );
-        vertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
-        finalVertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
-      }
+      EVAL(numCCS);
+      EVAL(allTerritoriesTrimeshes.size());
 
-      vertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + "-" + StringTools::toString( k+1 ,2,'0') + ".vs", true );
-      finalVertexStack.save( parentDir + "/patterns/SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+      vertices = orbitalHardcoreTerritorialSpatialModel.drawSample( allTerritoriesTrimeshes.size() );
+      vertices.save( parentDir + "/patterns/SpatialModelOrbital3DIntoVaryingTerritories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vx", true );
+//      vertexStack.insert( 0, vertices );
+      finalVertexStack.insert( i, vertices );
+//      vertexStack.save( parentDir + "/patterns/SpatialModelOrbital3DIntoVaryingTerritories/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
+//      finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-" + StringTools::toString( i+1 ,2,'0') + ".vs", true );
 
     }
+
+      finalVertexStack.save( parentDir + "/patterns/SpatialModelHardcoreDistanceIntoVaryingTerritories3D/" + filename + "-all.vs", true);
 
   }
 

@@ -15,37 +15,37 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   //const string analysisDir = parentDir + "/analysis/";
   const string shapesDir = parentDir + "/shapes/nuclei/";
 
-  PixelMatrix<float> zProj( nucleusMask.getSize1(), nucleusMask.getSize2() );
-  zProj.setZeros();
+//  PixelMatrix<float> zProj( nucleusMask.getSize1(), nucleusMask.getSize2() );
+//  zProj.setZeros();
 
-  int i, j, k;
+//  int i, j, k;
 
-  for (i = 0; i < nucleusMask.getSize1(); ++i)
-    for (j = 0; j < nucleusMask.getSize2(); ++j)
-      for (k = 0; k < nucleusMask.getSize3(); ++k)
-        if ( nucleusMask[k][i][j] > zProj(i,j) )
-          zProj(i,j) = nucleusMask[k][i][j];
+//  for (i = 0; i < nucleusMask.getSize1(); ++i)
+//    for (j = 0; j < nucleusMask.getSize2(); ++j)
+//      for (k = 0; k < nucleusMask.getSize3(); ++k)
+//        if ( nucleusMask[k][i][j] > zProj(i,j) )
+//          zProj(i,j) = nucleusMask[k][i][j];
 
-  PixelCalibration pixelCalibration;
-  pixelCalibration.setPixelHeight(originalVoxelMatrix.getVoxelCalibration().getVoxelHeight() );
-  pixelCalibration.setPixelWidth( originalVoxelMatrix.getVoxelCalibration().getVoxelWidth() );
-  pixelCalibration.setLengthUnit( originalVoxelMatrix.getVoxelCalibration().getLengthUnit() );
-  zProj.setPixelCalibration( pixelCalibration );
+//  PixelCalibration pixelCalibration;
+//  pixelCalibration.setPixelHeight(originalVoxelMatrix.getVoxelCalibration().getVoxelHeight() );
+//  pixelCalibration.setPixelWidth( originalVoxelMatrix.getVoxelCalibration().getVoxelWidth() );
+//  pixelCalibration.setLengthUnit( originalVoxelMatrix.getVoxelCalibration().getLengthUnit() );
+//  zProj.setPixelCalibration( pixelCalibration );
 
-  PixelMatrix<float> originalZProj( originalVoxelMatrix.getSize1(), originalVoxelMatrix.getSize2() );
-  originalZProj.setZeros();
-  for (i = 0; i < originalVoxelMatrix.getSize1(); ++i)
-    for (j = 0; j < originalVoxelMatrix.getSize2(); ++j)
-      for (k = 0; k < originalVoxelMatrix.getSize3(); ++k)
-        if ( originalVoxelMatrix[k][i][j] > originalZProj(i,j) )
-          originalZProj(i,j) = originalVoxelMatrix[k][i][j];
+//  PixelMatrix<float> originalZProj( originalVoxelMatrix.getSize1(), originalVoxelMatrix.getSize2() );
+//  originalZProj.setZeros();
+//  for (i = 0; i < originalVoxelMatrix.getSize1(); ++i)
+//    for (j = 0; j < originalVoxelMatrix.getSize2(); ++j)
+//      for (k = 0; k < originalVoxelMatrix.getSize3(); ++k)
+//        if ( originalVoxelMatrix[k][i][j] > originalZProj(i,j) )
+//          originalZProj(i,j) = originalVoxelMatrix[k][i][j];
 
-  originalZProj.setPixelCalibration( pixelCalibration );
+//  originalZProj.setPixelCalibration( pixelCalibration );
 
-  RegionAnalysis2D<float> regionAnalysis2D;
-  regionAnalysis2D.setLabelMatrix( zProj );
-  regionAnalysis2D.setValueMatrix( originalZProj );
-  regionAnalysis2D.run();
+//  RegionAnalysis2D<float> regionAnalysis2D;
+//  regionAnalysis2D.setLabelMatrix( zProj );
+//  regionAnalysis2D.setValueMatrix( originalZProj );
+//  regionAnalysis2D.run();
 
   Thresholding<float> thresholding;
   thresholding.setForeground( 1.0 );
@@ -86,11 +86,13 @@ void nucleusAnalysis(const VoxelMatrix<float>& originalVoxelMatrix, VoxelMatrix<
   nucleiDataset.setValue ( "sphericity_tm", numNucleus, ( 36 * M_PI * pow(abs(triMesh.volume()) , 2) ) / pow( abs(triMesh.area() ) , 3) );
   nucleiDataset.setValue ( "surfaceArea_vm", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SURFACE_AREA)[0] );//surface area of the nucleus
   nucleiDataset.setValue ( "surfaceArea_tm", numNucleus, abs(triMesh.area() ) );//nucleus volume got from the trimesh
-  nucleiDataset.setValue ( "areaZprojection", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_AREA)[0] );
-  nucleiDataset.setValue ( "circularity", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );
+  //nucleiDataset.setValue ( "areaZprojection", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_AREA)[0] );
+  //nucleiDataset.setValue ( "circularity", numNucleus, regionAnalysis2D.computeRegionFeature(REGION_FEATURE_COMPACTNESS)[0] );
   //old:nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] * regionAnalysis.computeRegionFeature(REGION_FEATURE_VOLUME)[0]  );//sum of intensities of the nucleus volume
-  nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SUM_VALUE)[0] );//sum of intensities of the nucleus volume
-  nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] );//compute the integrated density taking into account the real size of the nucleus
+
+  //uncomment
+  //  nucleiDataset.setValue ( "intensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_SUM_VALUE)[0] );//sum of intensities of the nucleus volume
+//  nucleiDataset.setValue ( "integratedDensity", numNucleus, regionAnalysis.computeRegionFeature(REGION_FEATURE_INTEGRATED_INTENSITY)[0] );//compute the integrated density taking into account the real size of the nucleus
 
   //return nucleiDataset;
 }
