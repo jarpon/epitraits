@@ -97,23 +97,23 @@ void evaluator(
   EVAL(comparisonPatterns.getSize());
 
 //  %% normal use %%
-  Vertices<float> vertices( 3, numCCS, 0, 0 );
-  int k = 0;
-  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
-  {
-    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
-    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
-    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
-    EVAL(vertices[k]);
-  }
+//  Vertices<float> vertices( 3, numCCS, 0, 0 );
+//  int k = 0;
+//  for ( int j = lastPos - numCCS + 1 ; j < lastPos + 1; ++j, ++k )
+//  {
+//    vertices[k][0] = ccsInfo.getValue<float>( "centroidCoordX", j );
+//    vertices[k][1] = ccsInfo.getValue<float>( "centroidCoordY", j );
+//    vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
+//    EVAL(vertices[k]);
+//  }
 
   //  %% opening vertices %%
-//  Vertices<float> vertices;
-//  vertices.load( analysisDir + filename + ".vx" );
-//  EVAL("done4");
+  Vertices<float> vertices;
+  vertices.load( analysisDir + filename + ".vx" );
+  EVAL("done4");
 //  %% normal use %%
-  Vector<string> nucleiNames ;
-//  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
+//  Vector<string> nucleiNames ;
+////  nucleiNames = globalAnalysis.getValues<string>( globalAnalysis.variableNames()[0] );
 
 //  //unifying datasets
 //  int numCurrentNucleus;
@@ -523,10 +523,45 @@ void realDataEvaluatorExternalPatterns(
             filename, parentDir, patternsDir, spatialModel,
             function, constraints, dataSet, randomGenerator );
       break;
-//    case 5:
-//    evaluator(
-//      filename, parentDir, patternsDir,
-//      function, dataSet );
-//    break;
+    case 5:
+      EVAL("SpatialModelTerritorial3D");
+      patternsDir = parentDir + "/patterns/SpatialModelTerritorial3D/";
+      spatialModel = "SpatialModelTerritorial3D";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
+      break;
+    case 6:
+      EVAL("SpatialModelHardcoreDistance3DIntoVaryingTerritories");
+      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DIntoTerritories/";
+      spatialModel = "SpatialModelHardcoreDistance3DIntoTerritories";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
+      break;
+    case 7:
+      EVAL("SpatialModelOrbital3DIntoTerritories");
+      patternsDir = parentDir + "/patterns/SpatialModelOrbital3DIntoTerritories/";
+      spatialModel = "SpatialModelOrbital3DIntoTerritories";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
+      break;
+    case 8:
+      EVAL("SpatialModelHardcoreDistance3DIntoVaryingTerritories");
+      patternsDir = parentDir + "/patterns/SpatialModelHardcoreDistance3DIntoVaryingTerritories/";
+      spatialModel = "SpatialModelHardcoreDistance3DIntoVaryingTerritories";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
+      break;
+    case 9:
+      EVAL("SpatialModelOrbital3DIntoVaryingTerritories");
+      patternsDir = parentDir + "/patterns/SpatialModelOrbital3DIntoVaryingTerritories/";
+      spatialModel = "SpatialModelOrbital3DIntoVaryingTerritories";
+      evaluator(
+            filename, parentDir, patternsDir, spatialModel,
+            function, constraints, dataSet, randomGenerator );
+      break;
   }
 }

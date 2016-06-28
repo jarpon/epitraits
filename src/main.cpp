@@ -732,22 +732,22 @@ int main(int argc, char* argv[])
     else if ( argv[4] == std::string("6") )
     {
       constraints = 6;
-      spatialModel = "SpatialModelHardcoreDistanceIntoTerritories3D";
+      spatialModel = "SpatialModelHardcoreDistance3DIntoTerritories";
     }
     else if ( argv[4] == std::string("7") )
     {
       constraints = 7;
-      spatialModel = "SpatialModelBorderHardcoreDistanceIntoTerritories3D";
+      spatialModel = "SpatialModelOrbital3DIntoTerritories";
     }
     else if ( argv[4] == std::string("8") )
     {
       constraints = 8;
-      spatialModel = "SpatialModelHardcoreDistanceIntoVaryingTerritories3D";
+      spatialModel = "SpatialModelHardcoreDistance3DIntoVaryingTerritories";
     }
     else if ( argv[4] == std::string("9") )
     {
       constraints = 9;
-      spatialModel = "SpatialModelBorderHardcoreDistanceIntoVaryingTerritories3D";
+      spatialModel = "SpatialModelOrbital3DIntoVaryingTerritories";
     }
 
     EVAL(test);

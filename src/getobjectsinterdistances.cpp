@@ -17,7 +17,6 @@ void chromocentersInterdistances(const string& filename,
                                  DataSet& completeDataset,
                                  DataSet& individualChromocentersDataset)
 {
-  //const DataSet datasetNucleus( analysisDir + filename + "_chromocenters.csv" );
 
   const DataSet ccsInfo( parentDir + "/analysis/ccs.data" );
 
@@ -49,10 +48,13 @@ void chromocentersInterdistances(const string& filename,
     vertices[k][2] = ccsInfo.getValue<float>( "centroidCoordZ", j );
     EVAL(vertices[k]);
   }
+//  Vertices<float> vertices;
+//  vertices.load( parentDir + "/patterns/SpatialModelMaximalRepulsion3D/" + filename + ".vs" );
+//  int numCCS = vertices.getNumVertices();
 
-
-  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
-  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/territories/" + filename + "-01.tm" );
+//  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/nuclei/" + filename + ".tm" );
+  //const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/territories/" + filename + "-01.tm" );
+  const TriMesh<float> nucleusTriMesh ( parentDir + "/shapes/territories/" + filename + ".tm" );
   float distanceToBorder;
   Vector<float> vertexTriMesh(3);
 
